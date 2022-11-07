@@ -1,2 +1,0 @@
-cl /EHsc /I include /Fo"output/" /Fe"output/main.exe" src/main.cpp src/global.cpp src/colorshader.cpp src/triangle.cpp src/libraries/windowing.cpp user32.lib gdi32.lib opengl32.lib glew32.lib FreeImage.lib
-output\main.exe
