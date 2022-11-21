@@ -91,7 +91,7 @@ function render() {
 	var newfront = vec3.create()
 	vec3.add(newfront, cameraFront, cameraPosition)
 	mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp)
-	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0]);
+	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.5, 0.5, 1.0]);
     gl.viewport(0, 0, canvas.width, canvas.height);
     renderForDeepCube(perspectiveMatrix, cameraMatrix);
     window.requestAnimationFrame(render);
