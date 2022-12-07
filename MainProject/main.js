@@ -103,8 +103,6 @@ function main() {
 			vec3.normalize(dir, dir)
 			vec3.multiply(dir, dir, [speed, speed, speed])
 			vec3.subtract(cameraPosition, cameraPosition, dir)
-		} else if(event.code == 'KeyT') {
-			isStatic = !isStatic
 		}
 	})
 	
@@ -117,14 +115,16 @@ function main() {
 function setupProgram() {
 	setupProgramForDeepCube()
 	// setupProgramForTestModelLoadByDeep()
+	// setupProgramForDeepEarth()
 }
 
 function init() {
 	initForDeepCube()
 	// initForTestModelLoadByDeep()
+	// initForDeepEarth()
+
 	gl.enable(gl.DEPTH_TEST)
 }
-
 function printMatrix(m) {
 	for(var i = 0; i < 4; i++) {
 		console.log(m[i * 4 + 0] + "   " + m[i * 4 + 1] + "   " + m[i * 4 + 2] + "   " + m[i * 4 + 3])
@@ -145,6 +145,7 @@ function render() {
 
 	renderForDeepCube(perspectiveMatrix, cameraMatrix)
 	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
+	// renderForDeepEarth(perspectiveMatrix, cameraMatrix)
 
 	window.requestAnimationFrame(render)
 }
@@ -170,10 +171,13 @@ function deleteShader(shader) {
 	gl.deleteShader(shader)
 }
 
-function createProgram(shaders) {
+function createProgram(shaders, attribBindFunction) {
 	var program = gl.createProgram()
 	for (var i = 0; i < shaders.length; i++) {
 		gl.attachShader(program, shaders[i])
+	}
+	if(attribBindFunction != undefined) {
+		attribBindFunction(program)
 	}
 	gl.linkProgram(program)
 	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
@@ -201,6 +205,7 @@ function loadTexture(path, isTexFlipped) {
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tbo.image)
 		gl.generateMipmap(gl.TEXTURE_2D)
 		console.log("Successfully Loaded: " + path)
+		gl.bindTexture(gl.TEXTURE_2D, null)
 	}
 	return tbo
 }
