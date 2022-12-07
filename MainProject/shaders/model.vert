@@ -18,7 +18,7 @@ out vec3 P;
 out vec3 viewPos;
 
 void main(void) {
-	if(isStatic) {
+	if(!isStatic) {
 		vec4 totalPosition = vec4(0.0);
 		vec3 totalNormal = vec3(0.0);
 		for(int i = 0 ; i < 4; i++) {

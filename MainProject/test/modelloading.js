@@ -56,10 +56,10 @@ function renderForTestModelLoadByDeep(perspectiveMatrix, viewMatrix) {
 		for(var i = 0; i < boneMat.length; i++) {
 			gl.uniformMatrix4fv(uniformsForTestModelLoadByDeep.bMat[i], false, boneMat[i])
 		}
-		gl.uniform1i(uniformsForTestModelLoadByDeep.isStatic, 1)
+		gl.uniform1i(uniformsForTestModelLoadByDeep.isStatic, 0)
 		renderModel(vampireModelForTestModelLoadByDeep)
 	} else {
-		gl.uniform1i(uniformsForTestModelLoadByDeep.isStatic, 0)
+		gl.uniform1i(uniformsForTestModelLoadByDeep.isStatic, 1)
 		renderModel(backpackModelForTestModelLoadByDeep)
 	}
 	angle += 0.01
