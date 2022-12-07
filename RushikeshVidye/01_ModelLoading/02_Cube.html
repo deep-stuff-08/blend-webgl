@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cube Model</title>
+  <script src ="../include/gl-matrix-min.js"></script>
+  <script src = "../include/lib/require.js"></script>
+  <script src = "../include/util.js"></script>
+</head>
+<body style="margin: 0;">
+    <canvas id = "glCanvas" style="margin: 0; display: block;">   
+</body>
+<script>
+
+  //import myJSON from './cube.obj.jason' assert{type:'json'};
+
+  require.config(
+    {
+      waitSeconds : 0,
+      paths : {
+        text : '../include/lib/text',
+        json : '../include/src/json'
+      }
+    });
+
+  const Attribute = {
+    POSITION : 0,
+    COLOR : 1,
+    NORMAL : 2,
+    TEXTURE0 : 3
+  };
+  Object.freeze(Attribute);
+
+    // load jason for model
+    let modelVao =
+  {
+    vao: null,
+    ibo: null
+  }
+
+  var gl;
+  var canvas;
+  var canvasele;
+  var winWidth;
+  var winHeight;
+  var shader_program_object;
+
+  var vao_m, ibo;
+
+  let values;
+
+  var vao;
+  var vbo_position,vbo_normal,vbo_elements;
+  var modelMatrixUniform,viewMatrixUniform,projectionMatrixUniform;
+
+  var la,ls,ld,ka,kd,ks,mshininess;
+
+  var lightEnabledUniform,lightPosition;
+
+  var bLight = false;
+
+  const light_ambient = [0.1,0.1,0.1];
+  const light_diffuse = [1.0,1.0,1.0];
+  const light_specular = [1.0,1.0,1.0];
+  const light_position = [100.0,100.0,100.0,1.0];
+
+  const material_ambient = [0.0,0.0,0.0];
+  const material_diffuse = [1.0,1.0,1.0];
+  const material_specular = [1.0,1.0,1.0];
+  const material_shininess = 128.0;
+  
+  var u_sampler;
+  var texture;
+
+  const projectionMatrix = glMatrix.mat4.create();
+  const viewMatrix = glMatrix.mat4.create();
+  const translationMatrix = glMatrix.mat4.create();
+  const modelMatrix = glMatrix.mat4.create();
+  const rotationMatrix = glMatrix.mat4.create();
+  const rotationMatrix_x = glMatrix.mat4.create();
+  const rotationMatrix_y = glMatrix.mat4.create();
+  const rotationMatrix_z = glMatrix.mat4.create();
+
+  var angle = 0.0;
+
+  const vertices = 
+  [
+     //vertices           // normals         //uvs           // color
+    -0.5, -0.5, -0.5, 0.0, 0.0, -1.0, 0.0, 0.0,    0.0, 1.0, 0.0,
+     0.5, -0.5, -0.5, 0.0, 0.0, -1.0, 1.0, 0.0,    0.0, 1.0, 0.0,
+     0.5,  0.5, -0.5, 0.0, 0.0, -1.0, 1.0, 1.0,    0.0, 1.0, 0.0,
+     0.5,  0.5, -0.5, 0.0, 0.0, -1.0, 1.0, 1.0,    0.0, 1.0, 0.0,
+    -0.5,  0.5, -0.5, 0.0, 0.0, -1.0, 0.0, 1.0,    0.0, 1.0, 0.0,
+    -0.5, -0.5, -0.5, 0.0, 0.0, -1.0, 0.0, 0.0,    0.0, 1.0, 0.0,
+
+    -0.5, -0.5, 0.5,  0.0, 0.0, 1.0,  0.0, 0.0,    1.0, 0.5, 0.0,
+     0.5, -0.5, 0.5,  0.0, 0.0, 1.0,  1.0, 0.0,    1.0, 0.5, 0.0,
+     0.5,  0.5, 0.5,  0.0, 0.0, 1.0,  1.0, 1.0,    1.0, 0.5, 0.0,
+     0.5,  0.5, 0.5,  0.0, 0.0, 1.0,  1.0, 1.0,    1.0, 0.5, 0.0,
+    -0.5,  0.5, 0.5,  0.0, 0.0, 1.0,  0.0, 1.0,    1.0, 0.5, 0.0,
+    -0.5, -0.5, 0.5,  0.0, 0.0, 1.0,  0.0, 0.0,    1.0, 0.5, 0.0,
+
+    -0.5,  0.5,  0.5, -1.0, 0.0, 0.0, 1.0, 0.0,    1.0, 0.0, 0.0,
+    -0.5,  0.5, -0.5, -1.0, 0.0, 0.0, 1.0, 1.0,    1.0, 0.0, 0.0,
+    -0.5, -0.5, -0.5, -1.0, 0.0, 0.0, 0.0, 1.0,    1.0, 0.0, 0.0,
+    -0.5, -0.5, -0.5, -1.0, 0.0, 0.0, 0.0, 1.0,    1.0, 0.0, 0.0,
+    -0.5, -0.5,  0.5, -1.0, 0.0, 0.0, 0.0, 0.0,    1.0, 0.0, 0.0,
+    -0.5,  0.5,  0.5, -1.0, 0.0, 0.0, 1.0, 0.0,    1.0, 0.0, 0.0,
+
+    0.5,  0.5,  0.5,  1.0, 0.0, 0.0, 1.0, 0.0,    1.0, 1.0, 0.0,
+    0.5,  0.5, -0.5,  1.0, 0.0, 0.0, 1.0, 1.0,    1.0, 1.0, 0.0,
+    0.5, -0.5, -0.5,  1.0, 0.0, 0.0, 0.0, 1.0,    1.0, 1.0, 0.0,
+    0.5, -0.5, -0.5,  1.0, 0.0, 0.0, 0.0, 1.0,    1.0, 1.0, 0.0,
+    0.5, -0.5,  0.5,  1.0, 0.0, 0.0, 0.0, 0.0,    1.0, 1.0, 0.0,
+    0.5,  0.5,  0.5,  1.0, 0.0, 0.0, 1.0, 0.0,    1.0, 1.0, 0.0,
+
+    -0.5,-0.5, -0.5, 0.0, -1.0, 0.0, 0.0, 1.0,    0.0, 0.0, 1.0,
+    0.5, -0.5, -0.5, 0.0, -1.0, 0.0, 1.0, 1.0,    0.0, 0.0, 1.0,
+    0.5, -0.5,  0.5, 0.0, -1.0, 0.0, 1.0, 0.0,    0.0, 0.0, 1.0,
+    0.5, -0.5,  0.5, 0.0, -1.0, 0.0, 1.0, 0.0,    0.0, 0.0, 1.0,
+   -0.5, -0.5,  0.5, 0.0, -1.0, 0.0, 0.0, 0.0,    0.0, 0.0, 1.0,
+   -0.5, -0.5, -0.5, 0.0, -1.0, 0.0, 0.0, 1.0,    0.0, 0.0, 1.0,
+
+    -0.5, 0.5, -0.5,  0.0, 1.0, 0.0,  0.0, 1.0,    1.0, 0.0, 1.0,
+     0.5, 0.5, -0.5,  0.0, 1.0, 0.0,  1.0, 1.0,    1.0, 0.0, 1.0,
+     0.5, 0.5,  0.5,  0.0, 1.0, 0.0,  1.0, 0.0,    1.0, 0.0, 1.0,
+     0.5, 0.5,  0.5,  0.0, 1.0, 0.0,  1.0, 0.0,    1.0, 0.0, 1.0,
+    -0.5, 0.5,  0.5,  0.0, 1.0, 0.0,  0.0, 0.0,    1.0, 0.0, 1.0,
+    -0.5, 0.5, -0.5,  0.0, 1.0, 0.0,  0.0, 1.0,    1.0, 0.0, 1.0
+  ];
+  const drawOrder = [0,1,2,0,2,3];
+  var vertexCount;
+
+function createSphere(radius,lats,longs)
+  {
+    var triIndex = 0;
+    for(var i = 0; i < lats; i++)
+    {
+      var lat0 = Math.PI * (-0.5 + i / lats);
+      var z0 = Math.sin(lat0);
+      var zr0 = Math.cos(lat0);
+
+      var lat1 = Math.PI * (-0.5 + i+1/lats);
+      var z1 = Math.sin(lat1);
+      var zr1 = Math.cos(lat1);
+
+      for(var j = 0; j < longs; j++)
+      {
+        var lng = 2 * Math.PI * (j - 1) / longs;
+        var x = Math.cos(lng);
+        var y = Math.sin(lng);
+
+        lng = 2 * Math.PI * j / longs;
+        var x1 = Math.cos(lng);
+        var y1 = Math.sin(lng);
+
+        // First Triangle
+        vertices[triIndex * 9 + 0] = (x*zr0);
+        vertices[triIndex * 9 + 1] = (y*zr0);
+        vertices[triIndex * 9 + 2] = z0;
+
+        vertices[triIndex * 9 + 3] = (x*zr1);
+        vertices[triIndex * 9 + 4] = (y*zr1);
+        vertices[triIndex * 9 + 5] = z1;
+
+        vertices[triIndex * 9 + 6] = (x1*zr0);
+        vertices[triIndex * 9 + 7] = (y1*zr0);
+        vertices[triIndex * 9 + 8] = z0;
+
+        triIndex++;
+
+        // Second Triangle
+        vertices[triIndex * 9 + 0] = x1 * zr0;
+        vertices[triIndex * 9 + 1] = y1 * zr0;
+        vertices[triIndex * 9 + 2] = z0;
+
+        vertices[triIndex * 9 + 3] = x * zr1;
+        vertices[triIndex * 9 + 4] = y * zr1;
+        vertices[triIndex * 9 + 5] = z1;
+
+        vertices[triIndex * 9 + 6] = x1 * zr1;
+        vertices[triIndex * 9 + 7] = y1 * zr1;
+        vertices[triIndex * 9 + 8] = z1;
+
+        for(var k = -9; k < 9; k++)
+        {
+          normals[triIndex * 9 + k] = vertices[triIndex * 9 + k];
+        }
+        triIndex++;
+      }
+    }
+    vertexCount = vertices.length / 3;
+  }
+
+function initialize(canvas,img,modelObj)
+  {
+    //createSphere(1.0,1000,1000);
+    console.log("in  initilalize");
+    gl = canvas.getContext('webgl2');
+
+    if(!gl)
+    {
+        alert("Unable To initialize WebGL. Your Browser Or Machine May Not Support it.");
+        return;
+    }
+
+    loadJSONResource('./bed.json', function(modelErr, modelObj){
+    if(modelErr)
+    {
+      alert("Error Getting Model");
+      console.error(modelErr);
+    }
+    else
+    {
+      loadImage('./marble.png', function(imgerr, img){
+        
+        if(imgerr)
+        {
+          console.error(imgerr);
+        }
+        else
+        {
+          setupMesh(gl,modelObj,modelVao);
+        }
+      });
+    }
+  });
+
+    // Vertex shader program
+    const vsSource = 
+    `#version 300 es
+    in vec4 a_position;
+    in vec3 a_normal;
+    in vec2 a_texcoord;
+
+    uniform mat4 u_modelMatrix;
+    uniform mat4 u_viewMatrix;
+    uniform mat4 u_projectionMatrix;
+    uniform vec4 u_lightPosition;
+    uniform mediump int u_lightEnabled;
+    
+    out vec4 out_color;
+    out vec2 out_texcoord;
+    out vec3 transformedNormals;
+    out vec3 lightDirection;
+    out vec3 viewVector;
+    
+    void main()
+    {
+      if(u_lightEnabled == 1)
+      {
+        vec4 eyecordinates = u_viewMatrix * u_modelMatrix * a_position;
+        mat3 normalMatrix = mat3(u_viewMatrix * u_modelMatrix);
+        transformedNormals = normalMatrix * a_normal;
+        lightDirection = vec3(u_lightPosition) - eyecordinates.xyz;
+        viewVector = -eyecordinates.xyz;
+      }
+        gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * a_position;
+        out_texcoord = a_texcoord;
+    }`;
+
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader,vsSource);
+    gl.compileShader(vertexShader);
+    
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+      alert('Vertex Shader : ' + gl.getShaderInfoLog(vertexShader));
+      gl.deleteShader(vertexShader);
+      return null;
+    }
+    // Fragment shader program
+    const fsSource = 
+    `#version 300 es
+    precision mediump float;
+    in vec2 out_texcoord;
+    in vec3 transformedNormals;
+    in vec3 lightDirection;
+    in vec3 viewVector;
+
+    uniform vec3 u_la;
+    uniform vec3 u_ld;
+    uniform vec3 u_ls;
+    uniform vec3 u_ka;
+    uniform vec3 u_kd;
+    uniform vec3 u_ks;
+    uniform float u_materialShininess;
+    uniform int u_lightEnabled;
+    uniform sampler2D u_textureSampler;
+
+    out vec4 FragColor;
+    
+    void main()
+    {
+      vec3 phong_color;
+      if(u_lightEnabled == 1)
+      {
+        vec3 ambient = u_la * u_ka;
+        vec3 diffuse = u_ld * u_kd * max(dot(normalize(lightDirection),normalize(transformedNormals)),0.0);
+        vec3 reflectionVector = reflect(-normalize(lightDirection),normalize(transformedNormals));
+        vec3 specular = u_ls * u_ks * pow(max(dot(reflectionVector,normalize(viewVector)),0.0),u_materialShininess);
+        phong_color = (ambient + diffuse) * texture(u_textureSampler,out_texcoord).rgb + specular;
+      }
+      else
+      {
+        phong_color = vec3(1.0f,1.0f,1.0f) * texture(u_textureSampler,out_texcoord).rgb;
+      }
+      FragColor = vec4(phong_color,1.0f);
+    }`;
+
+    const fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragShader,fsSource);
+    gl.compileShader(fragShader);
+    
+    if (!gl.getShaderParameter(fragShader, gl.COMPILE_STATUS)) {
+      alert('Fragment Shader: ' + gl.getShaderInfoLog(fragShader));
+      gl.deleteShader(fragShader);
+      return null;
+    }
+
+    shader_program_object = gl.createProgram();
+    gl.attachShader(shader_program_object,vertexShader);
+    gl.attachShader(shader_program_object,fragShader);
+    gl.bindAttribLocation(shader_program_object,Attribute.POSITION,"a_position");
+    gl.bindAttribLocation(shader_program_object,Attribute.COLOR,"a_color");
+    gl.bindAttribLocation(shader_program_object,Attribute.TEXTURE0,"a_texcoord");
+    gl.bindAttribLocation(shader_program_object,Attribute.NORMAL,"a_normal");
+    gl.linkProgram(shader_program_object);
+
+    
+    if (!gl.getProgramParameter(shader_program_object, gl.LINK_STATUS)) {
+      alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shader_program_object));
+      return null;
+    }
+
+    modelMatrixUniform = gl.getUniformLocation(shader_program_object,"u_modelMatrix");
+    viewMatrixUniform = gl.getUniformLocation(shader_program_object,"u_viewMatrix");
+    projectionMatrixUniform = gl.getUniformLocation(shader_program_object,"u_projectionMatrix");
+
+    la = gl.getUniformLocation(shader_program_object,"u_la");
+    ld = gl.getUniformLocation(shader_program_object,"u_ld");
+    ls = gl.getUniformLocation(shader_program_object,"u_ls");
+    
+    ka = gl.getUniformLocation(shader_program_object,"u_ka");
+    kd = gl.getUniformLocation(shader_program_object,"u_kd");
+    ks = gl.getUniformLocation(shader_program_object,"u_ks");
+
+    mshininess = gl.getUniformLocation(shader_program_object,"u_materialShininess");
+    u_sampler = gl.getUniformLocation(shader_program_object,"u_textureSampler");
+
+    lightPosition = gl.getUniformLocation(shader_program_object,"u_lightPosition");
+    lightEnabledUniform = gl.getUniformLocation(shader_program_object,"u_lightEnabled");
+
+    vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+
+    vbo_position = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,vbo_position);
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(vertices),gl.STATIC_DRAW);
+    gl.vertexAttribPointer(Attribute.POSITION,3,gl.FLOAT,gl.FALSE,44,0);
+    gl.enableVertexAttribArray(Attribute.POSITION);
+    gl.vertexAttribPointer(Attribute.NORMAL,3,gl.FLOAT,gl.FALSE,44,3*4);
+    gl.enableVertexAttribArray(Attribute.NORMAL);
+    gl.vertexAttribPointer(Attribute.TEXTURE0,2,gl.FLOAT,gl.FALSE,44,6*4);
+    gl.enableVertexAttribArray(Attribute.TEXTURE0);
+    gl.vertexAttribPointer(Attribute.COLOR,3,gl.FLOAT,gl.FALSE,44,8*4);
+    gl.enableVertexAttribArray(Attribute.COLOR);
+    gl.bindBuffer(gl.ARRAY_BUFFER,null);
+    gl.bindVertexArray(null);
+
+    texture = loadTexture(gl,"marble.png");
+
+    console.log("WebGL Setup Done");
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+    gl.clearDepth(1.0);                 // Clear everything
+    gl.enable(gl.DEPTH_TEST);           // Enable depth testing
+    gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
+
+    resize(winWidth,winHeight);
+  }
+
+  function setupMesh(gl,modelObj,modelVao)
+  {
+
+    console.log('Inside Setup Mesh');
+    var vertex = modelObj.meshes[0].vertices;
+    //v.push(vertex);
+    console.log("vertices "+vertex.length);
+    var indices = [].concat.apply([],modelObj.meshes[0].faces);
+    //i.push(indices);
+    console.log("indices count " + indices);
+    var normals = modelObj.meshes[0].normals;
+    //n.push(normals);
+    console.log("normal count "+normals.length);
+    var texcoords = modelObj.meshes[0].texturecoords[0];
+    //t.push(texcoords);
+    console.log("texcoord count"+texcoords.length);
+
+    var vao_model = gl.createVertexArray();
+    gl.bindVertexArray(vao_model);
+
+    var vbo_pos = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo_pos);
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(vertex),gl.STATIC_DRAW);
+
+    gl.vertexAttribPointer(Attribute.POSITION,3,gl.FLOAT,gl.FALSE,3 * Float32Array.BYTES_PER_ELEMENT,0);
+    gl.enableVertexAttribArray(Attribute.POSITION);
+
+    var vbo_normal = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo_normal);
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(normals),gl.STATIC_DRAW);
+    gl.vertexAttribPointer(Attribute.NORMAL,3,gl.FLOAT,gl.FALSE,3 * Float32Array.BYTES_PER_ELEMENT, 0);
+    gl.enableVertexAttribArray(Attribute.NORMAL);
+
+    var vbo_tex = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo_tex);
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(texcoords),gl.STATIC_DRAW);
+    gl.vertexAttribPointer(Attribute.TEXTURE0,2,gl.FLOAT,gl.FALSE,2 * Float32Array.BYTES_PER_ELEMENT,0);
+    gl.enableVertexAttribArray(Attribute.TEXTURE0);
+
+    var ibo = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(indices),gl.STATIC_DRAW);
+
+    gl.bindVertexArray(null);
+
+    modelVao.vao = vao_model;
+    modelVao.ibo = ibo;
+//    console.log(vao_model);
+//    console.log(ibo);
+  }
+
+  function loadTexture(gl, url) {
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    // Because images have to be download over the internet
+    // they might take a moment until they are ready.
+    // Until then put a single pixel in the texture so we can
+    // use it immediately. When the image has finished downloading
+    // we'll update the texture with the contents of the image.
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const width = 1;
+    const height = 1;
+    const border = 0;
+    const srcFormat = gl.RGBA;
+    const srcType = gl.UNSIGNED_BYTE;
+    const pixel = new Uint8Array([0, 0, 255, 255]); // opaque blue
+    gl.texImage2D(
+        gl.TEXTURE_2D,
+        level,
+        internalFormat,
+        width,
+        height,
+        border,
+        srcFormat,
+        srcType,
+        pixel
+    );
+
+    const image = new Image();
+    image.onload = function () {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(
+        gl.TEXTURE_2D,
+        level,
+        internalFormat,
+        srcFormat,
+        srcType,
+        image
+        );
+
+        // WebGL1 has different requirements for power of 2 images
+        // vs non power of 2 images so check if the image is a
+        // power of 2 in both dimensions.
+        if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+        // Yes, it's a power of 2. Generate mips.
+        gl.generateMipmap(gl.TEXTURE_2D);
+        } else {
+        // No, it's not a power of 2. Turn of mips and set
+        // wrapping to clamp to edge
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        }
+    };
+    image.src = url;
+
+    return texture;
+}
+
+function isPowerOf2(value) {
+    return (value & (value - 1)) == 0;
+}
+
+  function resize()
+  {
+      canvas.width = window.innerWidth;
+      canvas.height =  window.innerHeight;
+    
+      gl.viewport(0,0,canvas.width,canvas.height);
+
+      glMatrix.mat4.perspective(projectionMatrix,
+                                45.0,
+                                canvas.width/canvas.height,
+                                0.1,
+                                100);
+
+  }
+
+  function display()
+  {
+    glMatrix.mat4.identity(modelMatrix);
+    glMatrix.mat4.identity(viewMatrix);
+    glMatrix.mat4.identity(translationMatrix);
+    glMatrix.mat4.identity(rotationMatrix);
+    glMatrix.mat4.identity(rotationMatrix_x);
+    glMatrix.mat4.identity(rotationMatrix_y);
+    glMatrix.mat4.identity(rotationMatrix_z);    
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    glMatrix.mat4.translate(translationMatrix,translationMatrix,[0.0,0.0,-50.0]);
+    glMatrix.mat4.fromRotation(rotationMatrix_x,90.0,[1.0,0.0,0.0]);
+    //glMatrix.mat4.fromRotation(rotationMatrix_y,angle,[0.0,1.0,0.0]);
+    //glMatrix.mat4.fromRotation(rotationMatrix_z,angle,[0.0,0.0,1.0]);
+
+    glMatrix.mat4.multiply(rotationMatrix,rotationMatrix_x,rotationMatrix_y);
+    glMatrix.mat4.multiply(rotationMatrix,rotationMatrix,rotationMatrix_z);
+
+    glMatrix.mat4.multiply(modelMatrix,translationMatrix,rotationMatrix);
+
+    gl.useProgram(shader_program_object);
+
+    gl.uniformMatrix4fv(modelMatrixUniform,gl.FALSE,modelMatrix);
+    gl.uniformMatrix4fv(viewMatrixUniform,gl.FALSE,viewMatrix);
+    gl.uniformMatrix4fv(projectionMatrixUniform,gl.FALSE,projectionMatrix);
+    gl.uniform1i(u_sampler, 0);
+    
+    if(bLight)
+    {
+        gl.uniform1i(lightEnabledUniform,1);
+        gl.uniform3fv(la,light_ambient);
+        gl.uniform3fv(ld,light_diffuse);
+        gl.uniform3fv(ls,light_specular);
+
+        gl.uniform3fv(ka,material_ambient);
+        gl.uniform3fv(kd,material_diffuse);
+        gl.uniform3fv(ks,material_specular);
+
+        gl.uniform1f(mshininess,material_shininess);
+        gl.uniform4fv(lightPosition,light_position);
+    }
+    else
+    {
+        gl.uniform1i(lightEnabledUniform,0);
+    }
+    gl.bindVertexArray(modelVao.vao);
+      //gl.drawArrays(gl.TRIANGLES,0,24);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, modelVao.ibo);
+      gl.drawElements(gl.TRIANGLES,32526,gl.UNSIGNED_SHORT, 0);
+    gl.bindVertexArray(null);
+
+    gl.useProgram(null);
+
+  }
+  
+  function update()
+  {
+    if(angle >= 360.0)
+      angle = 0.0;
+    
+    angle += 0.01;
+  }
+
+  function main() {
+  
+  canvasele =  document.getElementById("glCanvas");
+  canvas = document.querySelector('#glCanvas');
+
+  // fullscreen setup
+  const mydata = fetch('./cube.obj.jason').then((res) => res.json()).then((responseJSON) => {return responseJSON});
+  console.log(mydata);
+
+  //var lol = JSON.parse('./cube.obj.jason');
+  //var data = require('./data.json');
+  //loadJSON(function(res){return JSON.parse(res);});
+  //initialize webGL
+  initialize(canvas);
+
+  // draw loop
+  render();
+}
+
+function render()
+{
+  display();
+  update();
+  requestAnimationFrame(render);
+}
+
+
+  function toggleFullScreen() {
+    if (!document.mozFullScreen && !document.webkitFullScreen) {
+      if (canvasele.mozRequestFullScreen) {
+        canvasele.mozRequestFullScreen();
+      } else {
+        canvasele.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+      }
+    } else {
+      if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else {
+        document.webkitCancelFullScreen();
+      }
+    }
+  }
+  
+  document.addEventListener("keydown", function(e) {
+    if (e.keyCode == 102 || e.keyCode == 70) {
+      toggleFullScreen();
+    }
+
+    if(e.keyCode == 76)
+    {
+        bLight = !bLight;
+        console.log(modelVao);
+    }
+  }, false);
+
+  window.onload = main;
+  window.onresize = resize;
+  </script>
+</html>
