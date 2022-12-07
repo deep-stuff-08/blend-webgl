@@ -1,0 +1,45 @@
+<!-- magic number -->
+<!DOCTYPE html>
+
+<!-- locale -->
+<html lang="en">
+
+    <!-- head -->
+    <head>
+        <meta charset="UTF-8"/>
+        <title>WebGL Assignments</title>
+    </head>
+    
+    <!-- body -->
+    <body onload="main()">  <!-- run main() when the browser's engine reaches here -->
+        <!-- page heading -->
+        <h1>
+            A Triaxially Rotating Lit Cube
+        </h1>
+
+        <!-- canvas -->
+        <canvas id="WebGLCanvas" width="900" height="506">
+            This browser does not support HTML5 canvas element  <!-- if failed to create the canvas-->
+        </canvas>
+
+        <!-- WebGL information -->
+        <h2>WebGL Information:</h2>
+        <li id="webgl_vendor_string">{WebGL Vendor String}</li>
+        <li id="webgl_version_string">{WebGL Version String}</li>
+        <li id="webgl_sl_version_string">{WebGL Shading Language Version String}</li>
+        <li id="webgl_renderer_string">{WebGL Renderer String}</li>
+
+        <!-- controls -->
+        <h2>Controls:</h2>
+        <li>'F' or 'f' to toggle fullscreen mode</li>
+        <li>'Q' or 'q' to quit</li>
+
+        <!-- credits -->
+        <h4>Author: Kaivalya Deshpande</h4>
+
+        <!-- scripts -->
+        <script src="gl-matrix-min.js"></script>
+        <script src="scene1-kvd-table.js"></script>
+        <script src="gl-canvas.js"></script>
+    </body>
+</html>
