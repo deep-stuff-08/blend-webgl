@@ -6,9 +6,12 @@ var cameraFront = vec3.set(vec3.create(), 0.0, 0.0, -1.0)
 var cameraPosition = vec3.set(vec3.create(), 0.0, 0.0, 5.0)
 var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 
+var renderScene = 5
+
 var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
+	{ name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
 ]
 
 assimpjs().then (function (ajs) {
@@ -118,12 +121,20 @@ function setupProgram() {
 	setupProgramForDeepCube()
 	// setupProgramForTestModelLoadByDeep()
 	// setupProgramForDeepEarth()
+
+	if(renderScene === 5) {
+		setupProgramForScene5Deep()
+	}
 }
 
 function init() {
 	initForDeepCube()
 	// initForTestModelLoadByDeep()
 	// initForDeepEarth()
+
+	if(renderScene === 5) {
+		initForScene5Deep()
+	}
 
 	gl.enable(gl.DEPTH_TEST)
 }
@@ -143,9 +154,14 @@ function render() {
 	mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp)
 	
 	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0])
+	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 	gl.viewport(0, 0, canvas.width, canvas.height)
 
-	renderForDeepCube(perspectiveMatrix, cameraMatrix)
+	if(renderScene === 0) {
+		renderForDeepCube(perspectiveMatrix, cameraMatrix)
+	} else if(renderScene === 5) {
+		renderForScene5Deep(perspectiveMatrix, cameraMatrix)
+	}
 	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
 	// renderForDeepEarth(perspectiveMatrix, cameraMatrix)
 
