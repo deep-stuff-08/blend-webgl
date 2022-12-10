@@ -103,6 +103,8 @@ function main() {
 			vec3.normalize(dir, dir)
 			vec3.multiply(dir, dir, [speed, speed, speed])
 			vec3.subtract(cameraPosition, cameraPosition, dir)
+		} else if(event.code == 'KeyT') {
+			isStatic = !isStatic
 		}
 	})
 	
