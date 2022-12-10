@@ -9,7 +9,12 @@ var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
+	{ name: "PC", files:[ 'PC/PC.obj', 'PC/PC.mtl'], flipTex:true },
 ]
+
+var translateScreen = [ 0.0, 0.52, 0.09 ]
+var scaleScreen = 0.36
+var rotAngleScreen = 0.0
 
 assimpjs().then (function (ajs) {
 	Promise.all(modelList.flatMap(o => o.files).map((fileToLoad) => fetch (fileToLoad))).then ((responses) => {
@@ -103,8 +108,18 @@ function main() {
 			vec3.normalize(dir, dir)
 			vec3.multiply(dir, dir, [speed, speed, speed])
 			vec3.subtract(cameraPosition, cameraPosition, dir)
-		} else if(event.code == 'KeyT') {
-			isStatic = !isStatic
+		} else if(event.code == 'KeyI') {
+			translateScreen[2] += 0.01
+		} else if(event.code == 'KeyK') {
+			translateScreen[2] -= 0.01
+		} else if(event.code == 'KeyJ') {
+			translateScreen[1] -= 0.01
+		} else if(event.code == 'KeyL') {
+			translateScreen[1] += 0.01
+		} else if(event.code == 'KeyM') {
+			rotAngleScreen -= 0.01
+		} else if(event.code == 'KeyN') {
+			rotAngleScreen += 0.01
 		}
 	})
 	
@@ -115,14 +130,14 @@ function main() {
 }
 
 function setupProgram() {
-	setupProgramForDeepCube()
-	// setupProgramForTestModelLoadByDeep()
+	// setupProgramForDeepCube()
+	setupProgramForTestModelLoadByDeep()
 	// setupProgramForDeepEarth()
 }
 
 function init() {
-	initForDeepCube()
-	// initForTestModelLoadByDeep()
+	// initForDeepCube()
+	initForTestModelLoadByDeep()
 	// initForDeepEarth()
 
 	gl.enable(gl.DEPTH_TEST)
@@ -142,11 +157,11 @@ function render() {
 	vec3.add(newfront, cameraFront, cameraPosition)
 	mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp)
 	
-	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0])
+	gl.clearBufferfv(gl.COLOR, 0, [1.0, 0.0, 0.0, 1.0])
 	gl.viewport(0, 0, canvas.width, canvas.height)
 
-	renderForDeepCube(perspectiveMatrix, cameraMatrix)
-	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
+	// renderForDeepCube(perspectiveMatrix, cameraMatrix)
+	renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
 	// renderForDeepEarth(perspectiveMatrix, cameraMatrix)
 
 	window.requestAnimationFrame(render)
@@ -199,6 +214,7 @@ function loadTexture(path, isTexFlipped) {
 	var tbo = gl.createTexture()
 	tbo.image = new Image()
 	tbo.image.src = path
+	console.log("Loading: " + path)
 	tbo.image.onload = function() {
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
 		gl.bindTexture(gl.TEXTURE_2D, tbo)
