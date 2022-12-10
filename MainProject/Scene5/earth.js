@@ -32,9 +32,8 @@ function setupProgramForEarthDeep() {
 
 function initForEarthDeep() {
 	const stacks = 25, slices = 50
-	const radius = 1.0
 
-	earthDeep.sphere = initSphereForDeepShapes(stacks, slices, radius)
+	earthDeep.sphere = initSphereForShapesDeep(stacks, slices)
 
 	earthDeep.texDiffuseEarthLight = loadTexture("resources/textures/earthlight.jpg", true)
 	earthDeep.texDiffuseEarthNight = loadTexture("resources/textures/earthnight.jpg", true)
@@ -58,6 +57,6 @@ function renderForEarthDeep(perspectiveMatrix, viewMatrix) {
 	gl.activeTexture(gl.TEXTURE1)
 	gl.bindTexture(gl.TEXTURE_2D, earthDeep.texDiffuseEarthNight)
 	
-	renderSphereForDeepShapes(earthDeep.sphere)
-
+	renderSphereForShapesDeep(earthDeep.sphere)
+	gl.useProgram(null)
 }

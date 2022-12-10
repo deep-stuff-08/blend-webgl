@@ -4,25 +4,30 @@ var pcDeep = {
 	vaoScreen: null,
 	fboScreen: null,
 	texScreen: null,
-	uniformsModel: {
+	uniformsModel: null,
+	uniformsScreen: {
 		pMat: null,
 		vMat: null,
 		mMat: null,
-		diffuseTexture: null
+		diffuseTextureSampler: null
 	}
 }
 
 function setupProgramForPCDeep() {
-	var vertShader = createShader('shaders/phonglighttex.vert', gl.VERTEX_SHADER)
-	var fragShader = createShader('shaders/phonglighttex.frag', gl.FRAGMENT_SHADER)
-	pcDeep.programModel = createProgram([vertShader, fragShader])
+	pcDeep.programModel = progPhongLightWithTexture.program
+	pcDeep.uniformsModel = progPhongLightWithTexture.uniforms
+
+	//Phong Light with Texture Support
+	var vertShader = createShader('shaders/screen.vert', gl.VERTEX_SHADER)
+	var fragShader = createShader('shaders/screen.frag', gl.FRAGMENT_SHADER)
+	pcDeep.programScreen = createProgram([vertShader, fragShader])
 	deleteShader(vertShader)
 	deleteShader(fragShader)
 
-	pcDeep.uniformsModel.pMat = gl.getUniformLocation(pcDeep.programModel, "pMat")
-	pcDeep.uniformsModel.vMat = gl.getUniformLocation(pcDeep.programModel, "vMat")
-	pcDeep.uniformsModel.mMat = gl.getUniformLocation(pcDeep.programModel, "mMat")
-	pcDeep.uniformsModel.diffuseTexture = gl.getUniformLocation(pcDeep.programModel, "samplerDiffuse")
+	pcDeep.uniformsScreen.pMat = gl.getUniformLocation(pcDeep.programScreen, "pMat")
+	pcDeep.uniformsScreen.vMat = gl.getUniformLocation(pcDeep.programScreen, "vMat")
+	pcDeep.uniformsScreen.mMat = gl.getUniformLocation(pcDeep.programScreen, "mMat")
+	pcDeep.uniformsScreen.diffuseTextureSampler = gl.getUniformLocation(pcDeep.programScreen, "samplerDiffuse")
 }
 
 function initForPCDeep() {
@@ -69,7 +74,7 @@ function initForPCDeep() {
 	pcModelForTestModelLoadByDeep = initalizeModel("PC")
 }
 
-function renderForPCDeep(perspectiveMatrix, viewMatrix) {
+function renderForPCDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, pcDeep.fboScreen)
 	gl.clearBufferfv(gl.COLOR, 0, [0.1, 0.1, 0.1, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
@@ -82,23 +87,29 @@ function renderForPCDeep(perspectiveMatrix, viewMatrix) {
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 	gl.viewport(0, 0, canvas.width, canvas.height)
-	var modelMatrix = mat4.create()
-	mat4.rotate(modelMatrix, modelMatrix, -Math.PI / 2, [0.0, 1.0, 0.0])
-	mat4.scale(modelMatrix, modelMatrix, [0.5, 0.5, 0.5])
+	var localModelMatrix = mat4.create()
+	mat4.rotate(localModelMatrix, modelMatrix, -Math.PI / 2, [0.0, 1.0, 0.0])
+	mat4.scale(localModelMatrix, localModelMatrix, [0.5, 0.5, 0.5])
 	
 	gl.useProgram(pcDeep.programModel)
 	gl.uniformMatrix4fv(pcDeep.uniformsModel.pMat, false, perspectiveMatrix)
 	gl.uniformMatrix4fv(pcDeep.uniformsModel.vMat, false, viewMatrix)
-	gl.uniformMatrix4fv(pcDeep.uniformsModel.mMat, false, modelMatrix)
-	gl.uniform1i(pcDeep.uniformsModel.diffuse, 0)
+	gl.uniformMatrix4fv(pcDeep.uniformsModel.mMat, false, localModelMatrix)
+	gl.uniform3fv(pcDeep.uniformsModel.lightPos, lightPosition)
+	gl.uniform1i(pcDeep.uniformsModel.diffuseTextureSampler, 0)
+	gl.uniform1i(pcDeep.uniformsModel.isInvertNormals, 0)
 	renderModel(pcModelForTestModelLoadByDeep)
 
-	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-0.01, 0.525, 0.09])
-	mat4.rotate(modelMatrix, modelMatrix, -0.14, [1.0, 0.0, 0.0])
-	mat4.scale(modelMatrix, modelMatrix, [0.44, 0.37, 1.0])
-	gl.uniformMatrix4fv(pcDeep.uniformsModel.mMat, false, modelMatrix)
+	mat4.translate(localModelMatrix, modelMatrix, [-0.01, 0.525, 0.09])
+	mat4.rotate(localModelMatrix, localModelMatrix, -0.14, [1.0, 0.0, 0.0])
+	mat4.scale(localModelMatrix, localModelMatrix, [0.44, 0.37, 1.0])
+	gl.useProgram(pcDeep.programScreen)
+	gl.uniformMatrix4fv(pcDeep.uniformsScreen.pMat, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(pcDeep.uniformsScreen.vMat, false, viewMatrix)
+	gl.uniformMatrix4fv(pcDeep.uniformsScreen.mMat, false, localModelMatrix)
+	gl.uniform1i(pcDeep.uniformsScreen.diffuseTextureSampler, 0)
 	gl.bindTexture(gl.TEXTURE_2D, pcDeep.texScreen)
 	gl.bindVertexArray(pcDeep.vaoScreen)
 	gl.drawArrays(gl.TRIANGLES, 0, 6)
+	gl.useProgram(null)
 }
