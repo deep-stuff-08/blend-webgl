@@ -100,7 +100,7 @@ function renderForPCDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPositi
 	gl.uniform1i(pcDeep.uniformsModel.isInvertNormals, 0)
 	renderModel(pcModelForTestModelLoadByDeep)
 
-	mat4.translate(localModelMatrix, modelMatrix, [-0.01, 0.525, 0.09])
+	mat4.translate(localModelMatrix, modelMatrix, [-0.01, 0.53, 0.09])
 	mat4.rotate(localModelMatrix, localModelMatrix, -0.14, [1.0, 0.0, 0.0])
 	mat4.scale(localModelMatrix, localModelMatrix, [0.44, 0.37, 1.0])
 	gl.useProgram(pcDeep.programScreen)
