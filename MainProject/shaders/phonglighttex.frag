@@ -7,13 +7,15 @@ in vec3 N;
 in vec3 P;
 in vec3 viewPos;
 
+uniform vec3 lightPos;
+
 uniform sampler2D samplerDiffuse;
 
 out vec4 color;
 
 void main(void) {
 	vec3 normal = normalize(N);
-	vec3 lightDir = normalize(vec3(0.0, 5.0, 10.0) - P);
+	vec3 lightDir = normalize(lightPos - P);
 	vec3 viewDir = normalize(viewPos - P);
 	vec3 reflectVec = reflect(-lightDir, normal);
 	vec3 matcolor = vec3(texture(samplerDiffuse, Tex));

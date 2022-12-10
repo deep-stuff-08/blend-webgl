@@ -8,6 +8,8 @@ var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 
 var renderScene = 5
 
+var trans = [ 0.0, 0.0, 0.0 ]
+
 var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
@@ -108,6 +110,18 @@ function main() {
 			vec3.subtract(cameraPosition, cameraPosition, dir)
 		} else if(event.code == 'KeyT') {
 			isStatic = !isStatic
+		} else if(event.code == 'KeyI') {
+			trans[1] += 0.01
+		} else if(event.code == 'KeyK') {
+			trans[1] -= 0.01
+		} else if(event.code == 'KeyJ') {
+			trans[0] -= 0.01
+		} else if(event.code == 'KeyL') {
+			trans[0] += 0.01
+		} else if(event.code == 'KeyM') {
+			trans[2] -= 0.01
+		} else if(event.code == 'KeyN') {
+			trans[2] += 0.01
 		}
 	})
 	
@@ -118,6 +132,8 @@ function main() {
 }
 
 function setupProgram() {
+	setupCommonPrograms()
+	setupProgramForLightSourceRendererDeep()
 	setupProgramForDeepCube()
 	// setupProgramForTestModelLoadByDeep()
 	// setupProgramForDeepEarth()
@@ -129,6 +145,7 @@ function setupProgram() {
 
 function init() {
 	initForDeepCube()
+	initForLightSourceRendererDeep()
 	// initForTestModelLoadByDeep()
 	// initForDeepEarth()
 
