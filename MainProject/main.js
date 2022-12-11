@@ -1,3 +1,4 @@
+"use strict"
 var canvas
 var gl
 var lastmousex = -1, lastmousey = -1
@@ -67,7 +68,7 @@ function main() {
 			var yoffset = lastmousey - event.y 
 			lastmousex = event.x
 			lastmousey = event.y
-			sensitivity = 0.1
+			const sensitivity = 0.1
 			xoffset *= sensitivity
 			yoffset *= sensitivity
 			cameraYaw += xoffset
