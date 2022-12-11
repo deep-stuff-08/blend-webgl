@@ -1,7 +1,8 @@
+"use strict"
 var pcDeep = {
 	programModel: null,
-	programScreen: null,
-	vaoScreen: null,
+	quadScreen: null,
+	objectPC: null,
 	uniformsModel: null,
 	uniformsScreen: {
 		pMat: null,
@@ -14,48 +15,14 @@ var pcDeep = {
 function setupProgramForPCDeep() {
 	pcDeep.programModel = progPhongLightWithTexture.program
 	pcDeep.uniformsModel = progPhongLightWithTexture.uniforms
-
-	//Phong Light with Texture Support
-	var vertShader = createShader('shaders/screen.vert', gl.VERTEX_SHADER)
-	var fragShader = createShader('shaders/screen.frag', gl.FRAGMENT_SHADER)
-	pcDeep.programScreen = createProgram([vertShader, fragShader])
-	deleteShader(vertShader)
-	deleteShader(fragShader)
-
-	pcDeep.uniformsScreen.pMat = gl.getUniformLocation(pcDeep.programScreen, "pMat")
-	pcDeep.uniformsScreen.vMat = gl.getUniformLocation(pcDeep.programScreen, "vMat")
-	pcDeep.uniformsScreen.mMat = gl.getUniformLocation(pcDeep.programScreen, "mMat")
-	pcDeep.uniformsScreen.diffuseTextureSampler = gl.getUniformLocation(pcDeep.programScreen, "samplerDiffuse")
 }
 
 function initForPCDeep() {
-	var screen = new Float32Array([ 
-		1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
-		-1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0,
-		-1.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-
-		-1.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-		1.0, -1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0,
-		1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
-	])
-
-	pcDeep.vaoScreen = gl.createVertexArray()
-	var vbo = gl.createBuffer()
-	gl.bindVertexArray(pcDeep.vaoScreen)
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.bufferData(gl.ARRAY_BUFFER, screen, gl.STATIC_DRAW)
-	gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 8 * 4, 0)
-	gl.enableVertexAttribArray(0)
-	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 8 * 4, 3 * 4)
-	gl.enableVertexAttribArray(1)
-	gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 8 * 4, 6 * 4)
-	gl.enableVertexAttribArray(2)
-	gl.bindVertexArray(null)
-
-	pcModelForTestModelLoadByDeep = initalizeModel("PC")
+	pcDeep.quadScreen = initQuadForShapesDeep()
+	pcDeep.objectPC = initalizeModel("PC")
 }
 
-function renderForPCDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition, texObj) {
+function renderForPCDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition, texObjEarth, texObjFire) {
 	var localModelMatrix = mat4.create()
 	mat4.rotate(localModelMatrix, modelMatrix, -Math.PI / 2, [0.0, 1.0, 0.0])
 	mat4.scale(localModelMatrix, localModelMatrix, [0.5, 0.5, 0.5])
@@ -67,18 +34,20 @@ function renderForPCDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPositi
 	gl.uniform3fv(pcDeep.uniformsModel.lightPos, lightPosition)
 	gl.uniform1i(pcDeep.uniformsModel.diffuseTextureSampler, 0)
 	gl.uniform1i(pcDeep.uniformsModel.isInvertNormals, 0)
-	renderModel(pcModelForTestModelLoadByDeep)
+	renderModel(pcDeep.objectPC)
 
 	mat4.translate(localModelMatrix, modelMatrix, [-0.01, 0.53, 0.09])
 	mat4.rotate(localModelMatrix, localModelMatrix, -0.14, [1.0, 0.0, 0.0])
 	mat4.scale(localModelMatrix, localModelMatrix, [monitorScale[0], monitorScale[1], 1.0])
-	gl.useProgram(pcDeep.programScreen)
-	gl.uniformMatrix4fv(pcDeep.uniformsScreen.pMat, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(pcDeep.uniformsScreen.vMat, false, viewMatrix)
-	gl.uniformMatrix4fv(pcDeep.uniformsScreen.mMat, false, localModelMatrix)
-	gl.uniform1i(pcDeep.uniformsScreen.diffuseTextureSampler, 0)
-	gl.bindTexture(gl.TEXTURE_2D, texObj)
-	gl.bindVertexArray(pcDeep.vaoScreen)
-	gl.drawArrays(gl.TRIANGLES, 0, 6)
-	gl.useProgram(null)
+	gl.useProgram(scene5Deep.programFireEarth)
+	gl.uniformMatrix4fv(scene5Deep.uniformsFireEarth.pMat, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(scene5Deep.uniformsFireEarth.vMat, false, viewMatrix)
+	gl.uniformMatrix4fv(scene5Deep.uniformsFireEarth.mMat, false, localModelMatrix)
+	gl.uniform1i(scene5Deep.uniformsFireEarth.diffuseTextureSamplerEarth, 0)
+	gl.activeTexture(gl.TEXTURE0)
+	gl.bindTexture(gl.TEXTURE_2D, texObjEarth)
+	gl.uniform1i(scene5Deep.uniformsFireEarth.diffuseTextureSamplerFire, 1)
+	gl.activeTexture(gl.TEXTURE1)
+	gl.bindTexture(gl.TEXTURE_2D, texObjFire)
+	renderQuadForShapesDeep(pcDeep.quadScreen)
 }

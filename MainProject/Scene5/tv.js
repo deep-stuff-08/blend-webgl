@@ -1,46 +1,32 @@
+"use strict"
 var tvDeep = {
 	program: null,
-	programScreen: null,
 	uniforms: null,
 	cubeObj: null,
+	quadObj: null,
 	texWood: null,
-	uniformsScreen: {
-		pMat: null,
-		vMat: null,
-		mMat: null,
-		diffuseTextureSampler: null
-	}
 }
 
 function setupProgramForTVDeep() {
 	tvDeep.program = progPhongLightWithTexture.program
 	tvDeep.uniforms = progPhongLightWithTexture.uniforms
-	
-	//Phong Light with Texture Support
-	var vertShader = createShader('shaders/screen.vert', gl.VERTEX_SHADER)
-	var fragShader = createShader('shaders/screen.frag', gl.FRAGMENT_SHADER)
-	tvDeep.programScreen = createProgram([vertShader, fragShader])
-	deleteShader(vertShader)
-	deleteShader(fragShader)
-
-	tvDeep.uniformsScreen.pMat = gl.getUniformLocation(tvDeep.programScreen, "pMat")
-	tvDeep.uniformsScreen.vMat = gl.getUniformLocation(tvDeep.programScreen, "vMat")
-	tvDeep.uniformsScreen.mMat = gl.getUniformLocation(tvDeep.programScreen, "mMat")
-	tvDeep.uniformsScreen.diffuseTextureSampler = gl.getUniformLocation(tvDeep.programScreen, "samplerDiffuse")
 }
 
 function initForTVDeep() {
 	tvDeep.cubeObj = initCubeForShapesDeep()
+	tvDeep.quadObj = initQuadForShapesDeep()
 	tvDeep.texWood = loadTexture("resources/textures/wood.png")
 }
 
-function renderForTVDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPos, texObj) {
+function renderForTVDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPos, texObjEarth, texObjFire) {
 	var localMatrix = mat4.create()
 	gl.useProgram(tvDeep.program)
 	gl.uniformMatrix4fv(tvDeep.uniforms.pMat, false, perspectiveMatrix)
 	gl.uniformMatrix4fv(tvDeep.uniforms.vMat, false, viewMatrix)
 	gl.uniform3fv(tvDeep.uniforms.lightPos, lightPos)
 	gl.uniform1i(tvDeep.uniforms.isInvertNormals, 0)
+	gl.uniform1i(tvDeep.uniforms.isLight, 1)
+	gl.uniform1i(tvDeep.uniforms.isTexture, 1)
 	gl.uniform1i(tvDeep.uniforms.diffuseTextureSampler, 0)
 	gl.activeTexture(gl.TEXTURE0)
 	gl.bindTexture(gl.TEXTURE_2D, tvDeep.texWood)
@@ -65,14 +51,18 @@ function renderForTVDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPos, t
 	gl.uniformMatrix4fv(tvDeep.uniforms.mMat, false, localMatrix)
 	renderCubeForShapesDeep(tvDeep.cubeObj)
 
-	gl.useProgram(tvDeep.programScreen)
-	gl.bindTexture(gl.TEXTURE_2D, texObj)
+	gl.useProgram(scene5Deep.programFireEarth)
 	mat4.translate(localMatrix, modelMatrix, [0.0, 0.0, -0.01])
 	mat4.scale(localMatrix, localMatrix, [1.0, 1.0, 0.01])
-	gl.uniformMatrix4fv(tvDeep.uniformsScreen.pMat, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(tvDeep.uniformsScreen.vMat, false, viewMatrix)
-	gl.uniformMatrix4fv(tvDeep.uniformsScreen.mMat, false, localMatrix)
-	gl.uniform1i(tvDeep.uniformsScreen.diffuseTextureSampler, 0)
-	renderCubeForShapesDeep(tvDeep.cubeObj)
+	gl.uniformMatrix4fv(scene5Deep.uniformsFireEarth.pMat, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(scene5Deep.uniformsFireEarth.vMat, false, viewMatrix)
+	gl.uniformMatrix4fv(scene5Deep.uniformsFireEarth.mMat, false, localMatrix)
+	gl.uniform1i(scene5Deep.uniformsFireEarth.diffuseTextureSamplerEarth, 0)
+	gl.activeTexture(gl.TEXTURE0)
+	gl.bindTexture(gl.TEXTURE_2D, texObjEarth)
+	gl.uniform1i(scene5Deep.uniformsFireEarth.diffuseTextureSamplerFire, 1)
+	gl.activeTexture(gl.TEXTURE1)
+	gl.bindTexture(gl.TEXTURE_2D, texObjFire)
+	renderQuadForShapesDeep(tvDeep.quadObj)
 	gl.useProgram(null)
 }

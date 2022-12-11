@@ -1,3 +1,4 @@
+"use strict"
 class dshapes {
 	constructor(vao, count) {
 		this.vao = vao
@@ -138,6 +139,34 @@ function initCubeForShapesDeep() {
 	return new dshapes(vao, 36)
 }
 
+function initQuadForShapesDeep() {
+	var vertexArray = new Float32Array([
+		1.0, 1.0, 0.0,		0.0, 0.0, 1.0,		1.0, 1.0,
+		-1.0, 1.0, 0.0,		0.0, 0.0, 1.0,		0.0, 1.0,
+		-1.0, -1.0, 0.0,	0.0, 0.0, 1.0,		0.0, 0.0,
+		
+		-1.0, -1.0, 0.0,	0.0, 0.0, 1.0,		0.0, 0.0,
+		1.0, -1.0, 0.0,		0.0, 0.0, 1.0,		1.0, 0.0,
+		1.0, 1.0, 0.0,		0.0, 0.0, 1.0,		1.0, 1.0,
+	])
+
+	var vao = gl.createVertexArray()
+	gl.bindVertexArray(vao)
+
+	var vbo = gl.createBuffer()
+	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.bufferData(gl.ARRAY_BUFFER, vertexArray, gl.STATIC_DRAW)
+	gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 8 * 4, 0)
+	gl.enableVertexAttribArray(0)
+	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 8 * 4, 3 * 4)
+	gl.enableVertexAttribArray(1)
+	gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 8 * 4, 6 * 4)
+	gl.enableVertexAttribArray(2)
+	
+	gl.bindVertexArray(null)
+	return new dshapes(vao, 6)
+}
+
 function initCylinderForShapesDeep(slices) {
 	var vertexData = []
 	for(var j = 0; j <= slices; j++) {
@@ -210,6 +239,12 @@ function renderCylinderForShapesDeep(cylinderObj) {
 }
 
 function renderCubeForShapesDeep(cubeObj) {
+	gl.bindVertexArray(cubeObj.vao)
+	gl.drawArrays(gl.TRIANGLES, 0, cubeObj.count)
+	gl.bindVertexArray(null)
+}
+
+function renderQuadForShapesDeep(cubeObj) {
 	gl.bindVertexArray(cubeObj.vao)
 	gl.drawArrays(gl.TRIANGLES, 0, cubeObj.count)
 	gl.bindVertexArray(null)

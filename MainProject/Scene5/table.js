@@ -1,3 +1,4 @@
+"use strict"
 var tableDeep = {
 	program: null,
 	uniforms: null,
@@ -24,6 +25,8 @@ function renderForTableDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPos
 	gl.uniformMatrix4fv(tableDeep.uniforms.vMat, false, viewMatrix)
 	gl.uniform3fv(tableDeep.uniforms.lightPos, lightPosition)
 	gl.uniform1i(tableDeep.uniforms.isInvertNormals, 0)
+	gl.uniform1i(tableDeep.uniforms.isLight, 1)
+	gl.uniform1i(tableDeep.uniforms.isTexture, 1)
 	gl.uniform1i(tableDeep.uniforms.diffuseTextureSampler, 0)
 	gl.activeTexture(gl.TEXTURE0)
 	gl.bindTexture(gl.TEXTURE_2D, tableDeep.texWood)
@@ -60,4 +63,5 @@ function renderForTableDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPos
 	mat4.scale(localMatrix, localMatrix, [0.03, 0.5, 0.03])
 	gl.uniformMatrix4fv(tableDeep.uniforms.mMat, false, localMatrix)
 	renderCylinderForShapesDeep(tableDeep.cylinderObj)
+	gl.useProgram(null)
 }

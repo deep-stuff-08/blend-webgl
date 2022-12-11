@@ -1,3 +1,4 @@
+"use strict"
 var earthDeep = {
 	program: null,
 	sphere: null,

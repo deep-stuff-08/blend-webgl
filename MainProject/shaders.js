@@ -1,3 +1,4 @@
+"use strict"
 var progPhongLightWithTexture = {
 	program: null,
 	uniforms: {
@@ -6,7 +7,10 @@ var progPhongLightWithTexture = {
 		mMat: null,
 		lightPos: null,
 		diffuseTextureSampler: null,
-		isInvertNormals: null
+		isInvertNormals: null,
+		isLight: null,
+		isTexture: null,
+		isBlend: null
 	}
 }
 
@@ -24,4 +28,7 @@ function setupCommonPrograms() {
 	progPhongLightWithTexture.uniforms.lightPos = gl.getUniformLocation(progPhongLightWithTexture.program, "lightPos")
 	progPhongLightWithTexture.uniforms.diffuseTextureSampler = gl.getUniformLocation(progPhongLightWithTexture.program, "samplerDiffuse")
 	progPhongLightWithTexture.uniforms.isInvertNormals = gl.getUniformLocation(progPhongLightWithTexture.program, "isInvertNormal")
+	progPhongLightWithTexture.uniforms.isLight = gl.getUniformLocation(progPhongLightWithTexture.program, "isLight")
+	progPhongLightWithTexture.uniforms.isTexture = gl.getUniformLocation(progPhongLightWithTexture.program, "isTexture")
+	progPhongLightWithTexture.uniforms.isBlend = gl.getUniformLocation(progPhongLightWithTexture.program, "isBlend")
 }
