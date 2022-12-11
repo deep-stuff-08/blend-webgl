@@ -23,5 +23,5 @@ void main(void) {
 		N = mat3(mMat) * vNor;
 	}
 	P = vec3(mMat * vPos);	
-	viewPos = vMat[3].xyz;
+	viewPos = -vMat[3].xyz;
 }

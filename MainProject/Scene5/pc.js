@@ -2,8 +2,6 @@ var pcDeep = {
 	programModel: null,
 	programScreen: null,
 	vaoScreen: null,
-	fboScreen: null,
-	texScreen: null,
 	uniformsModel: null,
 	uniformsScreen: {
 		pMat: null,
@@ -54,39 +52,10 @@ function initForPCDeep() {
 	gl.enableVertexAttribArray(2)
 	gl.bindVertexArray(null)
 
-	pcDeep.fboScreen = gl.createFramebuffer()
-	gl.bindFramebuffer(gl.FRAMEBUFFER, pcDeep.fboScreen)
-
-	pcDeep.texScreen = gl.createTexture()
-	gl.bindTexture(gl.TEXTURE_2D, pcDeep.texScreen)
-	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, 1024, 1024)
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, pcDeep.texScreen, 0)
-
-	var rbo = gl.createRenderbuffer()
-	gl.bindRenderbuffer(gl.RENDERBUFFER, rbo)
-	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT32F, 1024, 1024)
-	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo)
-
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-
 	pcModelForTestModelLoadByDeep = initalizeModel("PC")
 }
 
-function renderForPCDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition) {
-	gl.bindFramebuffer(gl.FRAMEBUFFER, pcDeep.fboScreen)
-	gl.clearBufferfv(gl.COLOR, 0, [0.1, 0.1, 0.1, 1.0])
-	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
-	gl.viewport(0, 0, 1024, 1024)
-	var projMatrixEarth = mat4.create()
-	mat4.perspective(projMatrixEarth, glMatrix.toRadian(45.0), 0.44 / 0.37, 0.1, 100.0)
-	var viewMatrixEarth = mat4.create()
-	mat4.lookAt(viewMatrixEarth, [0.0, 0.0, 5.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0])
-	renderForEarthDeep(projMatrixEarth, viewMatrixEarth)
-
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-	gl.viewport(0, 0, canvas.width, canvas.height)
+function renderForPCDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition, texObj) {
 	var localModelMatrix = mat4.create()
 	mat4.rotate(localModelMatrix, modelMatrix, -Math.PI / 2, [0.0, 1.0, 0.0])
 	mat4.scale(localModelMatrix, localModelMatrix, [0.5, 0.5, 0.5])
@@ -102,13 +71,13 @@ function renderForPCDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPositi
 
 	mat4.translate(localModelMatrix, modelMatrix, [-0.01, 0.53, 0.09])
 	mat4.rotate(localModelMatrix, localModelMatrix, -0.14, [1.0, 0.0, 0.0])
-	mat4.scale(localModelMatrix, localModelMatrix, [0.44, 0.37, 1.0])
+	mat4.scale(localModelMatrix, localModelMatrix, [monitorScale[0], monitorScale[1], 1.0])
 	gl.useProgram(pcDeep.programScreen)
 	gl.uniformMatrix4fv(pcDeep.uniformsScreen.pMat, false, perspectiveMatrix)
 	gl.uniformMatrix4fv(pcDeep.uniformsScreen.vMat, false, viewMatrix)
 	gl.uniformMatrix4fv(pcDeep.uniformsScreen.mMat, false, localModelMatrix)
 	gl.uniform1i(pcDeep.uniformsScreen.diffuseTextureSampler, 0)
-	gl.bindTexture(gl.TEXTURE_2D, pcDeep.texScreen)
+	gl.bindTexture(gl.TEXTURE_2D, texObj)
 	gl.bindVertexArray(pcDeep.vaoScreen)
 	gl.drawArrays(gl.TRIANGLES, 0, 6)
 	gl.useProgram(null)
