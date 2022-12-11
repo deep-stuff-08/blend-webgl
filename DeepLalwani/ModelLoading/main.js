@@ -6,7 +6,6 @@ var cameraFront = vec3.set(vec3.create(), 0.0, 0.0, -1.0)
 var cameraPosition = vec3.set(vec3.create(), 0.0, 0.0, 5.0)
 var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 var program
-var loadedTextures = {}
 
 var vampire
 var backpack
@@ -14,7 +13,7 @@ var backpack
 var isStatic = true
 
 var modelList = [
-	{ name: "Vampire", files:[ 'vampire/dancing_vampire.dae' ], flipTex:true },
+	{ name: "Vampire", files:[ 'Joe/Jog.dae' ], flipTex:true },
 	{ name: "Backpack", files:[ 'backpack/backpack.obj', 'backpack/backpack.mtl'], flipTex:false },
 ]
 
@@ -121,10 +120,10 @@ function main() {
 	window.addEventListener('close', uninit)
 }
 
-const TextureMacros = {
-	Diffuse: 1,
-	Specular: 2
-};
+// const TextureMacros = {
+// 	Diffuse: 1,
+// 	Specular: 2
+// };
 
 var pMatUnifromForDeepCube
 var vMatUnifromForDeepCube
@@ -174,7 +173,7 @@ function render() {
 	mat4.rotate(modelMatrix, modelMatrix, angle, [0.0, 1.0, 0.0])
 	mat4.translate(modelMatrix, modelMatrix, [0.0, -1.5, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [0.5, 0.5, 0.5])
-	mat4.perspective(perspectiveMatrix, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 100.0)
+	mat4.perspective(perspectiveMatrix, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 1000.0)
 	var newfront = vec3.create()
 	vec3.add(newfront, cameraFront, cameraPosition)
 	mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp)
@@ -196,7 +195,8 @@ function render() {
 		renderModel(vampire)
 	} else {
 		gl.uniform1i(isStaticUniformForDeepCube, 0)
-		renderModel(backpack)
+		renderModel(vampire)
+		// renderModel(backpack)
 	}
 	
 	angle += 0.01

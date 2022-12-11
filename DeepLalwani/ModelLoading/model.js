@@ -1,3 +1,8 @@
+const TextureMacros = {
+	Diffuse: 1,
+	Specular: 2
+};
+
 class dmodel {
 	constructor() {
 		this.meshArray = []
@@ -79,18 +84,20 @@ class dbone {
 	}
 }
 
+var loadedTexturesForModelLoadingByDeep = {}
+
 function loadMaterial(material, directory, type, flipTexture) {
 	var texturesArray = []
 	for(var i = 0; i < material.length; i++) {
 		if(material[i].key != undefined && material[i].key === "$tex.file" && material[i].semantic === type) {
 			var texFile = directory + '/' + material[i].value
-			if(loadedTextures[texFile] == undefined) {
-				loadedTextures[texFile] = loadTexture(texFile, flipTexture)
+			if(loadedTexturesForModelLoadingByDeep[texFile] == undefined) {
+				loadedTexturesForModelLoadingByDeep[texFile] = loadTexture(texFile, flipTexture)
 			}
-			texturesArray.push(loadedTextures[texFile])
+			texturesArray.push(loadedTexturesForModelLoadingByDeep[texFile])
 		}
 	}
-	return texturesArray;
+	return texturesArray
 }
 
 function recursiveTree(model, directory, json, node, isFlipTexture) {
@@ -111,16 +118,16 @@ function recursiveTree(model, directory, json, node, isFlipTexture) {
 		var normalArray = new Float32Array(actualmesh.normals)
 		var texCoordArray = new Float32Array(actualmesh.texturecoords[0])
 		var boneIdsArray = new Int32Array(actualmesh.vertices.length / 3 * 4)
-		for(i = 0; i < boneIdsArray.length; i++) {
-			boneIdsArray[i] = -1
+		for(var j = 0; j < boneIdsArray.length; j++) {
+			boneIdsArray[j] = -1
 		}
 		var weightArray = new Float32Array(actualmesh.vertices.length / 3 * 4)
 
 		var faceArray = new Uint16Array(actualmesh.faces.length * 3)
-		for(var i = 0; i < actualmesh.faces.length; i++) {
-			faceArray [i * 3 + 0] = actualmesh.faces[i][0]
-			faceArray [i * 3 + 1] = actualmesh.faces[i][1]
-			faceArray [i * 3 + 2] = actualmesh.faces[i][2]
+		for(var j = 0; j < actualmesh.faces.length; j++) {
+			faceArray [j * 3 + 0] = actualmesh.faces[j][0]
+			faceArray [j * 3 + 1] = actualmesh.faces[j][1]
+			faceArray [j * 3 + 2] = actualmesh.faces[j][2]
 		}
 
 		for (var boneIndex = 0; actualmesh.bones != undefined && boneIndex < actualmesh.bones.length; boneIndex++) {
@@ -140,10 +147,10 @@ function recursiveTree(model, directory, json, node, isFlipTexture) {
 			for(weightIndex = 0; weightIndex < weights.length; ++weightIndex) {
 				var vertexId = weights[weightIndex][0]
 				var weight = weights[weightIndex][1]
-				for(i = 0; i < 4; ++i) {
-					if (boneIdsArray[vertexId * 4 + i] < 0) {
-						weightArray[vertexId * 4 + i] = weight;
-						boneIdsArray[vertexId * 4 + i] = boneID;
+				for(var k = 0; k < 4; ++k) {
+					if (boneIdsArray[vertexId * 4 + k] < 0) {
+						weightArray[vertexId * 4 + k] = weight;
+						boneIdsArray[vertexId * 4 + k] = boneID;
 						break;
 					}
 				}
@@ -211,8 +218,8 @@ function setupAnimation(modelObj, json) {
 		readHeirarchyData(rootNode, json.rootnode);
 
 		var animator = new danimator(animation.duration, animation.tickspersecond, modelObj.boneInfoMap, rootNode)
-		for (var i = 0; animation.channels != undefined && i < animation.channels.length; i++) {
-			var channel = animation.channels[i]
+		for (var j = 0; animation.channels != undefined && j < animation.channels.length; j++) {
+			var channel = animation.channels[j]
 			var boneName = channel.name
 
 			if (modelObj.boneInfoMap[boneName] == undefined) {
@@ -320,12 +327,12 @@ function calculateBoneTransform(animator, node, parentTransform) {
 				}
 			}
 			if(p0Index == bone.scalingkeys.length - 1) {
-				scalingMat = scale(bone.scalingkeys[p0Index].scale);
+				mat4.scale(scalingMat, scalingMat, bone.scalingkeys[p0Index].scale)
 			} else {
 				p1Index = p0Index + 1
 				var s = vec3.create()
 				vec3.lerp(s, bone.scalingkeys[p0Index].scale, bone.scalingkeys[p1Index].scale, getScaleFactor(bone.scalingkeys[p0Index].timeStamp, bone.scalingkeys[p1Index].timeStamp, animator.currentTime))
-				mat4.translate(scalingMat, scalingMat, s)
+				mat4.scale(scalingMat, scalingMat, s)
 			}
 		}
 		var tempMat = mat4.create()
@@ -369,7 +376,6 @@ function updateModel(model, i, delta) {
 
 function renderModel(model) {
 	for(var i = 0; model.meshArray != undefined && i < model.meshArray.length; i++) {
-		gl.uniform1i(diffuseUnifromForDeepCube, 0)
 		gl.activeTexture(gl.TEXTURE0)
 		gl.bindTexture(gl.TEXTURE_2D, model.meshArray[i].diffuseTextures[0])
 		gl.bindVertexArray(model.meshArray[i].vao)
