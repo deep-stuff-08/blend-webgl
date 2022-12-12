@@ -188,6 +188,7 @@ function uninit() {
 }
 
 function createShader(filename, shaderType) {
+	console.log("Loading ", filename)
 	var shader = gl.createShader(shaderType)
 	var xhr = new XMLHttpRequest()
 	xhr.open("GET", filename, false)

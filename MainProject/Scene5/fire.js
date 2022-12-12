@@ -10,8 +10,8 @@ var fireDeep = {
 }
 
 function setupProgramForFireDeep() {
-	var vertShader = createShader("shaders/fire.vert", gl.VERTEX_SHADER)
-	var fragShader = createShader("shaders/fire.frag", gl.FRAGMENT_SHADER)
+	var vertShader = createShader("Scene5/shaders/fire.vert", gl.VERTEX_SHADER)
+	var fragShader = createShader("Scene5/shaders/fire.frag", gl.FRAGMENT_SHADER)
 
 	fireDeep.program = createProgram([vertShader, fragShader])
 	

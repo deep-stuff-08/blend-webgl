@@ -29,8 +29,8 @@ function setupProgramForScene5Deep() {
 	setupProgramForTVDeep()
 	setupProgramForFireDeep()
 
-	var vertShader = createShader('shaders/fireonearth.vert', gl.VERTEX_SHADER)
-	var fragShader = createShader('shaders/fireonearth.frag', gl.FRAGMENT_SHADER)
+	var vertShader = createShader('Scene5/shaders/fireonearth.vert', gl.VERTEX_SHADER)
+	var fragShader = createShader('Scene5/shaders/fireonearth.frag', gl.FRAGMENT_SHADER)
 	scene5Deep.programFireEarth = createProgram([vertShader, fragShader])
 	deleteShader(vertShader)
 	deleteShader(fragShader)
@@ -43,8 +43,8 @@ function setupProgramForScene5Deep() {
 }
 
 function initForScene5Deep() {
-	scene5Deep.cubeRoom = initCubeForShapesDeep()
-	scene5Deep.quadFire = initQuadForShapesDeep()
+	scene5Deep.cubeRoom = dshapes.initCube()
+	scene5Deep.quadFire = dshapes.initQuad()
 	scene5Deep.wallTexture = loadTexture("resources/textures/whitewall.jpg", false)
 
 	initForEarthDeep()
@@ -127,7 +127,7 @@ function renderForScene5Deep(perspectiveMatrix, viewMatrix) {
 	gl.uniform1i(scene5Deep.uniformsPhongLight.isBlend, 0)
 	gl.activeTexture(gl.TEXTURE0)
 	gl.bindTexture(gl.TEXTURE_2D, scene5Deep.wallTexture)
-	renderCubeForShapesDeep(scene5Deep.cubeRoom)
+	scene5Deep.cubeRoom.render()
 	
 	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightPosition, [1.0, 0.0, 0.0])
 
@@ -168,7 +168,7 @@ function renderForScene5Deep(perspectiveMatrix, viewMatrix) {
 	gl.bindTexture(gl.TEXTURE_2D, scene5Deep.texFire)
 	gl.uniform1i(scene5Deep.uniformsPhongLight.isBlend, 1)
 	gl.enable(gl.BLEND)
-	renderQuadForShapesDeep(scene5Deep.quadFire)
+	scene5Deep.quadFire.render()
 	gl.disable(gl.BLEND)
 	gl.useProgram(null)
 }
