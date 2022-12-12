@@ -17,6 +17,8 @@ var modelList = [
 	{ name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
 ]
 
+var loadedTextures = {}
+
 assimpjs().then (function (ajs) {
 	Promise.all(modelList.flatMap(o => o.files).map((fileToLoad) => fetch (fileToLoad))).then ((responses) => {
 		return Promise.all(responses.map ((res) => res.arrayBuffer()))
@@ -135,7 +137,6 @@ function setupProgram() {
 	setupProgramForLightSourceRendererDeep()
 	setupProgramForDeepCube()
 	// setupProgramForTestModelLoadByDeep()
-	// setupProgramForDeepEarth()
 
 	if(renderScene === 5) {
 		setupProgramForScene5Deep()
@@ -146,7 +147,6 @@ function init() {
 	initForDeepCube()
 	initForLightSourceRendererDeep()
 	// initForTestModelLoadByDeep()
-	// initForDeepEarth()
 
 	if(renderScene === 5) {
 		initForScene5Deep()
@@ -229,18 +229,27 @@ function deleteProgram(program) {
 }
 
 function loadTexture(path, isTexFlipped) {
-	var tbo = gl.createTexture()
-	tbo.image = new Image()
-	tbo.image.src = path
-	tbo.image.onload = function() {
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
-		gl.bindTexture(gl.TEXTURE_2D, tbo)
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tbo.image)
-		gl.generateMipmap(gl.TEXTURE_2D)
-		console.log("Successfully Loaded: " + path)
-		gl.bindTexture(gl.TEXTURE_2D, null)
+	if(loadedTextures[path] == undefined) {
+		var tbo = gl.createTexture()
+		tbo.image = new Image()
+		tbo.image.src = path
+		tbo.image.onload = function() {
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
+			gl.bindTexture(gl.TEXTURE_2D, tbo)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tbo.image)
+			gl.generateMipmap(gl.TEXTURE_2D)
+			console.log("Successfully Loaded: " + path)
+			gl.bindTexture(gl.TEXTURE_2D, null)
+		}
+		tbo.image.onerror = function() {
+			loadedTextures[path] = undefined
+			console.log("Failed Load: " + path)
+		}
+		loadedTextures[path] = tbo
+		return tbo
+	} else {
+		return loadedTextures[path]
 	}
-	return tbo
 }
