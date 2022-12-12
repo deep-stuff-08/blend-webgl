@@ -18,7 +18,7 @@ function setupProgramForPCDeep() {
 }
 
 function initForPCDeep() {
-	pcDeep.quadScreen = initQuadForShapesDeep()
+	pcDeep.quadScreen = dshapes.initQuad()
 	pcDeep.objectPC = initalizeModel("PC")
 }
 
@@ -49,5 +49,5 @@ function renderForPCDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPositi
 	gl.uniform1i(scene5Deep.uniformsFireEarth.diffuseTextureSamplerFire, 1)
 	gl.activeTexture(gl.TEXTURE1)
 	gl.bindTexture(gl.TEXTURE_2D, texObjFire)
-	renderQuadForShapesDeep(pcDeep.quadScreen)
+	pcDeep.quadScreen.render()
 }

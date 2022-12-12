@@ -13,8 +13,8 @@ function setupProgramForTVDeep() {
 }
 
 function initForTVDeep() {
-	tvDeep.cubeObj = initCubeForShapesDeep()
-	tvDeep.quadObj = initQuadForShapesDeep()
+	tvDeep.cubeObj = dshapes.initCube()
+	tvDeep.quadObj = dshapes.initQuad()
 	tvDeep.texWood = loadTexture("resources/textures/wood.png")
 }
 
@@ -34,23 +34,23 @@ function renderForTVDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPos, t
 	mat4.translate(localMatrix, modelMatrix, [0.0, 1.0, 0.0])
 	mat4.scale(localMatrix, localMatrix, [1.0, 0.05, 0.03])
 	gl.uniformMatrix4fv(tvDeep.uniforms.mMat, false, localMatrix)
-	renderCubeForShapesDeep(tvDeep.cubeObj)
+	tvDeep.cubeObj.render()
 
 	mat4.translate(localMatrix, modelMatrix, [0.0, -1.0, 0.0])
 	mat4.scale(localMatrix, localMatrix, [1.0, 0.05, 0.03])
 	gl.uniformMatrix4fv(tvDeep.uniforms.mMat, false, localMatrix)
-	renderCubeForShapesDeep(tvDeep.cubeObj)
-
+	tvDeep.cubeObj.render()
+	
 	mat4.translate(localMatrix, modelMatrix, [1.03, 0.0, 0.0])
 	mat4.scale(localMatrix, localMatrix, [0.05, 1.05, 0.03])
 	gl.uniformMatrix4fv(tvDeep.uniforms.mMat, false, localMatrix)
-	renderCubeForShapesDeep(tvDeep.cubeObj)
-
+	tvDeep.cubeObj.render()
+	
 	mat4.translate(localMatrix, modelMatrix, [-1.03, 0.0, 0.0])
 	mat4.scale(localMatrix, localMatrix, [0.05, 1.05, 0.03])
 	gl.uniformMatrix4fv(tvDeep.uniforms.mMat, false, localMatrix)
-	renderCubeForShapesDeep(tvDeep.cubeObj)
-
+	tvDeep.cubeObj.render()
+	
 	gl.useProgram(scene5Deep.programFireEarth)
 	mat4.translate(localMatrix, modelMatrix, [0.0, 0.0, -0.01])
 	mat4.scale(localMatrix, localMatrix, [1.0, 1.0, 0.01])
@@ -63,6 +63,6 @@ function renderForTVDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPos, t
 	gl.uniform1i(scene5Deep.uniformsFireEarth.diffuseTextureSamplerFire, 1)
 	gl.activeTexture(gl.TEXTURE1)
 	gl.bindTexture(gl.TEXTURE_2D, texObjFire)
-	renderQuadForShapesDeep(tvDeep.quadObj)
+	tvDeep.quadObj.render()
 	gl.useProgram(null)
 }

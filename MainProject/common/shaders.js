@@ -16,8 +16,8 @@ var progPhongLightWithTexture = {
 
 function setupCommonPrograms() {
 	//Phong Light with Texture Support
-	var vertShader = createShader('shaders/phonglighttex.vert', gl.VERTEX_SHADER)
-	var fragShader = createShader('shaders/phonglighttex.frag', gl.FRAGMENT_SHADER)
+	var vertShader = createShader('common/shaders/phonglighttex.vert', gl.VERTEX_SHADER)
+	var fragShader = createShader('common/shaders/phonglighttex.frag', gl.FRAGMENT_SHADER)
 	progPhongLightWithTexture.program = createProgram([vertShader, fragShader])
 	deleteShader(vertShader)
 	deleteShader(fragShader)

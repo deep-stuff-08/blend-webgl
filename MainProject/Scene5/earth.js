@@ -15,8 +15,8 @@ var earthDeep = {
 }
 
 function setupProgramForEarthDeep() {
-	var vertShader = createShader("shaders/earth.vert", gl.VERTEX_SHADER)
-	var fragShader = createShader("shaders/earth.frag", gl.FRAGMENT_SHADER)
+	var vertShader = createShader("Scene5/shaders/earth.vert", gl.VERTEX_SHADER)
+	var fragShader = createShader("Scene5/shaders/earth.frag", gl.FRAGMENT_SHADER)
 
 	earthDeep.program = createProgram([vertShader, fragShader], function(program) {
 		gl.bindAttribLocation(program, 0, "vPos")
@@ -34,7 +34,7 @@ function setupProgramForEarthDeep() {
 function initForEarthDeep() {
 	const stacks = 25, slices = 50
 
-	earthDeep.sphere = initSphereForShapesDeep(stacks, slices)
+	earthDeep.sphere = dshapes.initSphere(stacks, slices)
 
 	earthDeep.texDiffuseEarthLight = loadTexture("resources/textures/earthlight.jpg", true)
 	earthDeep.texDiffuseEarthNight = loadTexture("resources/textures/earthnight.jpg", true)
@@ -58,6 +58,6 @@ function renderForEarthDeep(perspectiveMatrix, viewMatrix) {
 	gl.activeTexture(gl.TEXTURE1)
 	gl.bindTexture(gl.TEXTURE_2D, earthDeep.texDiffuseEarthNight)
 	
-	renderSphereForShapesDeep(earthDeep.sphere)
+	earthDeep.sphere.render(0.0)
 	gl.useProgram(null)
 }

@@ -10,8 +10,8 @@ var progLightSource = {
 }
 
 function setupProgramForLightSourceRendererDeep() {
-	vertShader = createShader('shaders/lightsource.vert', gl.VERTEX_SHADER)
-	fragShader = createShader('shaders/lightsource.frag', gl.FRAGMENT_SHADER)
+	vertShader = createShader('common/shaders/lightsource.vert', gl.VERTEX_SHADER)
+	fragShader = createShader('common/shaders/lightsource.frag', gl.FRAGMENT_SHADER)
 	progLightSource.program = createProgram([vertShader, fragShader])
 	deleteShader(vertShader)
 	deleteShader(fragShader)
@@ -23,7 +23,7 @@ function setupProgramForLightSourceRendererDeep() {
 }
 
 function initForLightSourceRendererDeep() {
-	progLightSource.cube = initCubeForShapesDeep()
+	progLightSource.cube = dshapes.initCube()
 }
 
 function renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightPos, lightColor) {
@@ -32,6 +32,6 @@ function renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightPos, lightCol
 	gl.uniformMatrix4fv(progLightSource.uniforms.vMat, false, viewMatrix)
 	gl.uniform3fv(progLightSource.uniforms.lightPos, lightPos)
 	gl.uniform3fv(progLightSource.uniforms.lightColor, lightColor)
-	renderCubeForShapesDeep(progLightSource.cube)
+	progLightSource.cube.render()
 	gl.useProgram(null)
 }
