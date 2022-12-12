@@ -11,7 +11,8 @@ var earthDeep = {
 		lightPos: null,
 		samDiffuseEarthLight: null,
 		samDiffuseEarthNight: null
-	}
+	},
+	time: null
 }
 
 function setupProgramForEarthDeep() {
@@ -34,6 +35,7 @@ function setupProgramForEarthDeep() {
 function initForEarthDeep() {
 	const stacks = 25, slices = 50
 
+	earthDeep.time = 0.0
 	earthDeep.sphere = dshapes.initSphere(stacks, slices)
 
 	earthDeep.texDiffuseEarthLight = loadTexture("resources/textures/earthlight.jpg", true)
@@ -42,13 +44,13 @@ function initForEarthDeep() {
 
 function renderForEarthDeep(perspectiveMatrix, viewMatrix) {
 	var modelMatrix = mat4.create()
-	mat4.rotate(modelMatrix, modelMatrix, 30.0, [0.0, 1.0, 0.3])
+	mat4.rotate(modelMatrix, modelMatrix, earthDeep.time * 2.0, [0.0, 1.0, 0.3])
 
 	gl.useProgram(earthDeep.program)
 	gl.uniformMatrix4fv(earthDeep.unifroms.pMat, false, perspectiveMatrix)
 	gl.uniformMatrix4fv(earthDeep.unifroms.vMat, false, viewMatrix)
 	gl.uniformMatrix4fv(earthDeep.unifroms.mMat, false, modelMatrix)
-	gl.uniform3f(earthDeep.unifroms.lightPos, 10.0 * Math.sin(45.0), 0.0, 10.0 * Math.cos(45.0))
+	gl.uniform3f(earthDeep.unifroms.lightPos, 10.0 * Math.sin(earthDeep.time), 0.0, 10.0 * Math.cos(earthDeep.time))
 
 	gl.uniform1i(earthDeep.unifroms.samDiffuseEarthLight, 0)
 	gl.activeTexture(gl.TEXTURE0)
@@ -60,4 +62,6 @@ function renderForEarthDeep(perspectiveMatrix, viewMatrix) {
 	
 	earthDeep.sphere.render(0.0)
 	gl.useProgram(null)
+
+	earthDeep.time += 0.01
 }
