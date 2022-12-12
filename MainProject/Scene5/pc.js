@@ -36,7 +36,7 @@ function renderForPCDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPositi
 	gl.uniform1i(pcDeep.uniformsModel.isInvertNormals, 0)
 	renderModel(pcDeep.objectPC)
 
-	mat4.translate(localModelMatrix, modelMatrix, [-0.01, 0.53, 0.09])
+	mat4.translate(localModelMatrix, modelMatrix, [-0.01, 0.535, 0.09])
 	mat4.rotate(localModelMatrix, localModelMatrix, -0.14, [1.0, 0.0, 0.0])
 	mat4.scale(localModelMatrix, localModelMatrix, [monitorScale[0], monitorScale[1], 1.0])
 	gl.useProgram(scene5Deep.programFireEarth)

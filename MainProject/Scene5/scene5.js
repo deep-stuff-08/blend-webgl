@@ -3,12 +3,15 @@ var scene5Deep = {
 	programPhongLight: null,
 	uniformsPhongLight: null,
 	cubeRoom: null,
-	quadFire: null,
+	quad: null,
 	fboEarth: null,
 	texEarth: null,
 	fboFire: null,
 	texFire: null,
-	wallTexture: null,
+	fboSmoke: null,
+	texSmoke: null,
+	texWall: null,
+	texSpace: null,
 	programFireEarth: null,
 	uniformsFireEarth: {
 		pMat: null,
@@ -28,6 +31,7 @@ function setupProgramForScene5Deep() {
 	setupProgramForTableDeep()
 	setupProgramForTVDeep()
 	setupProgramForFireDeep()
+	setupProgramForSmokeDeep()
 
 	var vertShader = createShader('Scene5/shaders/fireonearth.vert', gl.VERTEX_SHADER)
 	var fragShader = createShader('Scene5/shaders/fireonearth.frag', gl.FRAGMENT_SHADER)
@@ -44,14 +48,16 @@ function setupProgramForScene5Deep() {
 
 function initForScene5Deep() {
 	scene5Deep.cubeRoom = dshapes.initCube()
-	scene5Deep.quadFire = dshapes.initQuad()
-	scene5Deep.wallTexture = loadTexture("resources/textures/whitewall.jpg", false)
+	scene5Deep.quad = dshapes.initQuad()
+	scene5Deep.texWall = loadTexture("resources/textures/whitewall.jpg", false)
+	scene5Deep.texSpace = loadTexture("resources/textures/space.jpg", false)
 
 	initForEarthDeep()
 	initForPCDeep()
 	initForTableDeep()
 	initForTVDeep()
 	initForFireDeep()
+	initForSmokeDeep()
 
 	scene5Deep.fboEarth = gl.createFramebuffer()
 	gl.bindFramebuffer(gl.FRAMEBUFFER, scene5Deep.fboEarth)
@@ -76,6 +82,7 @@ function initForScene5Deep() {
 	scene5Deep.texFire = gl.createTexture()
 	gl.bindTexture(gl.TEXTURE_2D, scene5Deep.texFire)
 	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, 1024, 1024)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, scene5Deep.texFire, 0)
@@ -87,7 +94,25 @@ function initForScene5Deep() {
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 
-	cameraPosition = [ 0.0, -2.0, 7.9 ]
+	scene5Deep.fboSmoke = gl.createFramebuffer()
+	gl.bindFramebuffer(gl.FRAMEBUFFER, scene5Deep.fboSmoke)
+
+	scene5Deep.texSmoke = gl.createTexture()
+	gl.bindTexture(gl.TEXTURE_2D, scene5Deep.texSmoke)
+	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, 1024, 1024)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, scene5Deep.texSmoke, 0)
+
+	rbo = gl.createRenderbuffer()
+	gl.bindRenderbuffer(gl.RENDERBUFFER, rbo)
+	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT32F, 1024, 1024)
+	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo)
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+
+	cameraPosition = [ 0.0, -1.8, -5.0 ]
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 }
 
@@ -98,17 +123,37 @@ function renderForScene5Deep(perspectiveMatrix, viewMatrix) {
 	gl.clearBufferfv(gl.COLOR, 0, [0.1, 0.1, 0.1, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 	gl.viewport(0, 0, 1024, 1024)
+	gl.disable(gl.DEPTH_TEST)
+	gl.useProgram(scene5Deep.programPhongLight)
+	gl.uniformMatrix4fv(scene5Deep.uniformsPhongLight.pMat, false, mat4.create())
+	gl.uniformMatrix4fv(scene5Deep.uniformsPhongLight.vMat, false, mat4.create())
+	gl.uniformMatrix4fv(scene5Deep.uniformsPhongLight.mMat, false, mat4.create())
+	gl.uniform1i(scene5Deep.uniformsPhongLight.diffuseTextureSampler, 0)
+	gl.uniform1i(scene5Deep.uniformsPhongLight.isLight, 0)
+	gl.uniform1i(scene5Deep.uniformsPhongLight.isTexture, 1)
+	gl.uniform1i(scene5Deep.uniformsPhongLight.isBlend, 0)
+	gl.activeTexture(gl.TEXTURE0)
+	gl.bindTexture(gl.TEXTURE_2D, scene5Deep.texSpace)
+	scene5Deep.quad.render()
+	gl.enable(gl.DEPTH_TEST)
+	gl.useProgram(null)
 	var projMatrixEarth = mat4.create()
 	mat4.perspective(projMatrixEarth, glMatrix.toRadian(45.0), monitorScale[0] / monitorScale[1], 0.1, 100.0)
 	var viewMatrixEarth = mat4.create()
 	mat4.lookAt(viewMatrixEarth, [0.0, 0.0, 5.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0])
 	renderForEarthDeep(projMatrixEarth, viewMatrixEarth)
-
+	
 	gl.bindFramebuffer(gl.FRAMEBUFFER, scene5Deep.fboFire)
 	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.1, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 	gl.viewport(0, 0, 1024, 1024)
 	renderForFireDeep([1024, 1024])
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, scene5Deep.fboSmoke)
+	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.1, 1.0])
+	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
+	gl.viewport(0, 0, 1024, 1024)
+	renderForSmokeDeep([1024, 1024])
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 	gl.viewport(0, 0, canvas.width, canvas.height)
@@ -126,7 +171,7 @@ function renderForScene5Deep(perspectiveMatrix, viewMatrix) {
 	gl.uniform1i(scene5Deep.uniformsPhongLight.isTexture, 1)
 	gl.uniform1i(scene5Deep.uniformsPhongLight.isBlend, 0)
 	gl.activeTexture(gl.TEXTURE0)
-	gl.bindTexture(gl.TEXTURE_2D, scene5Deep.wallTexture)
+	gl.bindTexture(gl.TEXTURE_2D, scene5Deep.texWall)
 	scene5Deep.cubeRoom.render()
 	
 	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightPosition, [1.0, 0.0, 0.0])
@@ -160,15 +205,21 @@ function renderForScene5Deep(perspectiveMatrix, viewMatrix) {
 
 	gl.useProgram(scene5Deep.programPhongLight)
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [0.0, -3.0, 0.0])
+	mat4.translate(modelMatrix, modelMatrix, [0.0, -2.5, 0.0])
 	gl.uniformMatrix4fv(scene5Deep.uniformsPhongLight.mMat, false, modelMatrix)
 	gl.uniform1i(scene5Deep.uniformsPhongLight.diffuseTextureSampler, 0)
 	gl.uniform1i(scene5Deep.uniformsPhongLight.isLight, 0)
 	gl.activeTexture(gl.TEXTURE0)
-	gl.bindTexture(gl.TEXTURE_2D, scene5Deep.texFire)
+	gl.bindTexture(gl.TEXTURE_2D, scene5Deep.texSmoke)
 	gl.uniform1i(scene5Deep.uniformsPhongLight.isBlend, 1)
 	gl.enable(gl.BLEND)
-	scene5Deep.quadFire.render()
+	scene5Deep.quad.render()
+	modelMatrix = mat4.create()
+	
+	mat4.translate(modelMatrix, modelMatrix, [0.0, -3.0, 0.01])
+	gl.uniformMatrix4fv(scene5Deep.uniformsPhongLight.mMat, false, modelMatrix)
+	gl.bindTexture(gl.TEXTURE_2D, scene5Deep.texFire)
+	scene5Deep.quad.render()
 	gl.disable(gl.BLEND)
 	gl.useProgram(null)
 }

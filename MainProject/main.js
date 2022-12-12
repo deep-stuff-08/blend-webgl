@@ -179,7 +179,6 @@ function render() {
 		renderForScene5Deep(perspectiveMatrix, cameraMatrix)
 	}
 	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
-	// renderForDeepEarth(perspectiveMatrix, cameraMatrix)
 
 	window.requestAnimationFrame(render)
 }
