@@ -1,3 +1,4 @@
+"use strict"
 var canvas
 var gl
 var lastmousex = -1, lastmousey = -1
@@ -6,10 +7,17 @@ var cameraFront = vec3.set(vec3.create(), 0.0, 0.0, -1.0)
 var cameraPosition = vec3.set(vec3.create(), 0.0, 0.0, 5.0)
 var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 
+var renderScene = 5
+
+var trans = [ 0.0, 0.0, 0.0 ]
+
 var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
+	{ name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
 ]
+
+var loadedTextures = {}
 
 assimpjs().then (function (ajs) {
 	Promise.all(modelList.flatMap(o => o.files).map((fileToLoad) => fetch (fileToLoad))).then ((responses) => {
@@ -62,7 +70,7 @@ function main() {
 			var yoffset = lastmousey - event.y 
 			lastmousex = event.x
 			lastmousey = event.y
-			sensitivity = 0.1
+			const sensitivity = 0.1
 			xoffset *= sensitivity
 			yoffset *= sensitivity
 			cameraYaw += xoffset
@@ -103,6 +111,18 @@ function main() {
 			vec3.normalize(dir, dir)
 			vec3.multiply(dir, dir, [speed, speed, speed])
 			vec3.subtract(cameraPosition, cameraPosition, dir)
+		} else if(event.code == 'KeyI') {
+			trans[1] += 0.01
+		} else if(event.code == 'KeyK') {
+			trans[1] -= 0.01
+		} else if(event.code == 'KeyJ') {
+			trans[0] -= 0.01
+		} else if(event.code == 'KeyL') {
+			trans[0] += 0.01
+		} else if(event.code == 'KeyM') {
+			trans[2] -= 0.01
+		} else if(event.code == 'KeyN') {
+			trans[2] += 0.01
 		}
 	})
 	
@@ -113,15 +133,24 @@ function main() {
 }
 
 function setupProgram() {
+	setupCommonPrograms()
+	setupProgramForLightSourceRendererDeep()
 	setupProgramForDeepCube()
 	// setupProgramForTestModelLoadByDeep()
-	// setupProgramForDeepEarth()
+
+	if(renderScene === 5) {
+		setupProgramForScene5Deep()
+	}
 }
 
 function init() {
 	initForDeepCube()
+	initForLightSourceRendererDeep()
 	// initForTestModelLoadByDeep()
-	// initForDeepEarth()
+
+	if(renderScene === 5) {
+		initForScene5Deep()
+	}
 
 	gl.enable(gl.DEPTH_TEST)
 }
@@ -141,11 +170,15 @@ function render() {
 	mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp)
 	
 	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0])
+	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 	gl.viewport(0, 0, canvas.width, canvas.height)
 
-	renderForDeepCube(perspectiveMatrix, cameraMatrix)
+	if(renderScene === 0) {
+		renderForDeepCube(perspectiveMatrix, cameraMatrix)
+	} else if(renderScene === 5) {
+		renderForScene5Deep(perspectiveMatrix, cameraMatrix)
+	}
 	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
-	// renderForDeepEarth(perspectiveMatrix, cameraMatrix)
 
 	window.requestAnimationFrame(render)
 }
@@ -154,6 +187,7 @@ function uninit() {
 }
 
 function createShader(filename, shaderType) {
+	console.log("Loading ", filename)
 	var shader = gl.createShader(shaderType)
 	var xhr = new XMLHttpRequest()
 	xhr.open("GET", filename, false)
@@ -194,18 +228,27 @@ function deleteProgram(program) {
 }
 
 function loadTexture(path, isTexFlipped) {
-	var tbo = gl.createTexture()
-	tbo.image = new Image()
-	tbo.image.src = path
-	tbo.image.onload = function() {
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
-		gl.bindTexture(gl.TEXTURE_2D, tbo)
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tbo.image)
-		gl.generateMipmap(gl.TEXTURE_2D)
-		console.log("Successfully Loaded: " + path)
-		gl.bindTexture(gl.TEXTURE_2D, null)
+	if(loadedTextures[path] == undefined) {
+		var tbo = gl.createTexture()
+		tbo.image = new Image()
+		tbo.image.src = path
+		tbo.image.onload = function() {
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
+			gl.bindTexture(gl.TEXTURE_2D, tbo)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tbo.image)
+			gl.generateMipmap(gl.TEXTURE_2D)
+			console.log("Successfully Loaded: " + path)
+			gl.bindTexture(gl.TEXTURE_2D, null)
+		}
+		tbo.image.onerror = function() {
+			loadedTextures[path] = undefined
+			console.log("Failed Load: " + path)
+		}
+		loadedTextures[path] = tbo
+		return tbo
+	} else {
+		return loadedTextures[path]
 	}
-	return tbo
 }

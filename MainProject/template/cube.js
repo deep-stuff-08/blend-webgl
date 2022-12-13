@@ -9,8 +9,8 @@ var diffuseTextureForDeepCube;
 var angle = 0.0
 
 function setupProgramForDeepCube() {
-	var vertShader = createShader('shaders/phonglight.vert', gl.VERTEX_SHADER);
-	var fragShader = createShader('shaders/phonglight.frag', gl.FRAGMENT_SHADER);
+	var vertShader = createShader('common/shaders/phonglight.vert', gl.VERTEX_SHADER);
+	var fragShader = createShader('common/shaders/phonglight.frag', gl.FRAGMENT_SHADER);
 	programForDeepCube = createProgram([vertShader, fragShader]);
 	deleteShader(vertShader);
 	deleteShader(fragShader);
