@@ -138,6 +138,11 @@ function setupProgram() {
 	setupProgramForDeepCube()
 	// setupProgramForTestModelLoadByDeep()
 
+	if(renderScene === 2)
+	{
+		setupprogramForSceneTwo();
+	}
+
 	if(renderScene === 5) {
 		setupProgramForScene5Deep()
 	}
@@ -147,6 +152,11 @@ function init() {
 	initForDeepCube()
 	initForLightSourceRendererDeep()
 	// initForTestModelLoadByDeep()
+
+	if(renderScene === 2)
+	{
+		initForSceneTwo();
+	}
 
 	if(renderScene === 5) {
 		initForScene5Deep()
@@ -175,7 +185,11 @@ function render() {
 
 	if(renderScene === 0) {
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)
-	} else if(renderScene === 5) {
+	}
+	else if(renderScene === 2) {
+		renderForSceneTwo(perspectiveMatrix, cameraMatrix)
+	} 
+	else if(renderScene === 5) {
 		renderForScene5Deep(perspectiveMatrix, cameraMatrix)
 	}
 	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
