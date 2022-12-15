@@ -224,6 +224,124 @@ class dshapes {
 		return new dshapes(vao, elementIndices.length, true)
 	}
 
+	static initParaboloid(height, slices) {
+		var dTheta = glMatrix.toRadian(5.0);
+		var dy = height / slices;
+	
+		var vertexData = [];
+		for(var y = dy; y <= height; y += dy) {
+			var posFactorInner = Math.sqrt(y);
+			var posFactorOuter = Math.sqrt(y + dy);
+			var texFactorInner = height / y;
+			var texFactorOuter = height / (y + dy);
+			for(var theta = 0.0; theta < 2*Math.PI; theta += dTheta) {
+				// emit vertex 0
+				var x = posFactorInner * Math.sin(theta);
+				var z = posFactorInner * Math.cos(theta);
+				vertexData.push(x);
+				vertexData.push(y);
+				vertexData.push(z);
+	
+				var normDivisor = Math.sqrt(1 + 4*(x**2)) * Math.sqrt(1 + 4*(z**2));
+				vertexData.push(2*x / normDivisor);
+				vertexData.push(-1 / normDivisor);
+				vertexData.push(2*z / normDivisor);
+	
+				vertexData.push(texFactorInner * x);
+				vertexData.push(texFactorInner * z);
+
+				// emit vertex 1
+				x = posFactorInner * Math.sin(theta + dTheta);
+				z = posFactorInner * Math.cos(theta + dTheta);
+				vertexData.push(x);
+				vertexData.push(y);
+				vertexData.push(z);
+	
+				normDivisor = Math.sqrt(1 + 4*(x**2)) * Math.sqrt(1 + 4*(z**2));
+				vertexData.push(2*x / normDivisor);
+				vertexData.push(-1 / normDivisor);
+				vertexData.push(2*z / normDivisor);
+	
+				vertexData.push(texFactorInner * x);
+				vertexData.push(texFactorInner * z);
+
+				// emit vertex 2
+				x = posFactorOuter * Math.sin(theta);
+				z = posFactorOuter * Math.cos(theta);
+				vertexData.push(x);
+				vertexData.push(y + dy);
+				vertexData.push(z);
+	
+				normDivisor = Math.sqrt(1 + 4*(x**2)) * Math.sqrt(1 + 4*(z**2));
+				vertexData.push(2*x / normDivisor);
+				vertexData.push(-1 / normDivisor);
+				vertexData.push(2*z / normDivisor);
+	
+				vertexData.push(texFactorOuter * x);
+				vertexData.push(texFactorOuter * z);
+
+				// emit vertex 2
+				vertexData.push(x);
+				vertexData.push(y + dy);
+				vertexData.push(z);
+	
+				vertexData.push(2*x / normDivisor);
+				vertexData.push(-1 / normDivisor);
+				vertexData.push(2*z / normDivisor);
+	
+				vertexData.push(texFactorOuter * x);
+				vertexData.push(texFactorOuter * z);
+
+				// emit vertex 1
+				x = posFactorInner * Math.sin(theta + dTheta);
+				z = posFactorInner * Math.cos(theta + dTheta);
+				vertexData.push(x);
+				vertexData.push(y);
+				vertexData.push(z);
+	
+				normDivisor = Math.sqrt(1 + 4*(x**2)) * Math.sqrt(1 + 4*(z**2));
+				vertexData.push(2*x / normDivisor);
+				vertexData.push(-1 / normDivisor);
+				vertexData.push(2*z / normDivisor);
+	
+				vertexData.push(texFactorInner * x);
+				vertexData.push(texFactorInner * z);
+
+				// emit vertex 3
+				x = posFactorOuter * Math.sin(theta + dTheta);
+				z = posFactorOuter * Math.cos(theta + dTheta);
+				vertexData.push(x);
+				vertexData.push(y + dy);
+				vertexData.push(z);
+	
+				normDivisor = Math.sqrt(1 + 4*(x**2)) * Math.sqrt(1 + 4*(z**2));
+				vertexData.push(2*x / normDivisor);
+				vertexData.push(-1 / normDivisor);
+				vertexData.push(2*z / normDivisor);
+	
+				vertexData.push(texFactorOuter * x);
+				vertexData.push(texFactorOuter * z);
+			}
+		}
+		var vertexArray = new Float32Array(vertexData);
+	
+		var vao = gl.createVertexArray();
+		gl.bindVertexArray(vao);
+	
+		var vbo = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+		gl.bufferData(gl.ARRAY_BUFFER, vertexArray, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 8 * vertexArray.BYTES_PER_ELEMENT, 0 * vertexArray.BYTES_PER_ELEMENT);
+		gl.enableVertexAttribArray(0);
+		gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 8 * vertexArray.BYTES_PER_ELEMENT, 3 * vertexArray.BYTES_PER_ELEMENT);
+		gl.enableVertexAttribArray(1);
+		gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 8 * vertexArray.BYTES_PER_ELEMENT, 6 * vertexArray.BYTES_PER_ELEMENT);
+		gl.enableVertexAttribArray(2);
+	
+		gl.bindVertexArray(null);
+		return new dshapes(vao, vertexArray.length / 8, false);
+	}
+
 	render() {
 		gl.bindVertexArray(this.vao)
 		if(this.isIndexed) {

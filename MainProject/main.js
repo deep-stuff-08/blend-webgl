@@ -7,7 +7,7 @@ var cameraFront = vec3.set(vec3.create(), 0.0, 0.0, -1.0)
 var cameraPosition = vec3.set(vec3.create(), 0.0, 0.0, 5.0)
 var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 
-var renderScene = 5
+var renderScene = 1
 
 var trans = [ 0.0, 0.0, 0.0 ]
 
@@ -138,11 +138,13 @@ function setupProgram() {
 	setupProgramForDeepCube()
 	// setupProgramForTestModelLoadByDeep()
 
+	if(renderScene === 1) {
+		setupProgramForScene1Kdesh();
+	}
 	if(renderScene === 2)
 	{
 		setupprogramForSceneTwo();
 	}
-
 	if(renderScene === 5) {
 		setupProgramForScene5Deep()
 	}
@@ -153,11 +155,13 @@ function init() {
 	initForLightSourceRendererDeep()
 	// initForTestModelLoadByDeep()
 
+	if(renderScene === 1) {
+		initForScene1Kdesh();
+	}
 	if(renderScene === 2)
 	{
 		initForSceneTwo();
 	}
-
 	if(renderScene === 5) {
 		initForScene5Deep()
 	}
@@ -185,11 +189,11 @@ function render() {
 
 	if(renderScene === 0) {
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)
-	}
-	else if(renderScene === 2) {
+	} else if(renderScene === 1) {
+		renderForScene1Kdesh(perspectiveMatrix, cameraMatrix);
+	} else if(renderScene === 2) {
 		renderForSceneTwo(perspectiveMatrix, cameraMatrix)
-	} 
-	else if(renderScene === 5) {
+	} else if(renderScene === 5) {
 		renderForScene5Deep(perspectiveMatrix, cameraMatrix)
 	}
 	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
