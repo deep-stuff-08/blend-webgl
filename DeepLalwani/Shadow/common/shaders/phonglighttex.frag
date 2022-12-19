@@ -17,6 +17,7 @@ uniform bool isBlend;
 uniform bool isShadow;
 
 uniform sampler2D samplerDiffuse;
+// uniform sampler2DShadow samplerShadow;
 uniform sampler2DShadow samplerShadow;
 
 out vec4 color;
@@ -26,7 +27,7 @@ float calcShadowPCF(sampler2DShadow shadowTex, vec4 fragPos) {
 	const float texelSize = 1.0 / 700.0;
 	for(int x = -1; x <= 1; x++) {
 		for(int y = -1; y <= 1; y++) {
-			shadow += textureProj(samplerShadow, lightFragPos + vec4(vec2(x, y) * vec2(texelSize), 0.0, 0.0));
+			shadow += textureProj(samplerShadow, fragPos + vec4(vec2(x, y) * vec2(texelSize), 0.0, 0.0));
 		}
 	}
 	return shadow /= 9.0;

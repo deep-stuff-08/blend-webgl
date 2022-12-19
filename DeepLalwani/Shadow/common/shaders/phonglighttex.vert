@@ -26,5 +26,5 @@ void main(void) {
 	}
 	P = vec3(mMat * vPos);	
 	viewPos = -vMat[3].xyz;
-	lightFragPos = slpMat * mMat * vPos;
+	lightFragPos = slpMat * vec4(P, 1.0);
 }

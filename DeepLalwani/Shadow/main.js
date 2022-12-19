@@ -96,7 +96,7 @@ function main() {
 			vec3.cross(dir, cameraFront, cameraUp)
 			vec3.normalize(dir, dir)
 			vec3.multiply(dir, dir, [speed, speed, speed])
-			vec3.add(cameraPosition, cameraPosition, dir)
+			vec3.subtract(cameraPosition, cameraPosition, dir)
 		} else if(event.code == 'KeyW') {
 			var dir = vec3.create()
 			vec3.multiply(dir, cameraFront, [speed, speed, speed])
@@ -110,7 +110,7 @@ function main() {
 			vec3.cross(dir, cameraFront, cameraUp)
 			vec3.normalize(dir, dir)
 			vec3.multiply(dir, dir, [speed, speed, speed])
-			vec3.subtract(cameraPosition, cameraPosition, dir)
+			vec3.add(cameraPosition, cameraPosition, dir)
 		} else if(event.code == 'KeyI') {
 			trans[1] += 0.01
 		} else if(event.code == 'KeyK') {
@@ -121,8 +121,10 @@ function main() {
 			trans[0] += 0.01
 		} else if(event.code == 'KeyM') {
 			trans[2] -= 0.01
+			a -= 1.0
 		} else if(event.code == 'KeyN') {
 			trans[2] += 0.01
+			a += 1.0
 		}
 	})
 	
