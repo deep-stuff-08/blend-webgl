@@ -1,0 +1,7 @@
+#include "OGL.h"
+MYICON ICON global_warming.ico
+IDBITMAP_PAINTING BITMAP WallPainting.bmp
+
+
+
+
