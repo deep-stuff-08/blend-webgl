@@ -331,14 +331,14 @@ class Model{
 //
 
 function setupprogramForSceneTwo() {
-	var vertShader = createShader('scene2/shaders/demo.vert', gl.VERTEX_SHADER);
-	var fragShader = createShader('scene2/shaders/point.frag', gl.FRAGMENT_SHADER);
+	var vertShader = createShader('Scene2/shaders/demo.vert', gl.VERTEX_SHADER);
+	var fragShader = createShader('Scene2/shaders/point.frag', gl.FRAGMENT_SHADER);
 	programForSceneTwo = createProgram([vertShader, fragShader]);
 	deleteShader(vertShader);
 	deleteShader(fragShader);
 
-	vertShader = createShader('scene2/shaders/video.vert', gl.VERTEX_SHADER);
-	fragShader = createShader('scene2/shaders/video.frag', gl.FRAGMENT_SHADER);
+	vertShader = createShader('Scene2/shaders/video.vert', gl.VERTEX_SHADER);
+	fragShader = createShader('Scene2/shaders/video.frag', gl.FRAGMENT_SHADER);
 	programVideoRender = createProgram([vertShader, fragShader]);
 	deleteShader(vertShader);
 	deleteShader(fragShader);
@@ -433,23 +433,23 @@ function initForSceneTwo() {
 	mScreen = new mesh(v,i,null);
 	console.log(mScreen);
 
-	mBed = new Model('scene2/resources/bedf.json');
-	mcab1 = new Model('scene2/resources/cab1.json');
-	mcab2 = new Model('scene2/resources/cab2.json');
-	mFood = new Model('scene2/resources/food.json');
-	mPad = new Model('scene2/resources/pad.json');
-	mSerum = new Model('scene2/resources/serum.json');
-	mSofa = new Model('scene2/resources/sofa.json');
-	mTrolley = new Model('scene2/resources/trolley.json');
-	mLaptop = new Model('scene2/resources/laptop.json');
-	mLight = new Model('scene2/resources/light.json');
-	mStool = new Model('scene2/resources/stool.json');
-	mVentilator = new Model('scene2/resources/ventilator.json');
-	mDoor = new Model('scene2/resources/door.json');
+	mBed = new Model('Scene2/resources/bedf.json');
+	mcab1 = new Model('Scene2/resources/cab1.json');
+	mcab2 = new Model('Scene2/resources/cab2.json');
+	mFood = new Model('Scene2/resources/food.json');
+	mPad = new Model('Scene2/resources/pad.json');
+	mSerum = new Model('Scene2/resources/serum.json');
+	mSofa = new Model('Scene2/resources/sofa.json');
+	mTrolley = new Model('Scene2/resources/trolley.json');
+	mLaptop = new Model('Scene2/resources/laptop.json');
+	mLight = new Model('Scene2/resources/light.json');
+	mStool = new Model('Scene2/resources/stool.json');
+	mVentilator = new Model('Scene2/resources/ventilator.json');
+	mDoor = new Model('Scene2/resources/door.json');
 
 	// load video
 
-	video = setupVideo("scene2/resources/video/trial1.mp4");
+	video = setupVideo("Scene2/resources/video/trial1.mp4");
 
 	console.log(video);
 
