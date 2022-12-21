@@ -7,8 +7,8 @@ var cameraFront = vec3.set(vec3.create(), 0.0, 0.0, -1.0)
 var cameraPosition = vec3.set(vec3.create(), 0.0, 0.0, 5.0)
 var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 
-var renderScene = 1
-
+var renderScene = 5
+var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 
 var modelList = [
@@ -18,6 +18,13 @@ var modelList = [
 ]
 
 var loadedTextures = {}
+
+var fboForHdr
+var texForHdr
+var progForHdr
+var vaoForHdr
+var uniformExposureForHdr
+var currentExposure = 1.0
 
 assimpjs().then (function (ajs) {
 	Promise.all(modelList.flatMap(o => o.files).map((fileToLoad) => fetch (fileToLoad))).then ((responses) => {
@@ -96,7 +103,7 @@ function main() {
 			vec3.cross(dir, cameraFront, cameraUp)
 			vec3.normalize(dir, dir)
 			vec3.multiply(dir, dir, [speed, speed, speed])
-			vec3.add(cameraPosition, cameraPosition, dir)
+			vec3.subtract(cameraPosition, cameraPosition, dir)
 		} else if(event.code == 'KeyW') {
 			var dir = vec3.create()
 			vec3.multiply(dir, cameraFront, [speed, speed, speed])
@@ -110,7 +117,7 @@ function main() {
 			vec3.cross(dir, cameraFront, cameraUp)
 			vec3.normalize(dir, dir)
 			vec3.multiply(dir, dir, [speed, speed, speed])
-			vec3.subtract(cameraPosition, cameraPosition, dir)
+			vec3.add(cameraPosition, cameraPosition, dir)
 		} else if(event.code == 'KeyI') {
 			trans[1] += 0.01
 		} else if(event.code == 'KeyK') {
@@ -123,9 +130,17 @@ function main() {
 			trans[2] -= 0.01
 		} else if(event.code == 'KeyN') {
 			trans[2] += 0.01
+		} else if(event.code == 'KeyE') {
+			currentExposure -= 0.01
+		} else if(event.code == 'KeyR') {
+			currentExposure += 0.01
 		}
 	})
 	
+	gl.getExtension("EXT_color_buffer_float")
+	gl.getExtension("EXT_float_blend")
+	gl.getExtension("OES_texture_float_linear")
+
 	setupProgram()
 	init()
 	render()
@@ -148,6 +163,16 @@ function setupProgram() {
 	if(renderScene === 5) {
 		setupProgramForScene5Deep()
 	}
+
+	vertShader = createShader('common/shaders/hdr.vert', gl.VERTEX_SHADER)
+	fragShader = createShader('common/shaders/hdr.frag', gl.FRAGMENT_SHADER)
+	progForHdr = createProgram([vertShader, fragShader])
+	deleteShader(vertShader)
+	deleteShader(fragShader)
+	gl.useProgram(progForHdr)
+	gl.uniform1i(gl.getUniformLocation(progForHdr, "hdrTex"), 0)
+	uniformExposureForHdr = gl.getUniformLocation(progForHdr, "exposure")
+	gl.useProgram(null)
 }
 
 function init() {
@@ -155,8 +180,24 @@ function init() {
 	initForLightSourceRendererDeep()
 	// initForTestModelLoadByDeep()
 
+	fboForHdr = gl.createFramebuffer()
+	texForHdr = gl.createTexture()
+	vaoForHdr = gl.createVertexArray()
+	var rbo = gl.createRenderbuffer()
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fboForHdr)
+	gl.bindTexture(gl.TEXTURE_2D, texForHdr)
+	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, 2048, 2048)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texForHdr, 0)
+	gl.bindRenderbuffer(gl.RENDERBUFFER, rbo)
+	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT32F, 2048, 2048)
+	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo)
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+
 	if(renderScene === 1) {
-		initForScene1Kdesh();
+		initForScene1Kdesh()
 	}
 	if(renderScene === 2)
 	{
@@ -175,9 +216,16 @@ function printMatrix(m) {
 }
 
 function render() {
+	if(doRenderToHdr) {
+		gl.bindFramebuffer(gl.FRAMEBUFFER, fboForHdr)
+		gl.viewport(0, 0, 2048, 2048)
+	} else {
+		gl.viewport(0, 0, canvas.width, canvas.height)
+	}
+	
 	var perspectiveMatrix = mat4.create()
 	mat4.perspective(perspectiveMatrix, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 100.0)
-	
+
 	var cameraMatrix = mat4.create()
 	var newfront = vec3.create()
 	vec3.add(newfront, cameraFront, cameraPosition)
@@ -185,7 +233,6 @@ function render() {
 	
 	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
-	gl.viewport(0, 0, canvas.width, canvas.height)
 
 	if(renderScene === 0) {
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)
@@ -197,6 +244,19 @@ function render() {
 		renderForScene5Deep(perspectiveMatrix, cameraMatrix)
 	}
 	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
+
+	if(doRenderToHdr) {
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+		gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0])
+		gl.clearBufferfv(gl.DEPTH, 0, [1.0])
+		gl.viewport(0, 0, canvas.width, canvas.height)
+		gl.useProgram(progForHdr)
+		gl.uniform1f(uniformExposureForHdr, currentExposure)
+		gl.activeTexture(gl.TEXTURE0)
+		gl.bindTexture(gl.TEXTURE_2D, texForHdr)
+		gl.bindVertexArray(vaoForHdr)
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+	}
 
 	window.requestAnimationFrame(render)
 }
