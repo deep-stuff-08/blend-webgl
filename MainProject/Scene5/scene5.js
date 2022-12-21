@@ -119,6 +119,9 @@ function initForScene5Deep() {
 const monitorScale = [0.44, 0.37]
 
 function renderForScene5Deep(perspectiveMatrix, viewMatrix) {
+	var currentFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING)
+	var currentViewport = gl.getParameter(gl.VIEWPORT)
+
 	gl.bindFramebuffer(gl.FRAMEBUFFER, scene5Deep.fboEarth)
 	gl.clearBufferfv(gl.COLOR, 0, [0.1, 0.1, 0.1, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
@@ -155,8 +158,8 @@ function renderForScene5Deep(perspectiveMatrix, viewMatrix) {
 	gl.viewport(0, 0, 1024, 1024)
 	renderForSmokeDeep([1024, 1024])
 
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-	gl.viewport(0, 0, canvas.width, canvas.height)
+	gl.bindFramebuffer(gl.FRAMEBUFFER, currentFbo)
+	gl.viewport(currentViewport[0], currentViewport[1], currentViewport[2], currentViewport[3])
 	var modelMatrix = mat4.create()
 	var lightPosition = [0.0, 3.9, 0.0]
 	mat4.scale(modelMatrix, modelMatrix, [8.0, 4.0, 8.0])
