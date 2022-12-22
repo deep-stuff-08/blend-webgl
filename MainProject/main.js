@@ -7,14 +7,24 @@ var cameraFront = vec3.set(vec3.create(), 0.0, 0.0, -1.0)
 var cameraPosition = vec3.set(vec3.create(), 0.0, 0.0, 5.0)
 var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 
-var renderScene = 5
+const SceneEnum = {
+	OpenScene: 0,
+	StudyScene: 1,
+	BarScene: 2,
+	HospitalScene: 3,
+	BedroomScene: 4,
+	UninstallScene: 5,
+	CloseScene: 6
+}
+
+var renderScene = SceneEnum.OpenScene
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 
 var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
-	{ name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
+	// { name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
 ]
 
 var loadedTextures = {}
@@ -153,17 +163,18 @@ function setupProgram() {
 	setupProgramForDeepCube()
 	// setupProgramForTestModelLoadByDeep()
 
-	if(renderScene === 1) {
-		setupProgramForScene1Kdesh();
+	switch(renderScene) {
+	case SceneEnum.OpenScene:
+		setupProgramForOpenSceneDeep()
+		break
+	case SceneEnum.StudyScene:
+		setupProgramForScene1Kdesh()
+		break
+	case SceneEnum.BarScene:
+		setupprogramForSceneTwo()
+		break
 	}
-	if(renderScene === 2)
-	{
-		setupprogramForSceneTwo();
-	}
-	if(renderScene === 5) {
-		setupProgramForScene5Deep()
-	}
-
+	
 	vertShader = createShader('common/shaders/hdr.vert', gl.VERTEX_SHADER)
 	fragShader = createShader('common/shaders/hdr.frag', gl.FRAGMENT_SHADER)
 	progForHdr = createProgram([vertShader, fragShader])
@@ -194,17 +205,19 @@ function init() {
 	gl.bindRenderbuffer(gl.RENDERBUFFER, rbo)
 	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT32F, 2048, 2048)
 	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo)
+	gl.bindTexture(gl.TEXTURE_2D, null)
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 
-	if(renderScene === 1) {
+	switch(renderScene) {
+	case SceneEnum.OpenScene:
+		initForOpenSceneDeep()
+		break
+	case SceneEnum.StudyScene:
 		initForScene1Kdesh()
-	}
-	if(renderScene === 2)
-	{
-		initForSceneTwo();
-	}
-	if(renderScene === 5) {
-		initForScene5Deep()
+		break
+	case SceneEnum.BarScene:
+		initForSceneTwo()
+		break
 	}
 
 	gl.enable(gl.DEPTH_TEST)
@@ -234,14 +247,19 @@ function render() {
 	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
-	if(renderScene === 0) {
-		renderForDeepCube(perspectiveMatrix, cameraMatrix)
-	} else if(renderScene === 1) {
+	switch(renderScene) {
+	case SceneEnum.OpenScene:
+		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix)
+		break
+	case SceneEnum.StudyScene:
 		renderForScene1Kdesh(perspectiveMatrix, cameraMatrix);
-	} else if(renderScene === 2) {
+		break
+	case SceneEnum.BarScene:
 		renderForSceneTwo(perspectiveMatrix, cameraMatrix)
-	} else if(renderScene === 5) {
-		renderForScene5Deep(perspectiveMatrix, cameraMatrix)
+		break
+	default:
+		renderForDeepCube(perspectiveMatrix, cameraMatrix)
+		break
 	}
 	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
 
@@ -256,6 +274,9 @@ function render() {
 		gl.bindTexture(gl.TEXTURE_2D, texForHdr)
 		gl.bindVertexArray(vaoForHdr)
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+		gl.bindVertexArray(null)
+		gl.bindTexture(gl.TEXTURE_2D, null)
+		gl.useProgram(null)
 	}
 
 	window.requestAnimationFrame(render)
