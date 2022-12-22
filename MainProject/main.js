@@ -7,7 +7,7 @@ var cameraFront = vec3.set(vec3.create(), 0.0, 0.0, -1.0)
 var cameraPosition = vec3.set(vec3.create(), 0.0, 0.0, 5.0)
 var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 
-var renderScene = 5
+var renderScene = 2
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 
@@ -215,7 +215,7 @@ function printMatrix(m) {
 	}
 }
 
-function render() {
+function render(time) {
 	if(doRenderToHdr) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, fboForHdr)
 		gl.viewport(0, 0, 2048, 2048)
@@ -231,17 +231,17 @@ function render() {
 	vec3.add(newfront, cameraFront, cameraPosition)
 	mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp)
 	
-	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0])
+	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
 	if(renderScene === 0) {
-		renderForDeepCube(perspectiveMatrix, cameraMatrix)
+		renderForDeepCube(perspectiveMatrix, cameraMatrix);
 	} else if(renderScene === 1) {
 		renderForScene1Kdesh(perspectiveMatrix, cameraMatrix);
 	} else if(renderScene === 2) {
-		renderForSceneTwo(perspectiveMatrix, cameraMatrix)
+		renderForSceneTwo(time,perspectiveMatrix, cameraMatrix);
 	} else if(renderScene === 5) {
-		renderForScene5Deep(perspectiveMatrix, cameraMatrix)
+		renderForScene5Deep(perspectiveMatrix, cameraMatrix);
 	}
 	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
 
@@ -315,6 +315,8 @@ function loadTexture(path, isTexFlipped) {
 			gl.bindTexture(gl.TEXTURE_2D, tbo)
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tbo.image)
 			gl.generateMipmap(gl.TEXTURE_2D)
 			console.log("Successfully Loaded: " + path)

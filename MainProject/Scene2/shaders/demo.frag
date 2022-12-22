@@ -16,8 +16,6 @@ uniform vec3 specularMat;
 uniform float shininess;
 
 uniform sampler2D diffuseTexture;
-uniform sampler2D specularTexture;
-uniform sampler2D normalTexture;
 out vec4 color;
 
 void main(void) {
@@ -33,7 +31,6 @@ void main(void) {
 	if(textureAvailable == 1)
 	{
 		diffuse *= texture(diffuseTexture,Tex).rgb;
-		specular *= texture(specularTexture,Tex).rgb;
 	}
 
 	color = vec4((ambientMat + diffuse + specular),1.0);
