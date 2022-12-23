@@ -1,5 +1,6 @@
 var programForSceneTwo;
 var programVideoRender;
+var programForECG;
 var vaoForDeepCube;
 var pMatUniformForSceneTwo;
 var vMatUniformForSceneTwo;
@@ -21,7 +22,18 @@ var mLight;
 var mDoor;
 var mStool;
 var mVentilator;
+var mFan;
+var mApple;
+var mECGScreen;
 var mScreen;
+
+var quad;
+
+var angle;
+
+var fboECGWave;
+var textureECGWave;
+var textureForm;
 
 var video;
 var copyVideo = false;
@@ -342,6 +354,13 @@ function setupprogramForSceneTwo() {
 	programVideoRender = createProgram([vertShader, fragShader]);
 	deleteShader(vertShader);
 	deleteShader(fragShader);
+
+	vertShader = createShader('Scene2/shaders/quad.vert', gl.VERTEX_SHADER);
+	fragShader = createShader('Scene2/shaders/sinewave.frag', gl.FRAGMENT_SHADER);
+	programForECG = createProgram([vertShader, fragShader]);
+	deleteShader(vertShader);
+	deleteShader(fragShader);
+
 }
 
 function initForSceneTwo() {
@@ -423,15 +442,16 @@ function initForSceneTwo() {
 	viewPosUniformForSceneTwo = gl.getUniformLocation(programForSceneTwo, "viewPos")
 	//diffuseUnifromForDeepCube = gl.getUniformLocation(programForSceneTwo, "diffuse")
 
-	var v = [[-1.0,1.0,0.0,-1.0,-1.0,0.0,1.0,1.0,0.0,1.0,-1.0,0.0],[0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0,1.0],[0.0,1.0,0.0,0.0,1.0,1.0,1.0,0.0]];
-	var i = [0,1,2,1,2,3];
-	mPlane = new mesh(v,i,null);
+	var v = [[1.0, 1.0, 0.0,-1.0, 1.0, 0.0,-1.0, -1.0, 0.0,-1.0,-1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0],[0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0],[1.0, 1.0, 0.0, 1.0,0.0, 0.0, 0.0, 0.0,	1.0, 0.0,1.0, 1.0,]];
+	mPlane = new mesh(v,null,null);
 	console.log(mPlane);
 
-	var v = [[-1.0,1.0,0.0,-1.0,-1.0,0.0,1.0,1.0,0.0,1.0,-1.0,0.0],[0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,-1.0],[0.0,1.0,0.0,0.0,1.0,1.0,1.0,0.0]];
-	var i = [0,1,2,1,2,3];
-	mScreen = new mesh(v,i,null);
+	var v = [[1.0, 1.0, 0.0,-1.0, 1.0, 0.0,-1.0, -1.0, 0.0,-1.0,-1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0],[0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0],[1.0, 1.0, 0.0, 1.0,0.0, 0.0, 0.0, 0.0,	1.0, 0.0,1.0, 1.0,]];
+	//var i = [0,1,2,1,2,3];
+	mScreen = new mesh(v,null,null);
 	console.log(mScreen);
+
+	quad = dshapes.initQuad();
 
 	mBed = new Model('Scene2/resources/bedf.json');
 	mcab1 = new Model('Scene2/resources/cab1.json');
@@ -446,6 +466,21 @@ function initForSceneTwo() {
 	mStool = new Model('Scene2/resources/stool.json');
 	mVentilator = new Model('Scene2/resources/ventilator.json');
 	mDoor = new Model('Scene2/resources/door.json');
+	mFan = new Model('Scene2/resources/fan.json');
+	mApple = new Model('Scene2/resources/apple.json');
+
+	fboECGWave = gl.createFramebuffer();
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fboECGWave);
+
+	textureECGWave = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, textureECGWave);
+	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, 1024, 1024);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureECGWave, 0);
+
+	gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
 	// load video
 
@@ -460,10 +495,28 @@ function initForSceneTwo() {
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.bindTexture(gl.TEXTURE_2D,null);
+	
+	var testMat = new material();
+	testMat.diffuse = [1.0,1.0,1.0];
+    testMat.specular = [1.0,1.0,1.0];
+    testMat.ambient = [1.0,1.0,1.0];
+	testMat.shininess = 32.0;
+	testMat.texID.push(textureECGWave);
+	
+	mECGScreen = new mesh(mVentilator.meshes[0].vertices, mVentilator.meshes[0].indices,0);
+	mECGScreen.setMaterial(testMat);
+	console.log(mECGScreen);
+
+	textureForm = loadTexture("resources/textures/form.png");
+	testMat = new material();
+	testMat.texID.push(textureForm);
+	mPad.meshes[2].setMaterial(testMat);
+	console.log(mPad);
 
 }
 
-function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
+function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	
 	if(copyVideo)
 	{
@@ -478,8 +531,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	// back
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,0.0,-5.0]);
-	//mat4.rotate(modelMatrix, modelMatrix, 90.0, [0.0, 1.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[10.0,5.0,5.0]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -493,7 +544,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,0.0,15.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-180.0), [0.0, 1.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[10.0,5.0,5.0]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -511,7 +561,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [10.0,0.0,5.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-90.0), [0.0, 1.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[10.0,5.0,5.0]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -529,7 +578,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-10.0,0.0,5.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [0.0, 1.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[10.0,5.0,5.0]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -547,7 +595,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,-5.0,5.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-90.0), [1.0, 0.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[10.0,10.0,5.0]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -565,7 +612,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,5.0,5.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[10.0,10.0,5.0]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -583,7 +629,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-4.0,-4.8,0.5]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [0.0, 1.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -601,9 +646,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.translate(modelMatrix, modelMatrix, [-8.0,-2.8,-2.8]);
 	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(-90.0), [0.0, 0.0, 1.0]);
-	//mat4.multiply(rotateMatrix_x,rotateMatrix_x,rotateMatrix_y);
-	//mat4.multiply(modelMatrix,modelMatrix,rotateMatrix_x);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.15,0.15,0.15]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -619,8 +661,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-8.0,-1.5,14.0]);
-	//mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(180.0), [0.0, 1.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.1,0.1,0.1]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -638,7 +678,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.translate(modelMatrix, modelMatrix, [-8.0,-1.3,-4.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [0.0, 0.0, 1.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -656,7 +695,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.translate(modelMatrix, modelMatrix, [-4.0,-3.5,13.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(230.0), [0.0, 0.0, 1.0]);
-	//mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -673,7 +711,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,-0.0,-3.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -689,8 +726,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [3.0,-5.0,2.0]);
-	//mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.15,0.15,0.1]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -705,9 +740,26 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [3.0,-5.0,2.05]);
+	mat4.scale(modelMatrix,modelMatrix,[0.15,0.15,0.1]);
+	gl.useProgram(programVideoRender);
+	gl.uniformMatrix4fv(gl.getUniformLocation(programVideoRender,"pMat"), false, perspectiveMatrix)
+	gl.uniformMatrix4fv(gl.getUniformLocation(programVideoRender,"vMat"), false, viewMatrix)
+	gl.uniformMatrix4fv(gl.getUniformLocation(programVideoRender,"mMat"), false, modelMatrix)
+	gl.uniform3fv(gl.getUniformLocation(programVideoRender,"viewPos"), cameraPosition)
+	gl.uniform3fv(gl.getUniformLocation(programVideoRender,"lights.position"), [3.5,-0.5,-2.5]);
+	gl.uniform3fv(gl.getUniformLocation(programVideoRender,"lights.color"), [1.0,1.0,1.0]);
+	gl.uniform1i(gl.getUniformLocation(programVideoRender,"flip"), 1);
+	gl.uniform1i(gl.getUniformLocation(programVideoRender,"video"), 0);
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, textureECGWave);
+	mECGScreen.render(programVideoRender);
+	gl.useProgram(null);
+
+
+	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-4.0,-3.5,13.5]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-200), [0.0, 1.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -724,7 +776,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [2.0,-3.5,13.7]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-170), [0.0, 1.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -741,7 +792,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-3.0,-3.6,1.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.25,0.25,0.2]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -759,7 +809,6 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mat4.translate(modelMatrix, modelMatrix, [-3.7,-0.9,1.2]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-20), [0.0, 0.0, 1.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -773,11 +822,27 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mLaptop.render(programForSceneTwo);
 	gl.useProgram(null);
 
+	//gl.disable(gl.CULL_FACE);
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [-2.0,-0.78,1.2]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-0), [0.0, 1.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.2,0.2,0.2]);
+	gl.useProgram(programForSceneTwo);
+	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
+	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
+	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
+	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
+	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
+	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
+	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	mApple.render(programForSceneTwo);
+	gl.useProgram(null);
+
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-6.0,-0.5,-5.9]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
 	gl.useProgram(programForSceneTwo);
 	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
@@ -791,10 +856,26 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	mLight.render(programForSceneTwo);
 	gl.useProgram(null);
 
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [0.0,4.3,4.0]);
+	mat4.rotate(modelMatrix, modelMatrix, angle, [0.0, 1.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
+	gl.useProgram(programForSceneTwo);
+	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
+	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
+	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
+	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
+	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
+	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
+	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	mFan.render(programForSceneTwo);
+	gl.useProgram(null);
+
 	// light src test
 /*
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-3.0,3.5,-4.5]);
+	mat4.translate(modelMatrix, modelMatrix, [3.5,-0.5,-2.0]);
 	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
 	gl.useProgram(programForSceneTwo);
@@ -851,8 +932,9 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	gl.disable(gl.CULL_FACE);
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-3.9,-0.35,1.75]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 1.0, 0.0]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-20), [0.0, 1.0, 0.0]);
+	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 1.0, 0.0]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 0.0, 1.0]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(20), [0.0, 1.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-15), [1.0, 0.0, 0.0]);
 	
 	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
@@ -864,11 +946,22 @@ function renderForSceneTwo(perspectiveMatrix, viewMatrix) {
 	gl.uniform3fv(gl.getUniformLocation(programVideoRender,"viewPos"), cameraPosition)
 	gl.uniform3fv(gl.getUniformLocation(programVideoRender,"lights.position"), [-4.1,-0.50,2.4]);
 	gl.uniform3fv(gl.getUniformLocation(programVideoRender,"lights.color"), [1.0,1.0,1.0]);
-	gl.uniform1i(gl.getUniformLocation(programVideoRender,"video"), 0)
+	gl.uniform1i(gl.getUniformLocation(programVideoRender,"flip"), 2);
+	gl.uniform1i(gl.getUniformLocation(programVideoRender,"video"), 0);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, videoTexture);
 	mScreen.render(programVideoRender);
 	gl.useProgram(null);
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fboECGWave);
+	gl.useProgram(programForECG);
+	gl.bindVertexArray(vao);
+    gl.uniform3fv(gl.getUniformLocation(programForECG, "iResolution"), [1024,1024,1.0]);
+    gl.uniform1f(gl.getUniformLocation(programForECG, "iTime"), time / 1000.0);
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+	angle += 0.005;
 
 }
 

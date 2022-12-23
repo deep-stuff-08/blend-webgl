@@ -1,0 +1,5 @@
+#include "OGL.h"
+MYICON ICON global_warming.ico
+IDBITMAP_CUPBOARD BITMAP cupboardTexture.bmp
+IDBITMAP_CUPBOARD_DOOR BITMAP CupboardDoor.bmp
+

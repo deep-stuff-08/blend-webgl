@@ -28,7 +28,7 @@ void main(void)
 
 	vec3 lighting = vec3(0.0);
 
-	vec3 lightDir = normalize(vec3(0.0, 0.0, 10.0) - P);
+	vec3 lightDir = normalize(vec3(0.0, 0.0, 6.0) - P);
 	vec3 result = lights.color * max(dot(lightDir,normal),0.0) * color;
 
 	float dist = length(P - lights.position);
