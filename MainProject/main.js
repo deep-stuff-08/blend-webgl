@@ -237,14 +237,14 @@ function render(time) {
 	}
 	
 	var perspectiveMatrix = mat4.create()
-	mat4.perspective(perspectiveMatrix, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 100.0)
+	mat4.perspective(perspectiveMatrix, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 1000.0)
 
 	var cameraMatrix = mat4.create()
 	var newfront = vec3.create()
 	vec3.add(newfront, cameraFront, cameraPosition)
 	mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp)
 	
-	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0])
+	gl.clearBufferfv(gl.COLOR, 0, [0.5, 0.5, 0.5, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
 	switch(renderScene) {
@@ -265,7 +265,7 @@ function render(time) {
 
 	if(doRenderToHdr) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-		gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0])
+		gl.clearBufferfv(gl.COLOR, 0, [0.1, 0.1, 0.1, 1.0])
 		gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 		gl.viewport(0, 0, canvas.width, canvas.height)
 		gl.useProgram(progForHdr)
@@ -336,8 +336,8 @@ function loadTexture(path, isTexFlipped) {
 			gl.bindTexture(gl.TEXTURE_2D, tbo)
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tbo.image)
 			gl.generateMipmap(gl.TEXTURE_2D)
 			console.log("Successfully Loaded: " + path)
@@ -352,4 +352,34 @@ function loadTexture(path, isTexFlipped) {
 	} else {
 		return loadedTextures[path]
 	}
+}
+
+function loadTextureCubemap(path, isTexFlipped) {
+	var tbo = gl.createTexture()
+	var ext = path.substr(path.lastIndexOf(".")) 
+	var apath = path.substr(0, path.lastIndexOf("."))
+	var cubemapFaces = [
+		{ bind: gl.TEXTURE_CUBE_MAP_POSITIVE_X, name: "px" + ext},
+		{ bind: gl.TEXTURE_CUBE_MAP_NEGATIVE_X, name: "nx" + ext},
+		{ bind: gl.TEXTURE_CUBE_MAP_POSITIVE_Y, name: "py" + ext},
+		{ bind: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, name: "ny" + ext},
+		{ bind: gl.TEXTURE_CUBE_MAP_POSITIVE_Z, name: "pz" + ext},
+		{ bind: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, name: "nz" + ext},
+	]
+	
+	for(var i = 0; i < 6; i++) {
+		var imagedata = new Image()
+		imagedata.src = apath + "/" + cubemapFaces[i].name
+		imagedata.bind = cubemapFaces[i].bind
+		imagedata.onload = function() {
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
+			gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
+			gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+			gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+			gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imagedata)
+			console.log("Successfully Loaded: " + this.src)
+			gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
+		}
+	}
+	return tbo
 }
