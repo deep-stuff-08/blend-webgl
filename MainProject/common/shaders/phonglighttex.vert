@@ -7,6 +7,7 @@ layout(location = 2)in vec2 vTex;
 uniform mat4 pMat;
 uniform mat4 vMat;
 uniform mat4 mMat;
+uniform mat2 texMat;
 uniform bool isInvertNormal;
 
 out vec2 Tex;
@@ -16,12 +17,12 @@ out vec3 viewPos;
 
 void main(void) {
 	gl_Position = pMat * vMat * mMat * vPos;
-	Tex = vTex;
+	Tex = texMat * vTex;
 	if(isInvertNormal) {
 		N = mat3(mMat) * -vNor;
 	} else {
 		N = mat3(mMat) * vNor;
 	}
 	P = vec3(mMat * vPos);	
-	viewPos = -vMat[3].xyz;
+	viewPos = vec3(vMat[3].xy, -vMat[3].z);
 }
