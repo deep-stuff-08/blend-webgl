@@ -8,6 +8,7 @@ var cameraPosition = vec3.set(vec3.create(), 0.0, 0.0, 5.0)
 var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 
 const SceneEnum = {
+	Tester: -1,
 	OpenScene: 0,
 	StudyScene: 1,
 	BarScene: 2,
@@ -160,6 +161,7 @@ function main() {
 function setupProgram() {
 	setupCommonPrograms()
 	setupProgramForLightSourceRendererDeep()
+	setupProgramForCubemapRendererDeep()
 	setupProgramForDeepCube()
 	// setupProgramForTestModelLoadByDeep()
 
@@ -189,6 +191,7 @@ function setupProgram() {
 function init() {
 	initForDeepCube()
 	initForLightSourceRendererDeep()
+	initForCubemapRendererDeep()
 	// initForTestModelLoadByDeep()
 
 	fboForHdr = gl.createFramebuffer()
@@ -248,6 +251,9 @@ function render(time) {
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
 	switch(renderScene) {
+	case SceneEnum.Tester:
+		// renderCubemapDeep(cameraMatrix, temptex)
+		break
 	case SceneEnum.OpenScene:
 		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix)
 		break
@@ -255,7 +261,7 @@ function render(time) {
 		renderForScene1Kdesh(perspectiveMatrix, cameraMatrix);
 		break
 	case SceneEnum.BarScene:
-		renderForSceneTwo(perspectiveMatrix, cameraMatrix)
+		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
 		break
 	default:
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)
@@ -331,6 +337,7 @@ function loadTexture(path, isTexFlipped) {
 		var tbo = gl.createTexture()
 		tbo.image = new Image()
 		tbo.image.src = path
+		console.log("Loading: " + path)
 		tbo.image.onload = function() {
 			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
 			gl.bindTexture(gl.TEXTURE_2D, tbo)
@@ -366,20 +373,84 @@ function loadTextureCubemap(path, isTexFlipped) {
 		{ bind: gl.TEXTURE_CUBE_MAP_POSITIVE_Z, name: "pz" + ext},
 		{ bind: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, name: "nz" + ext},
 	]
-	
-	for(var i = 0; i < 6; i++) {
-		var imagedata = new Image()
-		imagedata.src = apath + "/" + cubemapFaces[i].name
-		imagedata.bind = cubemapFaces[i].bind
-		imagedata.onload = function() {
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
-			gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
-			gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-			gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-			gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imagedata)
-			console.log("Successfully Loaded: " + this.src)
-			gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
-		}
+	var imageData = [ null, null, null, null, null, null]
+	imageData[0] = new Image()
+	imageData[0].src = apath + "/" + cubemapFaces[0].name
+	imageData[0].tname = cubemapFaces[0].name
+	imageData[0].bind = cubemapFaces[0].bind
+	imageData[0].onload = function() {
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData[0])
+		console.log("Successfully Loaded: " + apath + "/" + this.tname + " at " + this.bind)
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
+	}
+	imageData[1] = new Image()
+	imageData[1].src = apath + "/" + cubemapFaces[1].name
+	imageData[1].tname = cubemapFaces[1].name
+	imageData[1].bind = cubemapFaces[1].bind
+	imageData[1].onload = function() {
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData[1])
+		console.log("Successfully Loaded: " + apath + "/" + this.tname + " at " + this.bind)
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
+	}
+	imageData[2] = new Image()
+	imageData[2].src = apath + "/" + cubemapFaces[2].name
+	imageData[2].tname = cubemapFaces[2].name
+	imageData[2].bind = cubemapFaces[2].bind
+	imageData[2].onload = function() {
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData[2])
+		console.log("Successfully Loaded: " + apath + "/" + this.tname + " at " + this.bind)
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
+	}
+	imageData[3] = new Image()
+	imageData[3].src = apath + "/" + cubemapFaces[3].name
+	imageData[3].tname = cubemapFaces[3].name
+	imageData[3].bind = cubemapFaces[3].bind
+	imageData[3].onload = function() {
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData[3])
+		console.log("Successfully Loaded: " + apath + "/" + this.tname + " at " + this.bind)
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
+	}
+	imageData[4] = new Image()
+	imageData[4].src = apath + "/" + cubemapFaces[4].name
+	imageData[4].tname = cubemapFaces[4].name
+	imageData[4].bind = cubemapFaces[4].bind
+	imageData[4].onload = function() {
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData[4])
+		console.log("Successfully Loaded: " + apath + "/" + this.tname + " at " + this.bind)
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
+	}
+	imageData[5] = new Image()
+	imageData[5].src = apath + "/" + cubemapFaces[5].name
+	imageData[5].tname = cubemapFaces[5].name
+	imageData[5].bind = cubemapFaces[5].bind
+	imageData[5].onload = function() {
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData[5])
+		console.log("Successfully Loaded: " + apath + "/" + this.tname + " at " + this.bind)
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
 	}
 	return tbo
 }
