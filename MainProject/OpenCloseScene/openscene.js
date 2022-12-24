@@ -345,12 +345,25 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
 		renderForBuildingDeep(modelMatrix, [2.0, 3.0])
 	}
 
+	gl.useProgram(progPhongLightWithTextureForModel.program)
+	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.pMat, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.vMat, false, viewMatrix)
+	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isInvertNormals, 0)
+	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isBlend, 0)
+	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isLight, 1)
+	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isTexture, 1)
+	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.diffuseTextureSampler, 0)
+	gl.uniform3fv(progPhongLightWithTextureForModel.uniforms.lightPos, lightSource)
 	modelMatrix = mat4.create()
-	mat4.scale(modelMatrix, modelMatrix, [0.01, 0.01, 0.01])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
-	texMatrix = mat2.create()
-	mat2.scale(texMatrix, texMatrix, [1.0, 1.0])
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	mat4.translate(modelMatrix, modelMatrix, [-8.86, -2.5, 0.0])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI, [0.0, 1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [1.4, 1.4, 1.4])
+	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.mMat, false, modelMatrix)
+	updateModel(opensceneDeep.objBrian, 0, 0.01)
+	var boneMat = getBoneMatrixArray(opensceneDeep.objBrian, 0)
+	for(var i = 0; i < boneMat.length; i++) {
+		gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.bMat[i], false, boneMat[i])
+	}
 	renderModel(opensceneDeep.objBrian)
 
 	renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
