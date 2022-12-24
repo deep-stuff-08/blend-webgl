@@ -18,9 +18,14 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.OpenScene
+var renderScene = SceneEnum.StudyScene
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
+var sceneCamera
+var devCam = true
+var showCamPath = false
+var showCam = false
+var camSplinePosition = 0.0
 
 var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
@@ -145,6 +150,18 @@ function main() {
 			currentExposure -= 0.01
 		} else if(event.code == 'KeyR') {
 			currentExposure += 0.01
+		} else if(event.code == 'KeyP') {
+			if(devCam)
+				showCamPath = !showCamPath
+		} else if(event.code == 'KeyC') {
+			if(devCam)
+				showCam = !showCam
+		} else if(event.code == 'KeyV') {
+			devCam = !devCam
+			if(!devCam) {
+				showCamPath = false;
+				showCam = false;
+			}
 		}
 	})
 	
@@ -211,12 +228,14 @@ function init() {
 	gl.bindTexture(gl.TEXTURE_2D, null)
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 
+	sceneCamera = new kcamera()
+
 	switch(renderScene) {
 	case SceneEnum.OpenScene:
 		initForOpenSceneDeep()
 		break
 	case SceneEnum.StudyScene:
-		initForScene1Kdesh()
+		initForScene1Kdesh(sceneCamera)
 		break
 	case SceneEnum.BarScene:
 		initForSceneTwo()
@@ -242,13 +261,27 @@ function render(time) {
 	var perspectiveMatrix = mat4.create()
 	mat4.perspective(perspectiveMatrix, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 1000.0)
 
-	var cameraMatrix = mat4.create()
+	/* var cameraMatrix = mat4.create()
 	var newfront = vec3.create()
 	vec3.add(newfront, cameraFront, cameraPosition)
-	mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp)
+	mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp) */
 	
+	if(devCam) {
+		var cameraMatrix = mat4.create()
+		var newfront = vec3.create()
+		vec3.add(newfront, cameraFront, cameraPosition)
+		mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp)
+	} else {
+		var cameraMatrix = sceneCamera.matrix(camSplinePosition)
+	}
+
 	gl.clearBufferfv(gl.COLOR, 0, [0.5, 0.5, 0.5, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
+
+	if(showCamPath)
+		sceneCamera.renderPath(perspectiveMatrix, cameraMatrix)
+	if(showCam)
+		sceneCamera.render(perspectiveMatrix, cameraMatrix, camSplinePosition)
 
 	switch(renderScene) {
 	case SceneEnum.Tester:
@@ -258,7 +291,10 @@ function render(time) {
 		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix)
 		break
 	case SceneEnum.StudyScene:
-		renderForScene1Kdesh(perspectiveMatrix, cameraMatrix);
+		renderForScene1Kdesh(perspectiveMatrix, cameraMatrix)
+		camSplinePosition += 0.001
+		if(camSplinePosition > 1.0)
+		camSplinePosition = 0.0
 		break
 	case SceneEnum.BarScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
