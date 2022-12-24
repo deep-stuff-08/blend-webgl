@@ -77,8 +77,6 @@ class kcamera {
         var startIdx = Math.floor(tspline);
         var tcurve = tspline - Math.floor(tspline);
 
-        console.log(t);
-
         // safeguard against memory access issues due to float values
         if(startIdx > this.#nsplines)
             startIdx = this.#nsplines;
