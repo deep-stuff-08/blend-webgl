@@ -1,6 +1,7 @@
 var opensceneDeep = {
 	objQuad: null,
 	objCube: null,
+	objBrian: null,
 	vaoCylinderPart: null,
 	countCylinderPart: null,
 	texFootpath: null,
@@ -32,91 +33,93 @@ function initForOpenSceneDeep() {
 
 	const slices = 10
 	var vertexData = []
-		for(var j = 0; j <= slices; j++) {
-			var theta = ((Math.PI / 2.0) * j / slices) + Math.PI
-			vertexData.push(Math.sin(theta) * 2.0 + 1.0)
-			vertexData.push(1.0)
-			vertexData.push(Math.cos(theta) * 2.0 + 1.0)
-			
-			vertexData.push(Math.sin(theta))
-			vertexData.push(0.0)
-			vertexData.push(Math.cos(theta))
-
-			vertexData.push(j / slices)
-			vertexData.push(1.0)
+	for(var j = 0; j <= slices; j++) {
+		var theta = ((Math.PI / 2.0) * j / slices) + Math.PI
+		vertexData.push(Math.sin(theta) * 2.0 + 1.0)
+		vertexData.push(1.0)
+		vertexData.push(Math.cos(theta) * 2.0 + 1.0)
 		
-			vertexData.push(Math.sin(theta) * 2.0 + 1.0)
-			vertexData.push(-1.0)
-			vertexData.push(Math.cos(theta) * 2.0 + 1.0)
-			
-			vertexData.push(Math.sin(theta))
-			vertexData.push(0.0)
-			vertexData.push(Math.cos(theta))
+		vertexData.push(Math.sin(theta))
+		vertexData.push(0.0)
+		vertexData.push(Math.cos(theta))
 
-			vertexData.push(j / slices)
-			vertexData.push(0.0)
-		}
+		vertexData.push(j / slices)
 		vertexData.push(1.0)
+	
+		vertexData.push(Math.sin(theta) * 2.0 + 1.0)
+		vertexData.push(-1.0)
+		vertexData.push(Math.cos(theta) * 2.0 + 1.0)
+		
+		vertexData.push(Math.sin(theta))
+		vertexData.push(0.0)
+		vertexData.push(Math.cos(theta))
+
+		vertexData.push(j / slices)
+		vertexData.push(0.0)
+	}
+	vertexData.push(1.0)
+	vertexData.push(1.0)
+	vertexData.push(1.0)
+	
+	vertexData.push(0.0)
+	vertexData.push(1.0)
+	vertexData.push(0.0)
+
+	vertexData.push(1.0)
+	vertexData.push(0.0)
+
+	for(var j = 0; j <= slices; j++) {
+		var theta = ((Math.PI / 2.0) * j / slices) + Math.PI
+		vertexData.push(Math.sin(theta) * 2.0 + 1.0)
 		vertexData.push(1.0)
-		vertexData.push(1.0)
+		vertexData.push(Math.cos(theta) * 2.0 + 1.0)
 		
 		vertexData.push(0.0)
 		vertexData.push(1.0)
 		vertexData.push(0.0)
 
-		vertexData.push(1.0)
-		vertexData.push(0.0)
+		vertexData.push(Math.cos(theta) + 1.0)
+		vertexData.push(-Math.sin(theta))
+	}
+	var elements = []
+	for(var j = 0; j < slices; j++) {
+		elements.push(j * 2)
+		elements.push(j * 2 + 1)
+		elements.push((j + 1) * 2)
 
-		for(var j = 0; j <= slices; j++) {
-			var theta = ((Math.PI / 2.0) * j / slices) + Math.PI
-			vertexData.push(Math.sin(theta) * 2.0 + 1.0)
-			vertexData.push(1.0)
-			vertexData.push(Math.cos(theta) * 2.0 + 1.0)
-			
-			vertexData.push(0.0)
-			vertexData.push(1.0)
-			vertexData.push(0.0)
+		elements.push(j * 2 + 1)
+		elements.push((j + 1) * 2)
+		elements.push((j + 1) * 2 + 1)
+	}
+	for(var firstCircle = slices * 2 + 3, j = 0; j < slices; j++) {
+		elements.push(firstCircle - 1)
+		elements.push(firstCircle + j)
+		elements.push(firstCircle + j + 1)
+	}
+	var elementIndices = Uint16Array.from(elements)
+	var vertexArray = Float32Array.from(vertexData)
 
-			vertexData.push(Math.cos(theta) + 1.0)
-			vertexData.push(-Math.sin(theta))
-		}
-		var elements = []
-		for(var j = 0; j < slices; j++) {
-			elements.push(j * 2)
-			elements.push(j * 2 + 1)
-			elements.push((j + 1) * 2)
+	opensceneDeep.vaoCylinderPart = gl.createVertexArray()
+	opensceneDeep.countCylinderPart = elementIndices.length
+	gl.bindVertexArray(opensceneDeep.vaoCylinderPart)
 
-			elements.push(j * 2 + 1)
-			elements.push((j + 1) * 2)
-			elements.push((j + 1) * 2 + 1)
-		}
-		for(var firstCircle = slices * 2 + 3, j = 0; j < slices; j++) {
-			elements.push(firstCircle - 1)
-			elements.push(firstCircle + j)
-			elements.push(firstCircle + j + 1)
-		}
-		var elementIndices = Uint16Array.from(elements)
-		var vertexArray = Float32Array.from(vertexData)
+	var vbo = gl.createBuffer()
+	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.bufferData(gl.ARRAY_BUFFER, vertexArray, gl.STATIC_DRAW)
+	gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 8 * 4, 0)
+	gl.enableVertexAttribArray(0)
+	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 8 * 4, 3 * 4)
+	gl.enableVertexAttribArray(1)
+	gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 8 * 4, 6 * 4)
+	gl.enableVertexAttribArray(2)
+	
+	var eabo = gl.createBuffer()
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, eabo)
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, elementIndices, gl.STATIC_DRAW)
 
-		opensceneDeep.vaoCylinderPart = gl.createVertexArray()
-		opensceneDeep.countCylinderPart = elementIndices.length
-		gl.bindVertexArray(opensceneDeep.vaoCylinderPart)
+	gl.bindVertexArray(null)
 
-		var vbo = gl.createBuffer()
-		gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
-		gl.bufferData(gl.ARRAY_BUFFER, vertexArray, gl.STATIC_DRAW)
-		gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 8 * 4, 0)
-		gl.enableVertexAttribArray(0)
-		gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 8 * 4, 3 * 4)
-		gl.enableVertexAttribArray(1)
-		gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 8 * 4, 6 * 4)
-		gl.enableVertexAttribArray(2)
-		
-		var eabo = gl.createBuffer()
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, eabo)
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, elementIndices, gl.STATIC_DRAW)
-
-		gl.bindVertexArray(null)
+	opensceneDeep.objBrian = initalizeModel('Brian')
 }
 
 function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
@@ -341,6 +344,14 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
 		mat4.scale(modelMatrix, modelMatrix, [5.0, 6.0, 5.0])
 		renderForBuildingDeep(modelMatrix, [2.0, 3.0])
 	}
+
+	modelMatrix = mat4.create()
+	mat4.scale(modelMatrix, modelMatrix, [0.01, 0.01, 0.01])
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, [1.0, 1.0])
+	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	renderModel(opensceneDeep.objBrian)
 
 	renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
 }

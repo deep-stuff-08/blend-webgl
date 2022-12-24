@@ -26,6 +26,7 @@ var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
 	// { name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
+	{ name: "Brian", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
 ]
 
 var loadedTextures = {}
@@ -36,35 +37,40 @@ var progForHdr
 var vaoForHdr
 var uniformExposureForHdr
 var currentExposure = 1.0
+var isLoadModels = true
 
 assimpjs().then (function (ajs) {
-	Promise.all(modelList.flatMap(o => o.files).map((fileToLoad) => fetch (fileToLoad))).then ((responses) => {
-		return Promise.all(responses.map ((res) => res.arrayBuffer()))
-	}).then((arrayBuffers) => {
-		for(var i = 0; i < modelList.length; i++) {
-			console.log("Loading Files for " + modelList[i].name + "....")
-			let fileList = new ajs.FileList()
-			for (let j = 0; j < modelList[i].files.length; j++) {
-				fileList.AddFile(modelList[i].files[j], new Uint8Array(arrayBuffers[i + j]))
+	if(isLoadModels) {
+		Promise.all(modelList.flatMap(o => o.files).map((fileToLoad) => fetch (fileToLoad))).then ((responses) => {
+			return Promise.all(responses.map ((res) => res.arrayBuffer()))
+		}).then((arrayBuffers) => {
+			for(var i = 0; i < modelList.length; i++) {
+				console.log("Loading Files for " + modelList[i].name + "....")
+				let fileList = new ajs.FileList()
+				for (let j = 0; j < modelList[i].files.length; j++) {
+					fileList.AddFile(modelList[i].files[j], new Uint8Array(arrayBuffers[i + j]))
+				}
+				console.log("Loaded Files")
+				console.log("Converting Files to AssimpJSON....")
+				let result = ajs.ConvertFileList(fileList, 'assjson')
+				if (!result.IsSuccess() || result.FileCount() == 0) {
+					console.log(result.GetErrorCode())
+					return
+				}
+				console.log("Converted Files")
+				console.log("Parse JSON String....")
+				let resultFile = result.GetFile(0)
+				let jsonContent = new TextDecoder().decode(resultFile.GetContent())
+				let resultJson = JSON.parse(jsonContent)
+				console.log("Parsed JSON")
+				modelList[i].json = resultJson
+				modelList[i].directory = modelList[i].files[0].substring(0, modelList[i].files[0].lastIndexOf('/'))
 			}
-			console.log("Loaded Files")
-			console.log("Converting Files to AssimpJSON....")
-			let result = ajs.ConvertFileList(fileList, 'assjson')
-			if (!result.IsSuccess() || result.FileCount() == 0) {
-				console.log(result.GetErrorCode())
-				return
-			}
-			console.log("Converted Files")
-			console.log("Parse JSON String....")
-			let resultFile = result.GetFile(0)
-			let jsonContent = new TextDecoder().decode(resultFile.GetContent())
-			let resultJson = JSON.parse(jsonContent)
-			console.log("Parsed JSON")
-			modelList[i].json = resultJson
-			modelList[i].directory = modelList[i].files[0].substring(0, modelList[i].files[0].lastIndexOf('/'))
-		}
+			main()
+		})
+	} else {
 		main()
-	})
+	}
 })
 
 function main() {
