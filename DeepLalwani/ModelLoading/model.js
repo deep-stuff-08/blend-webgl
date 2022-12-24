@@ -251,6 +251,9 @@ function setupAnimation(modelObj, json) {
 
 function initalizeModel(modelName) {
 	var model = modelList.find(o => o.name === modelName)
+	if(model === undefined) {
+		return undefined
+	}
 	var modelObj = new dmodel()
 	setupMesh(modelObj, model.json, model.directory, model.flipTex)
 	setupAnimation(modelObj, model.json)
@@ -266,6 +269,10 @@ function getScaleFactor(lastTimeStamp, nextTimeStamp, animationTime) {
 }
 
 function calculateBoneTransform(animator, node, parentTransform) {
+	if(animator === undefined) {
+		return
+	}
+	
 	var nodeName = node.name
 	var nodeTransform = node.transformation
 
@@ -358,6 +365,9 @@ function calculateBoneTransform(animator, node, parentTransform) {
 }
 
 function getBoneMatrixArray(model, i) {
+	if(model === undefined) {
+		return []
+	}
 	if(model.animator != undefined && model.animator.length > i) {
 		return model.animator[i].finalBoneMatrices
 	} else {
@@ -366,6 +376,9 @@ function getBoneMatrixArray(model, i) {
 }
 
 function updateModel(model, i, delta) {
+	if(model === undefined) {
+		return
+	}
 	if(model.animator != undefined && model.animator.length > i) {
 		model.animator[i].deltaTime = delta
 		model.animator[i].currentTime += model.animator[i].ticksPerSecond * delta
@@ -375,6 +388,9 @@ function updateModel(model, i, delta) {
 }
 
 function renderModel(model) {
+	if(model === undefined) {
+		return
+	}
 	for(var i = 0; model.meshArray != undefined && i < model.meshArray.length; i++) {
 		gl.activeTexture(gl.TEXTURE0)
 		gl.bindTexture(gl.TEXTURE_2D, model.meshArray[i].diffuseTextures[0])
