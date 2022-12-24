@@ -65,7 +65,7 @@ function renderForStreetLamp(localModelMatrix) {
 
 	//lamphead
 	modelMatrix = mat4.clone(localModelMatrix)
-	mat4.translate(modelMatrix, modelMatrix, trans)
+	mat4.translate(modelMatrix, modelMatrix, [0.7, 2.12, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [0.13, 0.052, 0.052])
 	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
 	texMatrix = mat2.create()
