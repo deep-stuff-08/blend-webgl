@@ -1,6 +1,0 @@
-#pragma once
-
-#define MYICON 102
-#define IDBITMAP_CUPBOARD 103
-#define IDBITMAP_CUPBOARD_DOOR 104
-
