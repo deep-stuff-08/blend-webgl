@@ -7,18 +7,7 @@ var cameraFront = vec3.set(vec3.create(), 0.0, 0.0, -1.0)
 var cameraPosition = vec3.set(vec3.create(), 0.0, 0.0, 5.0)
 var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 
-const SceneEnum = {
-	Tester: -1,
-	OpenScene: 0,
-	StudyScene: 1,
-	BarScene: 2,
-	HospitalScene: 3,
-	BedroomScene: 4,
-	UninstallScene: 5,
-	CloseScene: 6
-}
-
-var renderScene = SceneEnum.OpenScene
+var renderScene = 0
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 
@@ -161,22 +150,21 @@ function main() {
 function setupProgram() {
 	setupCommonPrograms()
 	setupProgramForLightSourceRendererDeep()
-	setupProgramForCubemapRendererDeep()
-	setupProgramForDeepCube()
+	setupProgramForOceanDeep()
+	// setupProgramForDeepCube()
 	// setupProgramForTestModelLoadByDeep()
 
-	switch(renderScene) {
-	case SceneEnum.OpenScene:
-		setupProgramForOpenSceneDeep()
-		break
-	case SceneEnum.StudyScene:
-		setupProgramForScene1Kdesh()
-		break
-	case SceneEnum.BarScene:
-		setupprogramForSceneTwo()
-		break
+	if(renderScene === 1) {
+		setupProgramForScene1Kdesh();
 	}
-	
+	if(renderScene === 2)
+	{
+		setupprogramForSceneTwo();
+	}
+	if(renderScene === 5) {
+		setupProgramForScene5Deep()
+	}
+
 	vertShader = createShader('common/shaders/hdr.vert', gl.VERTEX_SHADER)
 	fragShader = createShader('common/shaders/hdr.frag', gl.FRAGMENT_SHADER)
 	progForHdr = createProgram([vertShader, fragShader])
@@ -189,10 +177,10 @@ function setupProgram() {
 }
 
 function init() {
-	initForDeepCube()
+	// initForDeepCube()
 	initForLightSourceRendererDeep()
-	initForCubemapRendererDeep()
 	// initForTestModelLoadByDeep()
+	initForOceanDeep()
 
 	fboForHdr = gl.createFramebuffer()
 	texForHdr = gl.createTexture()
@@ -211,16 +199,15 @@ function init() {
 	gl.bindTexture(gl.TEXTURE_2D, null)
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 
-	switch(renderScene) {
-	case SceneEnum.OpenScene:
-		initForOpenSceneDeep()
-		break
-	case SceneEnum.StudyScene:
+	if(renderScene === 1) {
 		initForScene1Kdesh()
-		break
-	case SceneEnum.BarScene:
-		initForSceneTwo()
-		break
+	}
+	if(renderScene === 2)
+	{
+		initForSceneTwo();
+	}
+	if(renderScene === 5) {
+		initForScene5Deep()
 	}
 
 	gl.enable(gl.DEPTH_TEST)
@@ -231,7 +218,7 @@ function printMatrix(m) {
 	}
 }
 
-function render(time) {
+function render() {
 	if(doRenderToHdr) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, fboForHdr)
 		gl.viewport(0, 0, 2048, 2048)
@@ -240,38 +227,31 @@ function render(time) {
 	}
 	
 	var perspectiveMatrix = mat4.create()
-	mat4.perspective(perspectiveMatrix, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 1000.0)
+	mat4.perspective(perspectiveMatrix, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 100.0)
 
 	var cameraMatrix = mat4.create()
 	var newfront = vec3.create()
 	vec3.add(newfront, cameraFront, cameraPosition)
 	mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp)
 	
-	gl.clearBufferfv(gl.COLOR, 0, [0.5, 0.5, 0.5, 1.0])
+	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
-	switch(renderScene) {
-	case SceneEnum.Tester:
-		// renderCubemapDeep(cameraMatrix, temptex)
-		break
-	case SceneEnum.OpenScene:
-		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix)
-		break
-	case SceneEnum.StudyScene:
+	if(renderScene === 0) {
+		// renderForDeepCube(perspectiveMatrix, cameraMatrix)
+		renderForOceanDeep(perspectiveMatrix, cameraMatrix, mat4.create())
+	} else if(renderScene === 1) {
 		renderForScene1Kdesh(perspectiveMatrix, cameraMatrix);
-		break
-	case SceneEnum.BarScene:
-		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
-		break
-	default:
-		renderForDeepCube(perspectiveMatrix, cameraMatrix)
-		break
+	} else if(renderScene === 2) {
+		renderForSceneTwo(perspectiveMatrix, cameraMatrix)
+	} else if(renderScene === 5) {
+		renderForScene5Deep(perspectiveMatrix, cameraMatrix)
 	}
 	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
 
 	if(doRenderToHdr) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-		gl.clearBufferfv(gl.COLOR, 0, [0.1, 0.1, 0.1, 1.0])
+		gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0])
 		gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 		gl.viewport(0, 0, canvas.width, canvas.height)
 		gl.useProgram(progForHdr)
@@ -280,8 +260,8 @@ function render(time) {
 		gl.bindTexture(gl.TEXTURE_2D, texForHdr)
 		gl.bindVertexArray(vaoForHdr)
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
-		gl.bindVertexArray(null)
 		gl.bindTexture(gl.TEXTURE_2D, null)
+		gl.bindVertexArray(null)
 		gl.useProgram(null)
 	}
 
@@ -337,14 +317,11 @@ function loadTexture(path, isTexFlipped) {
 		var tbo = gl.createTexture()
 		tbo.image = new Image()
 		tbo.image.src = path
-		console.log("Loading: " + path)
 		tbo.image.onload = function() {
 			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
 			gl.bindTexture(gl.TEXTURE_2D, tbo)
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tbo.image)
 			gl.generateMipmap(gl.TEXTURE_2D)
 			console.log("Successfully Loaded: " + path)
@@ -359,98 +336,4 @@ function loadTexture(path, isTexFlipped) {
 	} else {
 		return loadedTextures[path]
 	}
-}
-
-function loadTextureCubemap(path, isTexFlipped) {
-	var tbo = gl.createTexture()
-	var ext = path.substr(path.lastIndexOf(".")) 
-	var apath = path.substr(0, path.lastIndexOf("."))
-	var cubemapFaces = [
-		{ bind: gl.TEXTURE_CUBE_MAP_POSITIVE_X, name: "px" + ext},
-		{ bind: gl.TEXTURE_CUBE_MAP_NEGATIVE_X, name: "nx" + ext},
-		{ bind: gl.TEXTURE_CUBE_MAP_POSITIVE_Y, name: "py" + ext},
-		{ bind: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, name: "ny" + ext},
-		{ bind: gl.TEXTURE_CUBE_MAP_POSITIVE_Z, name: "pz" + ext},
-		{ bind: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, name: "nz" + ext},
-	]
-	var imageData = [ null, null, null, null, null, null]
-	imageData[0] = new Image()
-	imageData[0].src = apath + "/" + cubemapFaces[0].name
-	imageData[0].tname = cubemapFaces[0].name
-	imageData[0].bind = cubemapFaces[0].bind
-	imageData[0].onload = function() {
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-		gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData[0])
-		console.log("Successfully Loaded: " + apath + "/" + this.tname + " at " + this.bind)
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
-	}
-	imageData[1] = new Image()
-	imageData[1].src = apath + "/" + cubemapFaces[1].name
-	imageData[1].tname = cubemapFaces[1].name
-	imageData[1].bind = cubemapFaces[1].bind
-	imageData[1].onload = function() {
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-		gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData[1])
-		console.log("Successfully Loaded: " + apath + "/" + this.tname + " at " + this.bind)
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
-	}
-	imageData[2] = new Image()
-	imageData[2].src = apath + "/" + cubemapFaces[2].name
-	imageData[2].tname = cubemapFaces[2].name
-	imageData[2].bind = cubemapFaces[2].bind
-	imageData[2].onload = function() {
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-		gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData[2])
-		console.log("Successfully Loaded: " + apath + "/" + this.tname + " at " + this.bind)
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
-	}
-	imageData[3] = new Image()
-	imageData[3].src = apath + "/" + cubemapFaces[3].name
-	imageData[3].tname = cubemapFaces[3].name
-	imageData[3].bind = cubemapFaces[3].bind
-	imageData[3].onload = function() {
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-		gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData[3])
-		console.log("Successfully Loaded: " + apath + "/" + this.tname + " at " + this.bind)
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
-	}
-	imageData[4] = new Image()
-	imageData[4].src = apath + "/" + cubemapFaces[4].name
-	imageData[4].tname = cubemapFaces[4].name
-	imageData[4].bind = cubemapFaces[4].bind
-	imageData[4].onload = function() {
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-		gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData[4])
-		console.log("Successfully Loaded: " + apath + "/" + this.tname + " at " + this.bind)
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
-	}
-	imageData[5] = new Image()
-	imageData[5].src = apath + "/" + cubemapFaces[5].name
-	imageData[5].tname = cubemapFaces[5].name
-	imageData[5].bind = cubemapFaces[5].bind
-	imageData[5].onload = function() {
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, isTexFlipped)
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, tbo)
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-		gl.texImage2D(this.bind, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData[5])
-		console.log("Successfully Loaded: " + apath + "/" + this.tname + " at " + this.bind)
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null)
-	}
-	return tbo
 }

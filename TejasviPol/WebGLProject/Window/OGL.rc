@@ -1,7 +1,0 @@
-#include "OGL.h"
-MYICON ICON global_warming.ico
-IDBITMAP_WINDOW BITMAP window.bmp
-
-
-
-
