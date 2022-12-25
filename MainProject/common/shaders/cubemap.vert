@@ -1,17 +1,14 @@
 #version 300 es
 
-out vec3 tc;
+layout(location = 0)in vec4 vPos;
 
-uniform mat4 viewMat;
+uniform mat4 pMat;
+uniform mat4 vMat;
+
+out vec3 tex;
 
 void main(void) {
-	vec3[4] vertices = vec3[4](
-		vec3(-1.0, -1.0, 1.0),
-		vec3(1.0, -1.0, 1.0),
-		vec3(-1.0, 1.0, 1.0),
-		vec3(1.0, 1.0, 1.0)
-	);
-	tc = mat3(viewMat) * vertices[gl_VertexID];
-
-	gl_Position = vec4(vertices[gl_VertexID], 1.0);
+	tex = vec3(vPos.x, -vPos.y, vPos.z);
+	vec4 pos = pMat * vMat * vec4(vPos);
+	gl_Position = pos.xyzw;
 }
