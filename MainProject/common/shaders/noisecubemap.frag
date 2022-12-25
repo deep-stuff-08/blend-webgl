@@ -1,7 +1,9 @@
 #version 300 es
 precision highp float;
 
-layout(location = 0)out vec4 FragColor;
+in vec3 tex;
+
+layout(location = 0) out vec4 FragColor;
 
 uniform vec2 resolution;
 uniform float time;
@@ -79,26 +81,19 @@ float snoise(vec3 v) {
 }
 
 #define OCTAVES 6
-float fbm (vec2 st) {
+float fbm (vec3 st) {
 	float value = 0.0;
 	float amplitude = 0.5;
 	float frequency = 0.0;
 	for (int i = 0; i < OCTAVES; i++) {
-		value += amplitude * (snoise(vec3(st, time * 0.3)) + 0.25);
+		value += amplitude * (snoise(st) + 0.25);
 		st *= 2.0;
 		amplitude *= 0.5;
 	}
     return value;
 }
 
-void main() {
-    vec2 st = gl_FragCoord.xy/resolution.xy;
-    st.x *= resolution.x/resolution.y;
-	st.x -= time * 0.1;
-
-    float noiseval = fbm(st * 3.0);
-
+void main(void) {
+	float noiseval = fbm(vec3(tex * 2.0));
     FragColor = vec4(mix(vec3(0.4, 0.6, 0.9), vec3(1.0, 1.0, 1.0), clamp(noiseval, 0.0, 1.0)), 1.0);
-    // FragColor = vec4(vec3(clamp(noiseval, 0.0, 1.0)), 1.0);
-    // FragColor = vec4(vec3(noise2(vec2(1.0))), 1.0);
 }

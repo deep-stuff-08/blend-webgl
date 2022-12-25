@@ -252,7 +252,7 @@ function setupAnimation(modelObj, json) {
 
 function initalizeModel(modelName) {
 	var model = modelList.find(o => o.name === modelName)
-	if(model === undefined) {
+	if(model === undefined || model.json === undefined) {
 		return undefined
 	}
 	var modelObj = new dmodel()

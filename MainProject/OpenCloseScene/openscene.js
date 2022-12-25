@@ -140,11 +140,11 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
 	const groundWidth = 30.0
 	const wallHeight = 1.5
 	const buildingXTrans = 10.0
-	const buildingZTrans = 10.0
-	const buildingZSpace = 40.0
+	const buildingZTrans = 12.5
+	const buildingZSpace = 30.0
 
 	//Cubemap
-	renderCubemapDeep(viewMatrix, opensceneDeep.texCity)
+	renderCubemapDeep(perspectiveMatrix, viewMatrix)
 
 	gl.useProgram(progPhongLightWithTexture.program)
 	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.pMat, false, perspectiveMatrix)
