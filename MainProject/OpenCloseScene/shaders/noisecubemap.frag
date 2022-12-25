@@ -5,7 +5,6 @@ in vec3 tex;
 
 layout(location = 0) out vec4 FragColor;
 
-uniform vec2 resolution;
 uniform float time;
 
 vec3 mod289(vec3 x) {
@@ -80,7 +79,7 @@ float snoise(vec3 v) {
 	return 105.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
 }
 
-#define OCTAVES 6
+#define OCTAVES 3
 float fbm (vec3 st) {
 	float value = 0.0;
 	float amplitude = 0.5;
@@ -90,10 +89,10 @@ float fbm (vec3 st) {
 		st *= 2.0;
 		amplitude *= 0.5;
 	}
-    return value;
+	return value;
 }
 
 void main(void) {
-	float noiseval = fbm(vec3(tex * 2.0));
-    FragColor = vec4(mix(vec3(0.4, 0.6, 0.9), vec3(1.0, 1.0, 1.0), clamp(noiseval, 0.0, 1.0)), 1.0);
+	float noiseval = fbm(vec3(tex * 4.0));
+	FragColor = vec4(mix(vec3(0.4, 0.6, 0.9), vec3(1.0, 1.0, 1.0), clamp(noiseval, 0.0, 1.0)), 1.0);
 }

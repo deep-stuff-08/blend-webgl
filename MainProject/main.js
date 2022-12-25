@@ -18,7 +18,7 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.StudyScene
+var renderScene = SceneEnum.OpenScene
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 var sceneCamera
