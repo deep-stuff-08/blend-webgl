@@ -14,11 +14,15 @@ var opensceneDeep = {
 }
 
 function setupProgramForOpenSceneDeep() {
+	setupProgramForCubemapRendererDeep()
 	setupProgramForStreetLamp()
+	setupProgramForOceanDeep()
 }
 
 function initForOpenSceneDeep() {
+	initForCubemapRendererDeep()
 	initForStreetLamp()
+	initForOceanDeep()
 
 	opensceneDeep.objQuad = dshapes.initQuad()
 	opensceneDeep.objCube = dshapes.initCube()
@@ -142,6 +146,8 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
 	const buildingXTrans = 10.0
 	const buildingZTrans = 12.5
 	const buildingZSpace = 30.0
+	const oceanWidth = 1000.0
+	const oceanDepth = 100.0
 
 	//Cubemap
 	renderCubemapDeep(perspectiveMatrix, viewMatrix)
@@ -367,6 +373,11 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
 	renderModel(opensceneDeep.objBrian)
 
 	renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
+
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-(oceanWidth + roadWidth + (2.0 * (footpathborderWidth + footpathWidth + railingWidth))), -4.0, -oceanDepth])
+	mat4.scale(modelMatrix, modelMatrix, [oceanWidth, 20.0, oceanDepth])
+	renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix)
 }
 
 function renderForBuildingDeep(localModelMatrix, texScale) {
