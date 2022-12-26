@@ -2,6 +2,7 @@ var opensceneDeep = {
 	objQuad: null,
 	objCube: null,
 	objBrian: null,
+	objCar: null,
 	vaoCylinderPart: null,
 	countCylinderPart: null,
 	texFootpath: null,
@@ -13,8 +14,17 @@ var opensceneDeep = {
 	texBuilding2: null
 }
 
+var testProgram;
+
 function setupProgramForOpenSceneDeep() {
-	setupProgramForStreetLamp()
+	setupProgramForStreetLamp();
+
+	var vertShader = createShader('BarScene/shaders/demo.vert', gl.VERTEX_SHADER);
+	var fragShader = createShader('BarScene/shaders/point.frag', gl.FRAGMENT_SHADER);
+	testProgram = createProgram([vertShader, fragShader]);
+	deleteShader(vertShader);
+	deleteShader(fragShader);
+
 }
 
 function initForOpenSceneDeep() {
@@ -120,6 +130,7 @@ function initForOpenSceneDeep() {
 	gl.bindVertexArray(null)
 
 	opensceneDeep.objBrian = initalizeModel('Brian')
+	opensceneDeep.objCar = new Model('resources/models/static/Car/carf.json');
 }
 
 function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
@@ -345,6 +356,27 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
 		renderForBuildingDeep(modelMatrix, [2.0, 3.0])
 	}
 
+	// Car
+	// Not Working
+	/*
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [lightSource]);
+	//mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
+	//mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [0.0, 0.0, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix,[5.0,5.0,5.0]);
+	gl.useProgram(testProgram);
+	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
+	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
+	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
+	gl.uniform3fv(gl.getUniformLocation(testProgram,"light.direction"),lightSource );
+	gl.uniform3fv(gl.getUniformLocation(testProgram,"light.ambient"), [0.1,0.1,0.1]);
+	gl.uniform3fv(gl.getUniformLocation(testProgram,"light.diffuse"), [1.0,1.0,1.0]);
+	gl.uniform3fv(gl.getUniformLocation(testProgram,"light.specular"), [1.0,1.0,1.0]);
+	opensceneDeep.objCar.render(testProgram);
+	gl.useProgram(null);
+	*/
+
 	gl.useProgram(progPhongLightWithTextureForModel.program)
 	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.pMat, false, perspectiveMatrix)
 	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.vMat, false, viewMatrix)
@@ -364,7 +396,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
 	for(var i = 0; i < boneMat.length; i++) {
 		gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.bMat[i], false, boneMat[i])
 	}
-	renderModel(opensceneDeep.objBrian)
+	renderModel(opensceneDeep.objBrian);
 
 	renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
 }
