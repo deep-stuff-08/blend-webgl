@@ -18,7 +18,7 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.OpenScene
+var renderScene = SceneEnum.BarScene
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 var sca = 1.0
@@ -27,7 +27,7 @@ var devCam = true
 var showCamPath = false
 var showCam = false
 var camSplinePosition = 0.0
-var debugMode = false
+var debugMode = true
 
 var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
@@ -174,7 +174,9 @@ function main() {
 				showCam = false;
 			}
 		} else if(event.code == 'Space') {
-			renderScene = (renderScene + 1) % 7
+			if(debugMode) {
+				renderScene = (renderScene + 1) % 7
+			}
 		} else if(event.code == 'KeyO') {
 			sca += 0.01
 		} else if(event.code == 'KeyU') {
