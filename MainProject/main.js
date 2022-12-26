@@ -26,6 +26,7 @@ var devCam = true
 var showCamPath = false
 var showCam = false
 var camSplinePosition = 0.0
+var debugMode = false
 
 var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
@@ -168,6 +169,8 @@ function main() {
 				showCamPath = false;
 				showCam = false;
 			}
+		} else if(event.code == 'Space') {
+			renderScene = (renderScene + 1) % 7
 		}
 	})
 	
@@ -184,19 +187,24 @@ function main() {
 function setupProgram() {
 	setupCommonPrograms()
 	setupProgramForLightSourceRendererDeep()
-	setupProgramForDeepCube()
 	// setupProgramForTestModelLoadByDeep()
 
-	switch(renderScene) {
-	case SceneEnum.OpenScene:
+	if(debugMode) {
+		switch(renderScene) {
+		case SceneEnum.OpenScene:
+			setupProgramForOpenSceneDeep()
+			break
+		case SceneEnum.StudyScene:
+			setupProgramForScene1Kdesh()
+			break
+		case SceneEnum.BarScene:
+			setupprogramForSceneTwo()
+			break
+		}
+	} else {
 		setupProgramForOpenSceneDeep()
-		break
-	case SceneEnum.StudyScene:
 		setupProgramForScene1Kdesh()
-		break
-	case SceneEnum.BarScene:
 		setupprogramForSceneTwo()
-		break
 	}
 	
 	vertShader = createShader('common/shaders/hdr.vert', gl.VERTEX_SHADER)
@@ -211,7 +219,6 @@ function setupProgram() {
 }
 
 function init() {
-	initForDeepCube()
 	initForLightSourceRendererDeep()
 	// initForTestModelLoadByDeep()
 
@@ -234,16 +241,22 @@ function init() {
 
 	sceneCamera = new kcamera()
 
-	switch(renderScene) {
-	case SceneEnum.OpenScene:
+	if(debugMode) {
+		switch(renderScene) {
+		case SceneEnum.OpenScene:
+			initForOpenSceneDeep()
+			break
+		case SceneEnum.StudyScene:
+			initForScene1Kdesh(sceneCamera)
+			break
+		case SceneEnum.BarScene:
+			initForSceneTwo()
+			break
+		}
+	} else {
 		initForOpenSceneDeep()
-		break
-	case SceneEnum.StudyScene:
 		initForScene1Kdesh(sceneCamera)
-		break
-	case SceneEnum.BarScene:
 		initForSceneTwo()
-		break
 	}
 
 	gl.enable(gl.DEPTH_TEST)
