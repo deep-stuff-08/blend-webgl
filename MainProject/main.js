@@ -18,7 +18,7 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.OpenScene
+var renderScene = SceneEnum.BedroomScene
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 var sceneCamera
@@ -200,7 +200,10 @@ function setupProgram() {
 	break;
 	case SceneEnum.HospitalScene:
 		setupprogramForSceneTwo()
-		break;
+	break;
+	case SceneEnum.BedroomScene:
+		setupprogramForBedroomScene()
+	break;
 	}
 	
 	vertShader = createShader('common/shaders/hdr.vert', gl.VERTEX_SHADER)
@@ -252,6 +255,9 @@ function init() {
 	case SceneEnum.HospitalScene:
 		initForSceneTwo()
 		break;
+	case SceneEnum.BedroomScene:
+		initForBedroomScene()
+	break;
 	}
 
 	gl.enable(gl.DEPTH_TEST)
@@ -287,7 +293,7 @@ function render(time) {
 		var cameraMatrix = sceneCamera.matrix(camSplinePosition)
 	}
 
-	gl.clearBufferfv(gl.COLOR, 0, [0.5, 0.5, 0.5, 1.0])
+	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
 	if(showCamPath)
@@ -313,6 +319,9 @@ function render(time) {
 	break
 	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
+	break
+	case SceneEnum.BedroomScene:
+		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
 	break
 	default:
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)
