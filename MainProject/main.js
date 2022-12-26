@@ -18,7 +18,7 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.OpenScene
+var renderScene = SceneEnum.BedroomScene
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 var sceneCamera
@@ -198,13 +198,21 @@ function setupProgram() {
 			setupProgramForScene1Kdesh()
 			break
 		case SceneEnum.BarScene:
+			setupprogramForBarScene()
+			break
+		case SceneEnum.BedroomScene:
+			setupprogramForBedroomScene()
+			break
+		case SceneEnum.HospitalScene:
 			setupprogramForSceneTwo()
 			break
 		}
 	} else {
 		setupProgramForOpenSceneDeep()
 		setupProgramForScene1Kdesh()
+		setupprogramForBarScene()
 		setupprogramForSceneTwo()
+		setupprogramForBedroomScene()
 	}
 	
 	vertShader = createShader('common/shaders/hdr.vert', gl.VERTEX_SHADER)
@@ -247,9 +255,15 @@ function init() {
 			initForOpenSceneDeep()
 			break
 		case SceneEnum.StudyScene:
-			initForScene1Kdesh(sceneCamera)
+			initForScene1Kdesh()
 			break
 		case SceneEnum.BarScene:
+			initForBarScene()
+			break
+		case SceneEnum.BedroomScene:
+			initForBedroomScene()
+			break
+		case SceneEnum.HospitalScene:
 			initForSceneTwo()
 			break
 		}
@@ -257,6 +271,8 @@ function init() {
 		initForOpenSceneDeep()
 		initForScene1Kdesh(sceneCamera)
 		initForSceneTwo()
+		initForBarScene()
+		initForBedroomScene()
 	}
 
 	gl.enable(gl.DEPTH_TEST)
@@ -292,7 +308,7 @@ function render(time) {
 		var cameraMatrix = sceneCamera.matrix(camSplinePosition)
 	}
 
-	gl.clearBufferfv(gl.COLOR, 0, [0.5, 0.5, 0.5, 1.0])
+	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
 	if(showCamPath)
@@ -314,8 +330,14 @@ function render(time) {
 		camSplinePosition = 0.0
 		break
 	case SceneEnum.BarScene:
+		renderForBarScene(time, perspectiveMatrix, cameraMatrix)
+	break
+	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
-		break
+	break
+	case SceneEnum.BedroomScene:
+		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
+	break
 	default:
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)
 		break
