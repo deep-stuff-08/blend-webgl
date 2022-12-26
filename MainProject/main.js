@@ -193,7 +193,7 @@ function setupProgram() {
 		setupProgramForOpenSceneDeep()
 		break;
 	case SceneEnum.StudyScene:
-		setupProgramForScene1Kdesh()
+		setupProgramForStudySceneKdesh()
 	break;
 	case SceneEnum.BarScene:
 		setupprogramForBarScene();
@@ -244,7 +244,7 @@ function init() {
 		initForOpenSceneDeep()
 		break
 	case SceneEnum.StudyScene:
-		initForScene1Kdesh(sceneCamera)
+		initForStudySceneKdesh(sceneCamera)
 		break
 	case SceneEnum.BarScene:
 		initForBarScene();
@@ -303,7 +303,7 @@ function render(time) {
 		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix)
 		break
 	case SceneEnum.StudyScene:
-		renderForScene1Kdesh(perspectiveMatrix, cameraMatrix)
+		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix)
 		camSplinePosition += 0.001
 		if(camSplinePosition > 1.0)
 		camSplinePosition = 0.0

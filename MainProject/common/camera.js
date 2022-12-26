@@ -4,20 +4,27 @@ class kcamera {
     #path;
     #nsplines;
     #vaoPath;
-    #vaoCamAxes;
+    #vboPath;
+    static #vaoCamAxes;
     #orientationMat;
     #nPathVerts;
-    constructor() {}
+    constructor() {
+        kcamera.#program = null;
+        this.#vaoPath = null;
+        kcamera.#vaoCamAxes = null;
+    }
     updatePath(path) {
         this.#path = path;
         this.#nsplines = path.length - 1;
         this.#nPathVerts = 0;
         
-        var vertShader = createShader('common/shaders/camera.vert', gl.VERTEX_SHADER);
-        var fragShader = createShader('common/shaders/camera.frag', gl.FRAGMENT_SHADER);
-        kcamera.#program = createProgram([vertShader, fragShader]);
-        deleteShader(fragShader);
-        deleteShader(vertShader);
+        if(kcamera.#program == null) {
+            var vertShader = createShader('common/shaders/camera.vert', gl.VERTEX_SHADER);
+            var fragShader = createShader('common/shaders/camera.frag', gl.FRAGMENT_SHADER);
+            kcamera.#program = createProgram([vertShader, fragShader]);
+            deleteShader(fragShader);
+            deleteShader(vertShader);
+        }
 
         var pathVerts = [];
         for(var i = 0; i < path.length - 1; i++) {
@@ -43,34 +50,43 @@ class kcamera {
             }
         }
         var pathVertsArray = new Float32Array(pathVerts);
-        var vaoPath = gl.createVertexArray();
+        if(this.#vaoPath == null) {
+            var vaoPath = gl.createVertexArray();
+            this.#vaoPath = vaoPath;
+            var vboPath = gl.createBuffer();
+            this.#vboPath = vboPath;
+        }
+        else {
+            var vaoPath = this.#vaoPath;
+            var vboPath = this.#vboPath;
+        }
         gl.bindVertexArray(vaoPath);
-        var vboPath = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vboPath);
         gl.bufferData(gl.ARRAY_BUFFER, pathVertsArray, gl.DYNAMIC_DRAW);
         gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(0);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         gl.bindVertexArray(null);
-        this.#vaoPath = vaoPath;
 
-        var camAxesVerts = new Float32Array([
-            0.0, 0.0, 0.0, 1.0, 0.0, 0.0,   1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0, 1.0, 0.0,   0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-            0.0, 0.0, 0.0, 0.0, 0.0, 1.0,   0.0, 0.0,-1.0, 0.0, 0.0, 1.0
-        ]);
-        var vaoCam = gl.createVertexArray();
-        gl.bindVertexArray(vaoCam);
-        var vboCam = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, vboCam);
-        gl.bufferData(gl.ARRAY_BUFFER, camAxesVerts, gl.STATIC_DRAW);
-        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 6 * camAxesVerts.BYTES_PER_ELEMENT, 0);
-        gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 6 * camAxesVerts.BYTES_PER_ELEMENT, 3 * camAxesVerts.BYTES_PER_ELEMENT);
-        gl.enableVertexAttribArray(0);
-        gl.enableVertexAttribArray(1);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.bindVertexArray(null);
-        this.#vaoCamAxes = vaoCam;
+        if(kcamera.#vaoCamAxes == null) {
+            var camAxesVerts = new Float32Array([
+                0.0, 0.0, 0.0,  1.0, 0.0, 0.0,   1.0, 0.0, 0.0,  1.0, 0.0, 0.0,
+                0.0, 0.0, 0.0,  0.0, 1.0, 0.0,   0.0, 1.0, 0.0,  0.0, 1.0, 0.0,
+                0.0, 0.0, 0.0,  0.0, 0.0, 1.0,   0.0, 0.0,-1.0,  0.0, 0.0, 1.0
+            ]);
+            var vaoCam = gl.createVertexArray();
+            kcamera.#vaoCamAxes = vaoCam;
+            gl.bindVertexArray(vaoCam);
+            var vboCam = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vboCam);
+            gl.bufferData(gl.ARRAY_BUFFER, camAxesVerts, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 6 * camAxesVerts.BYTES_PER_ELEMENT, 0);
+            gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 6 * camAxesVerts.BYTES_PER_ELEMENT, 3 * camAxesVerts.BYTES_PER_ELEMENT);
+            gl.enableVertexAttribArray(0);
+            gl.enableVertexAttribArray(1);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+            gl.bindVertexArray(null);
+        }
     }
     matrix(t) {
         var tspline = kcamera.#lerp(0.0, this.#nsplines, t);
@@ -135,7 +151,7 @@ class kcamera {
         gl.uniformMatrix4fv(gl.getUniformLocation(kcamera.#program, "vMat"), false, viewMatrix);
         gl.uniformMatrix4fv(gl.getUniformLocation(kcamera.#program, "mMat"), false, this.#orientationMat);
         gl.uniform1i(gl.getUniformLocation(kcamera.#program, "isPath"), 0);
-        gl.bindVertexArray(this.#vaoCamAxes);
+        gl.bindVertexArray(kcamera.#vaoCamAxes);
         gl.drawArrays(gl.LINES, 0, 6);
         gl.useProgram(prevProgram);
         gl.bindVertexArray(prevVertexArray);
