@@ -253,6 +253,7 @@ function setupAnimation(modelObj, json) {
 function initalizeModel(modelName) {
 	var model = modelList.find(o => o.name === modelName)
 	if(model === undefined || model.json === undefined) {
+		console.log("Failed : Couldn't find " + modelName)
 		return undefined
 	}
 	var modelObj = new dmodel()
