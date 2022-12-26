@@ -236,6 +236,7 @@ function setupProgram() {
 
 function init() {
 	initForLightSourceRendererDeep()
+	initForPhoneDeep()
 	// initForTestModelLoadByDeep()
 
 	fboForHdr = gl.createFramebuffer()
