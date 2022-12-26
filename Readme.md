@@ -1,7 +1,3 @@
-Noise
-
-Human walk
-
 Fbo in study scene
 
 Fbo in hospital scene
