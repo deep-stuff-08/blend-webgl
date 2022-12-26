@@ -259,6 +259,8 @@ function printMatrix(m) {
 	}
 }
 
+var angle = 0.0
+
 function render(time) {
 	if(doRenderToHdr) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, fboForHdr)
@@ -294,7 +296,10 @@ function render(time) {
 
 	switch(renderScene) {
 	case SceneEnum.Tester:
-		renderForPhoneDeep(perspectiveMatrix, cameraMatrix, mat4.create())
+		var mymodelmat = mat4.create()
+		angle += 0.01
+		mat4.rotate(mymodelmat, mymodelmat, angle, [0.0, 1.0, 0.0])
+		renderForPhoneDeep(perspectiveMatrix, cameraMatrix, mymodelmat)
 		// renderCubemapDeep(cameraMatrix, temptex)
 		break
 	case SceneEnum.OpenScene:
