@@ -18,9 +18,10 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.BedroomScene
+var renderScene = SceneEnum.OpenScene
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
+var sca = 1.0
 var sceneCamera
 var devCam = true
 var showCamPath = false
@@ -33,6 +34,9 @@ var modelList = [
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
 	// { name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
 	{ name: "Brian", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
+	{ name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
+	{ name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },
+	{ name: "SilverCar", files:[ 'resources/models/static/Car/silvercar.obj', 'resources/models/static/Car/silvercar.mtl' ], flipTex:true },
 ]
 
 var loadedTextures = {}
@@ -54,7 +58,7 @@ assimpjs().then (function (ajs) {
 				console.log("Loading Files for " + modelList[i].name + "....")
 				let fileList = new ajs.FileList()
 				for (let j = 0; j < modelList[i].files.length; j++) {
-					fileList.AddFile(modelList[i].files[j], new Uint8Array(arrayBuffers[i + j]))
+					fileList.AddFile(modelList[i].files[j], new Uint8Array(arrayBuffers[(i * modelList[i].files.length) + j]))
 				}
 				console.log("Loaded Files")
 				console.log("Converting Files to AssimpJSON....")
@@ -171,6 +175,10 @@ function main() {
 			}
 		} else if(event.code == 'Space') {
 			renderScene = (renderScene + 1) % 7
+		} else if(event.code == 'KeyO') {
+			sca += 0.01
+		} else if(event.code == 'KeyU') {
+			sca -= 0.01
 		}
 	})
 	
