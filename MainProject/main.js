@@ -184,7 +184,6 @@ function main() {
 function setupProgram() {
 	setupCommonPrograms()
 	setupProgramForLightSourceRendererDeep()
-	setupProgramForCubemapRendererDeep()
 	setupProgramForDeepCube()
 	// setupProgramForTestModelLoadByDeep()
 
@@ -220,7 +219,6 @@ function setupProgram() {
 function init() {
 	initForDeepCube()
 	initForLightSourceRendererDeep()
-	initForCubemapRendererDeep()
 	// initForTestModelLoadByDeep()
 
 	fboForHdr = gl.createFramebuffer()
