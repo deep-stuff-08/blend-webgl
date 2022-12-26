@@ -18,25 +18,20 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.OpenScene
+var renderScene = SceneEnum.Tester
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
-var sca = 1.0
 var sceneCamera
 var devCam = true
 var showCamPath = false
 var showCam = false
 var camSplinePosition = 0.0
-var debugMode = false
 
 var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
 	// { name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
 	{ name: "Brian", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
-	{ name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
-	{ name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },
-	{ name: "SilverCar", files:[ 'resources/models/static/Car/silvercar.obj', 'resources/models/static/Car/silvercar.mtl' ], flipTex:true },
 ]
 
 var loadedTextures = {}
@@ -58,7 +53,7 @@ assimpjs().then (function (ajs) {
 				console.log("Loading Files for " + modelList[i].name + "....")
 				let fileList = new ajs.FileList()
 				for (let j = 0; j < modelList[i].files.length; j++) {
-					fileList.AddFile(modelList[i].files[j], new Uint8Array(arrayBuffers[(i * modelList[i].files.length) + j]))
+					fileList.AddFile(modelList[i].files[j], new Uint8Array(arrayBuffers[i + j]))
 				}
 				console.log("Loaded Files")
 				console.log("Converting Files to AssimpJSON....")
@@ -173,12 +168,6 @@ function main() {
 				showCamPath = false;
 				showCam = false;
 			}
-		} else if(event.code == 'Space') {
-			renderScene = (renderScene + 1) % 7
-		} else if(event.code == 'KeyO') {
-			sca += 0.01
-		} else if(event.code == 'KeyU') {
-			sca -= 0.01
 		}
 	})
 	
@@ -197,30 +186,19 @@ function setupProgram() {
 	setupProgramForLightSourceRendererDeep()
 	// setupProgramForTestModelLoadByDeep()
 
-	if(debugMode) {
-		switch(renderScene) {
-		case SceneEnum.OpenScene:
-			setupProgramForOpenSceneDeep()
-			break
-		case SceneEnum.StudyScene:
-			setupProgramForScene1Kdesh()
-			break
-		case SceneEnum.BarScene:
-			setupprogramForBarScene()
-			break
-		case SceneEnum.BedroomScene:
-			setupprogramForBedroomScene()
-			break
-		case SceneEnum.HospitalScene:
-			setupprogramForSceneTwo()
-			break
-		}
-	} else {
+	switch(renderScene) {
+	case SceneEnum.OpenScene:
 		setupProgramForOpenSceneDeep()
+		break;
+	case SceneEnum.StudyScene:
 		setupProgramForScene1Kdesh()
-		setupprogramForBarScene()
+	break;
+	case SceneEnum.BarScene:
+		setupprogramForBarScene();
+	break;
+	case SceneEnum.HospitalScene:
 		setupprogramForSceneTwo()
-		setupprogramForBedroomScene()
+		break;
 	}
 	
 	vertShader = createShader('common/shaders/hdr.vert', gl.VERTEX_SHADER)
@@ -234,10 +212,12 @@ function setupProgram() {
 	gl.useProgram(null)
 }
 
+var tex
+
 function init() {
 	initForLightSourceRendererDeep()
-	initForPhoneDeep()
 	// initForTestModelLoadByDeep()
+	initForPhoneDeep()
 
 	fboForHdr = gl.createFramebuffer()
 	texForHdr = gl.createTexture()
@@ -257,31 +237,21 @@ function init() {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 
 	sceneCamera = new kcamera()
+	tex = loadTexture('Instagram.jpg', true)
 
-	if(debugMode) {
-		switch(renderScene) {
-		case SceneEnum.OpenScene:
-			initForOpenSceneDeep()
-			break
-		case SceneEnum.StudyScene:
-			initForScene1Kdesh()
-			break
-		case SceneEnum.BarScene:
-			initForBarScene()
-			break
-		case SceneEnum.BedroomScene:
-			initForBedroomScene()
-			break
-		case SceneEnum.HospitalScene:
-			initForSceneTwo()
-			break
-		}
-	} else {
+	switch(renderScene) {
+	case SceneEnum.OpenScene:
 		initForOpenSceneDeep()
+		break
+	case SceneEnum.StudyScene:
 		initForScene1Kdesh(sceneCamera)
+		break
+	case SceneEnum.BarScene:
+		initForBarScene();
+		break
+	case SceneEnum.HospitalScene:
 		initForSceneTwo()
-		initForBarScene()
-		initForBedroomScene()
+		break;
 	}
 
 	gl.enable(gl.DEPTH_TEST)
@@ -291,6 +261,8 @@ function printMatrix(m) {
 		console.log(m[i * 4 + 0] + "   " + m[i * 4 + 1] + "   " + m[i * 4 + 2] + "   " + m[i * 4 + 3])
 	}
 }
+
+var angle = 0.0
 
 function render(time) {
 	if(doRenderToHdr) {
@@ -317,7 +289,7 @@ function render(time) {
 		var cameraMatrix = sceneCamera.matrix(camSplinePosition)
 	}
 
-	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0])
+	gl.clearBufferfv(gl.COLOR, 0, [0.5, 0.5, 0.5, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
 	if(showCamPath)
@@ -327,6 +299,10 @@ function render(time) {
 
 	switch(renderScene) {
 	case SceneEnum.Tester:
+		var mymodelmat = mat4.create()
+		angle += 0.01
+		mat4.rotate(mymodelmat, mymodelmat, angle, [0.0, 1.0, 0.0])
+		renderForPhoneDeep(perspectiveMatrix, cameraMatrix, mymodelmat, tex)
 		// renderCubemapDeep(cameraMatrix, temptex)
 		break
 	case SceneEnum.OpenScene:
@@ -343,9 +319,6 @@ function render(time) {
 	break
 	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
-	break
-	case SceneEnum.BedroomScene:
-		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
 	break
 	default:
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)

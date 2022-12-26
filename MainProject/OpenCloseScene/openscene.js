@@ -399,7 +399,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
 	for(var i = 0; i < boneMat.length; i++) {
 		gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.bMat[i], false, boneMat[i])
 	}
-	renderModel(opensceneDeep.objBrian);
+	renderModel(opensceneDeep.objBrian)
 
 	renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
 
