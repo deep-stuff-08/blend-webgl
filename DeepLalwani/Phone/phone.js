@@ -1,10 +1,14 @@
 var phoneDeep = {
 	vaoQuaterCircle: null,
+	countQuaterCircle: null,
+	vaoHollowCircle: null,
+	countHollowCircle: null,
 	vaoQuaterCylinder: null,
 	countQuaterCylinder: null,
 	objQuad : null,
 	tempTex: null,
 	tempTex2: null,
+	texLogo: null
 }
 
 function initForPhoneDeep() {
@@ -39,6 +43,62 @@ function initForPhoneDeep() {
 	gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 8 * 4, 6 * 4)
 	gl.enableVertexAttribArray(2)
 	gl.bindVertexArray(null)
+	phoneDeep.countQuaterCircle = 10 * 3
+
+	vertexArray = []
+	for(var j = 0; j <= 50; j++) {
+		var theta = (Math.PI * 2.0) * (j / 50)
+		vertexArray.push(Math.sin(theta))
+		vertexArray.push(Math.cos(theta))
+		vertexArray.push(0.0)
+		
+		vertexArray.push(0.0)
+		vertexArray.push(0.0)
+		vertexArray.push(1.0)
+
+		vertexArray.push(j / 50)
+		vertexArray.push(1.0)
+	
+		vertexArray.push(Math.sin(theta) * 0.8)
+		vertexArray.push(Math.cos(theta) * 0.8)
+		vertexArray.push(0.0)
+		
+		vertexArray.push(0.0)
+		vertexArray.push(0.0)
+		vertexArray.push(1.0)
+
+		vertexArray.push(j / 50)
+		vertexArray.push(0.0)
+	}
+	var elements = []
+	for(var j = 0; j < 50; j++) {
+		elements.push(j * 2)
+		elements.push(j * 2 + 1)
+		elements.push((j + 1) * 2)
+		elements.push(j * 2 + 1)
+		elements.push((j + 1) * 2)
+		elements.push((j + 1) * 2 + 1)
+	}
+	
+	console.log(vertexArray)
+
+	phoneDeep.vaoHollowCircle = gl.createVertexArray()
+	gl.bindVertexArray(phoneDeep.vaoHollowCircle)
+	vbo = gl.createBuffer()
+	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexArray.flat()), gl.STATIC_DRAW)
+	gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 8 * 4, 0)
+	gl.enableVertexAttribArray(0)
+	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 8 * 4, 3 * 4)
+	gl.enableVertexAttribArray(1)
+	gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 8 * 4, 6 * 4)
+	gl.enableVertexAttribArray(2)
+
+	var eabo = gl.createBuffer()
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, eabo)
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(elements), gl.STATIC_DRAW)
+	gl.bindVertexArray(null)
+	phoneDeep.countHollowCircle = elements.length
 
 	vertexArray = []
 	for(var j = 0; j <= 10; j++) {
@@ -65,7 +125,7 @@ function initForPhoneDeep() {
 		vertexArray.push(j / 10)
 		vertexArray.push(0.0)
 	}
-	var elements = []
+	elements = []
 	for(var j = 0; j < 10; j++) {
 		elements.push(j * 2)
 		elements.push(j * 2 + 1)
@@ -74,15 +134,13 @@ function initForPhoneDeep() {
 		elements.push((j + 1) * 2)
 		elements.push((j + 1) * 2 + 1)
 	}
-	var elementIndices = Uint16Array.from(elements)
-	var vertex = Float32Array.from(vertexArray)
 
 	phoneDeep.vaoQuaterCylinder = gl.createVertexArray()
 	gl.bindVertexArray(phoneDeep.vaoQuaterCylinder)
 
 	vbo = gl.createBuffer()
 	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.bufferData(gl.ARRAY_BUFFER, vertex, gl.STATIC_DRAW)
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexArray), gl.STATIC_DRAW)
 	gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 8 * 4, 0)
 	gl.enableVertexAttribArray(0)
 	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 8 * 4, 3 * 4)
@@ -90,30 +148,35 @@ function initForPhoneDeep() {
 	gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 8 * 4, 6 * 4)
 	gl.enableVertexAttribArray(2)
 	
-	var eabo = gl.createBuffer()
+	eabo = gl.createBuffer()
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, eabo)
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, elementIndices, gl.STATIC_DRAW)
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(elements), gl.STATIC_DRAW)
 
 	gl.bindVertexArray(null)
-	phoneDeep.countQuaterCylinder = elementIndices.length
+	phoneDeep.countQuaterCylinder = elements.length
 
 	phoneDeep.objQuad = dshapes.initQuad()
 
 	phoneDeep.tempTex = loadTexture('steel.jpg')
 	phoneDeep.tempTex2 = loadTexture('steel2.jpg')
+	phoneDeep.texLogo = loadTexture('apple.png', true)
+
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 }
 
-function renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix) {
+function renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix, screenTex) {
 	var localModelMat
 
 	const phoneScreenWidth = 0.6
 	const phoneScreenHeight = 1.0
 	const phoneTopPanelHeight = 0.09
 	const phoneBottomPanelHeight = 0.12
-	const phonePanelRadiusX = 0.2
+	const phonePanelRadiusX = 0.16
 	const phoneSidePanelWidth = 0.02
 	const phonePanelWidth = phoneScreenWidth - phonePanelRadiusX + (phoneSidePanelWidth * 2.0)
 	const phoneDepht = 0.05
+
+	console.log(phonePanelWidth)
 
 	gl.useProgram(progPhongLightWithTexture.program)
 	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.pMat, false, perspectiveMatrix)
@@ -130,12 +193,11 @@ function renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix) {
 	
 	//Front
 	//Screen
-	console.log(modelMatrix)
 	localModelMat = mat4.clone(modelMatrix)
 	mat4.translate(localModelMat, localModelMat, [0.0, 0.0, phoneDepht])
-	mat4.scale(localModelMat, localModelMat, [phoneScreenWidth, 1.0, 1.0])
+	mat4.scale(localModelMat, localModelMat, [phoneScreenWidth, phoneScreenHeight, 1.0])
 	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
-	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex)
+	gl.bindTexture(gl.TEXTURE_2D, screenTex)
 	phoneDeep.objQuad.render()
 
 	//Borders
@@ -173,7 +235,7 @@ function renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix) {
 	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
 	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex2)
 	gl.bindVertexArray(phoneDeep.vaoQuaterCircle)
-	gl.drawArrays(gl.TRIANGLES, 0, 30)
+	gl.drawArrays(gl.TRIANGLES, 0, phoneDeep.countQuaterCircle)
 	gl.bindVertexArray(null)
 
 	localModelMat = mat4.clone(modelMatrix)
@@ -183,7 +245,7 @@ function renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix) {
 	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
 	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex2)
 	gl.bindVertexArray(phoneDeep.vaoQuaterCircle)
-	gl.drawArrays(gl.TRIANGLES, 0, 30)
+	gl.drawArrays(gl.TRIANGLES, 0, phoneDeep.countQuaterCircle)
 	gl.bindVertexArray(null)
 
 	localModelMat = mat4.clone(modelMatrix)
@@ -193,7 +255,7 @@ function renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix) {
 	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
 	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex2)
 	gl.bindVertexArray(phoneDeep.vaoQuaterCircle)
-	gl.drawArrays(gl.TRIANGLES, 0, 30)
+	gl.drawArrays(gl.TRIANGLES, 0, phoneDeep.countQuaterCircle)
 	gl.bindVertexArray(null)
 
 	localModelMat = mat4.clone(modelMatrix)
@@ -203,7 +265,7 @@ function renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix) {
 	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
 	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex2)
 	gl.bindVertexArray(phoneDeep.vaoQuaterCircle)
-	gl.drawArrays(gl.TRIANGLES, 0, 30)
+	gl.drawArrays(gl.TRIANGLES, 0, phoneDeep.countQuaterCircle)
 	gl.bindVertexArray(null)
 
 	//Sides
@@ -322,7 +384,7 @@ function renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix) {
 	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
 	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex2)
 	gl.bindVertexArray(phoneDeep.vaoQuaterCircle)
-	gl.drawArrays(gl.TRIANGLES, 0, 30)
+	gl.drawArrays(gl.TRIANGLES, 0, phoneDeep.countQuaterCircle)
 	gl.bindVertexArray(null)
 
 	localModelMat = mat4.clone(modelMatrix)
@@ -332,7 +394,7 @@ function renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix) {
 	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
 	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex2)
 	gl.bindVertexArray(phoneDeep.vaoQuaterCircle)
-	gl.drawArrays(gl.TRIANGLES, 0, 30)
+	gl.drawArrays(gl.TRIANGLES, 0, phoneDeep.countQuaterCircle)
 	gl.bindVertexArray(null)
 
 	localModelMat = mat4.clone(modelMatrix)
@@ -342,7 +404,7 @@ function renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix) {
 	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
 	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex2)
 	gl.bindVertexArray(phoneDeep.vaoQuaterCircle)
-	gl.drawArrays(gl.TRIANGLES, 0, 30)
+	gl.drawArrays(gl.TRIANGLES, 0, phoneDeep.countQuaterCircle)
 	gl.bindVertexArray(null)
 
 	localModelMat = mat4.clone(modelMatrix)
@@ -352,8 +414,62 @@ function renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix) {
 	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
 	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex2)
 	gl.bindVertexArray(phoneDeep.vaoQuaterCircle)
-	gl.drawArrays(gl.TRIANGLES, 0, 30)
-	gl.bindVertexArray(null)	
+	gl.drawArrays(gl.TRIANGLES, 0, phoneDeep.countQuaterCircle)
+	gl.bindVertexArray(null)
+
+	//Home Button
+	localModelMat = mat4.clone(modelMatrix)
+	mat4.translate(localModelMat, localModelMat, [0.0, -(phoneScreenHeight + phoneBottomPanelHeight), phoneDepht + 0.001])
+	mat4.scale(localModelMat, localModelMat, [0.1, 0.1, 1.0])
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
+	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex)
+	gl.bindVertexArray(phoneDeep.vaoHollowCircle)
+	gl.drawElements(gl.TRIANGLES, phoneDeep.countHollowCircle, gl.UNSIGNED_SHORT, 0)
+	gl.bindVertexArray(null)
+
+	//Speaker Front
+	localModelMat = mat4.clone(modelMatrix)
+	mat4.translate(localModelMat, localModelMat, [0.15, (phoneScreenHeight + phoneTopPanelHeight), phoneDepht + 0.001])
+	mat4.scale(localModelMat, localModelMat, [0.01, 0.01, 1.0])
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
+	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex)
+	gl.bindVertexArray(phoneDeep.vaoQuaterCircle)
+	gl.drawArrays(gl.TRIANGLES, 0, phoneDeep.countQuaterCircle)
+	gl.bindVertexArray(null)
+	localModelMat = mat4.clone(modelMatrix)
+	mat4.translate(localModelMat, localModelMat, [-0.15, (phoneScreenHeight + phoneTopPanelHeight), phoneDepht + 0.001])
+	mat4.scale(localModelMat, localModelMat, [0.01, 0.01, 1.0])
+	mat4.rotate(localModelMat, localModelMat, Math.PI / 2.0, [0.0, 0.0, 1.0])
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
+	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex)
+	gl.bindVertexArray(phoneDeep.vaoQuaterCircle)
+	gl.drawArrays(gl.TRIANGLES, 0, phoneDeep.countQuaterCircle)
+	gl.bindVertexArray(null)
+	localModelMat = mat4.clone(modelMatrix)
+	mat4.translate(localModelMat, localModelMat, [0.15, (phoneScreenHeight + phoneTopPanelHeight), phoneDepht + 0.001])
+	mat4.scale(localModelMat, localModelMat, [0.01, 0.01, 1.0])
+	mat4.rotate(localModelMat, localModelMat, Math.PI / 2.0, [0.0, 0.0, -1.0])
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
+	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex)
+	gl.bindVertexArray(phoneDeep.vaoQuaterCircle)
+	gl.drawArrays(gl.TRIANGLES, 0, phoneDeep.countQuaterCircle)
+	gl.bindVertexArray(null)
+	localModelMat = mat4.clone(modelMatrix)
+	mat4.translate(localModelMat, localModelMat, [-0.15, (phoneScreenHeight + phoneTopPanelHeight), phoneDepht + 0.001])
+	mat4.scale(localModelMat, localModelMat, [0.01, 0.01, 1.0])
+	mat4.rotate(localModelMat, localModelMat, Math.PI, [0.0, 0.0, 1.0])
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
+	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex)
+	gl.bindVertexArray(phoneDeep.vaoQuaterCircle)
+	gl.drawArrays(gl.TRIANGLES, 0, phoneDeep.countQuaterCircle)
+	gl.bindVertexArray(null)
+	localModelMat = mat4.clone(modelMatrix)
+	mat4.translate(localModelMat, localModelMat, [0.0, (phoneScreenHeight + phoneTopPanelHeight), phoneDepht + 0.001])
+	mat4.scale(localModelMat, localModelMat, [0.15, 0.01, 1.0])
+	mat4.rotate(localModelMat, localModelMat, Math.PI, [0.0, 0.0, 1.0])
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
+	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.tempTex)
+	phoneDeep.objQuad.render()
 
 	gl.useProgram(null)
 }

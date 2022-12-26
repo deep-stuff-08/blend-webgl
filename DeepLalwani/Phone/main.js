@@ -212,6 +212,8 @@ function setupProgram() {
 	gl.useProgram(null)
 }
 
+var tex
+
 function init() {
 	initForLightSourceRendererDeep()
 	// initForTestModelLoadByDeep()
@@ -235,6 +237,7 @@ function init() {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 
 	sceneCamera = new kcamera()
+	tex = loadTexture('Instagram.jpg', true)
 
 	switch(renderScene) {
 	case SceneEnum.OpenScene:
@@ -299,7 +302,7 @@ function render(time) {
 		var mymodelmat = mat4.create()
 		angle += 0.01
 		mat4.rotate(mymodelmat, mymodelmat, angle, [0.0, 1.0, 0.0])
-		renderForPhoneDeep(perspectiveMatrix, cameraMatrix, mymodelmat)
+		renderForPhoneDeep(perspectiveMatrix, cameraMatrix, mymodelmat, tex)
 		// renderCubemapDeep(cameraMatrix, temptex)
 		break
 	case SceneEnum.OpenScene:
