@@ -333,22 +333,18 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
 	opensceneDeep.objQuad.render()
 
 	//Building
-	gl.activeTexture(gl.TEXTURE0)
-	gl.bindTexture(gl.TEXTURE_2D, opensceneDeep.texBuilding1)
 	for(var i = 0; i < 6; i++) {
 	modelMatrix = mat4.create()
 		mat4.translate(modelMatrix, modelMatrix, [(roadWidth + ((footpathWidth + footpathborderWidth) * 2.0)) + buildingXTrans, sceneY + (footpathborderWidth * 2.0), sceneZ + footpathLeftDepth - ((buildingZSpace * i) + buildingZTrans)])
 		mat4.scale(modelMatrix, modelMatrix, [5.0, 5.0, 5.0])
-		renderForBuildingDeep(modelMatrix, [2.0, 3.0])
+		renderForBuildingDeep(modelMatrix, [2.0, 3.0], opensceneDeep.texBuilding1)
 	}
 
-	gl.activeTexture(gl.TEXTURE0)
-	gl.bindTexture(gl.TEXTURE_2D, opensceneDeep.texBuilding2)
 	for(var i = 0; i < 6; i++) {
 	modelMatrix = mat4.create()
 		mat4.translate(modelMatrix, modelMatrix, [(roadWidth + ((footpathWidth + footpathborderWidth) * 2.0)) + buildingXTrans, sceneY + (footpathborderWidth * 2.0), sceneZ + footpathLeftDepth - ((buildingZSpace * i) + buildingZTrans + (buildingZSpace / 2.0))])
 		mat4.scale(modelMatrix, modelMatrix, [5.0, 6.0, 5.0])
-		renderForBuildingDeep(modelMatrix, [2.0, 3.0])
+		renderForBuildingDeep(modelMatrix, [2.0, 3.0], opensceneDeep.texBuilding2)
 	}
 
 	gl.useProgram(progPhongLightWithTextureForModel.program)
@@ -380,12 +376,16 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
 	renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix)
 }
 
-function renderForBuildingDeep(localModelMatrix, texScale) {
+function renderForBuildingDeep(localModelMatrix, texScale, tex) {
 	var modelMatrix
 	const buildingHeight = 3.0
 	const buildingWidth = 1.0
 	const buildingDepth = 1.0
+	const roofHeight = 0.1
+	const roofWidthDepthInc = 0.05
 	
+	gl.activeTexture(gl.TEXTURE0)
+	gl.bindTexture(gl.TEXTURE_2D, tex)
 	modelMatrix = mat4.clone(localModelMatrix)
 	mat4.translate(modelMatrix, modelMatrix, [-buildingWidth, buildingHeight, 0.0])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
@@ -411,4 +411,14 @@ function renderForBuildingDeep(localModelMatrix, texScale) {
 	mat2.scale(texMatrix, texMatrix, texScale)
 	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
 	opensceneDeep.objQuad.render()
+
+	gl.bindTexture(gl.TEXTURE_2D, opensceneDeep.texCementWall)
+	modelMatrix = mat4.clone(localModelMatrix)
+	mat4.translate(modelMatrix, modelMatrix, [0.0, buildingHeight * 2.0 + roofHeight, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [buildingWidth + roofWidthDepthInc, roofHeight, buildingDepth + roofWidthDepthInc])
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, texScale)
+	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	opensceneDeep.objCube.render()
 }
