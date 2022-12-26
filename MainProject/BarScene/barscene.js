@@ -150,7 +150,7 @@ function initForBarScene() {
 	mPepsi = new Model('BarScene/resources/pepsi.json');
 	mTable = new Model('BarScene/resources/table.json');
 	mChair = new Model('BarScene/resources/chair.json');
-	mStool = new Model('Scene2/resources/stool.json');
+	mStool = new Model('BarScene/resources/stool.json');
 	mGlass = new Model('BarScene/resources/glass.json');
 
 	Light.push(
