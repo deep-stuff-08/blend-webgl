@@ -1,6 +1,6 @@
 # Blender 3.3.1
 # www.blender.org
-mtllib car5.mtl
+mtllib silvercar.mtl
 o IinfinityM45_blue
 v -5.416725 1.561820 -3.283910
 v -4.489863 1.522637 -3.282873
