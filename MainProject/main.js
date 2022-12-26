@@ -27,7 +27,7 @@ var devCam = true
 var showCamPath = false
 var showCam = false
 var camSplinePosition = 0.0
-var debugMode = false
+var debugMode = true
 
 var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
@@ -146,17 +146,17 @@ function main() {
 			vec3.multiply(dir, dir, [speed, speed, speed])
 			vec3.add(cameraPosition, cameraPosition, dir)
 		} else if(event.code == 'KeyI') {
-			trans[1] += 0.01
+			trans[1] += 0.1
 		} else if(event.code == 'KeyK') {
-			trans[1] -= 0.01
+			trans[1] -= 0.1
 		} else if(event.code == 'KeyJ') {
-			trans[0] -= 0.01
+			trans[0] -= 0.1
 		} else if(event.code == 'KeyL') {
-			trans[0] += 0.01
+			trans[0] += 0.1
 		} else if(event.code == 'KeyM') {
-			trans[2] -= 0.01
+			trans[2] -= 0.1
 		} else if(event.code == 'KeyN') {
-			trans[2] += 0.01
+			trans[2] += 0.1
 		} else if(event.code == 'KeyE') {
 			currentExposure -= 0.01
 		} else if(event.code == 'KeyR') {

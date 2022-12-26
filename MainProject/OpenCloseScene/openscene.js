@@ -3,6 +3,7 @@ var opensceneDeep = {
 	objCube: null,
 	objBrian: null,
 	objCars: null,
+	objSphere: null,
 	vaoCylinderPart: null,
 	countCylinderPart: null,
 	texFootpath: null,
@@ -29,6 +30,7 @@ function initForOpenSceneDeep() {
 
 	opensceneDeep.objQuad = dshapes.initQuad()
 	opensceneDeep.objCube = dshapes.initCube()
+	opensceneDeep.objSphere = dshapes.initSphere(30, 30)
 	
 	opensceneDeep.texFootpath = loadTexture("resources/textures/footpath.jpg", false)
 	opensceneDeep.texRoad = loadTexture("resources/textures/road.jpg", false)
@@ -379,6 +381,14 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
 	texMatrix = mat2.create()
 	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
 	renderModel(opensceneDeep.objCars[2])
+
+	gl.uniform1i(progPhongLightWithTexture.uniforms.isLight, 0)
+	gl.uniform1i(progPhongLightWithTexture.uniforms.isTexture, 0)
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-500.0, 40.0, -500.0])
+	mat4.scale(modelMatrix, modelMatrix, [40.0, 40.0, 40.0])
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	opensceneDeep.objSphere.render()
 
 	gl.useProgram(progPhongLightWithTextureForModel.program)
 	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.pMat, false, perspectiveMatrix)
