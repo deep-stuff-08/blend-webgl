@@ -18,7 +18,7 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.OpenScene
+var renderScene = SceneEnum.CloseScene
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 var sca = 1.0
@@ -54,11 +54,12 @@ assimpjs().then (function (ajs) {
 		Promise.all(modelList.flatMap(o => o.files).map((fileToLoad) => fetch (fileToLoad))).then ((responses) => {
 			return Promise.all(responses.map ((res) => res.arrayBuffer()))
 		}).then((arrayBuffers) => {
+			var k = 0
 			for(var i = 0; i < modelList.length; i++) {
 				console.log("Loading Files for " + modelList[i].name + "....")
 				let fileList = new ajs.FileList()
 				for (let j = 0; j < modelList[i].files.length; j++) {
-					fileList.AddFile(modelList[i].files[j], new Uint8Array(arrayBuffers[(i * modelList[i].files.length) + j]))
+					fileList.AddFile(modelList[i].files[j], new Uint8Array(arrayBuffers[k++]))
 				}
 				console.log("Loaded Files")
 				console.log("Converting Files to AssimpJSON....")
@@ -214,6 +215,9 @@ function setupProgram() {
 		case SceneEnum.HospitalScene:
 			setupprogramForSceneTwo()
 			break
+		case SceneEnum.CloseScene:
+			setupProgramForOpenSceneDeep()
+			break
 		}
 	} else {
 		setupProgramForOpenSceneDeep()
@@ -275,6 +279,8 @@ function init() {
 		case SceneEnum.HospitalScene:
 			initForSceneTwo()
 			break
+		case SceneEnum.CloseScene:
+			initForOpenSceneDeep()
 		}
 	} else {
 		initForOpenSceneDeep()
@@ -347,6 +353,9 @@ function render(time) {
 	case SceneEnum.BedroomScene:
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
 	break
+	case SceneEnum.CloseScene:
+		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix)
+		break
 	default:
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)
 		break
