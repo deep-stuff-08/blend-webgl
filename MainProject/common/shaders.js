@@ -127,26 +127,26 @@ function setPerojectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewP
 	gl.uniform3fv(progCompleteLight.uniforms.viewPos, viewPos)
 }
 
-function setModelMatrix(modelMatrix) {
+function setModelMatrixCompleteLight(modelMatrix) {
 	gl.uniformMatrix4fv(progCompleteLight.uniforms.mMat, false, modelMatrix)
 }
 
-function setTextureMatrix(textureMatrix) {
+function setTextureMatrixCompleteLight(textureMatrix) {
 	gl.uniformMatrix2fv(progCompleteLight.uniforms.texMat, false, textureMatrix)
 }
 
-function setTextureSamplers(diffuseTexture) {
+function setTextureSamplersCompleteLight(diffuseTexture) {
 	gl.uniform1i(progCompleteLight.uniforms.isTexture, 1)
 	gl.uniform1i(progCompleteLight.uniforms.diffuseTextureSampler, diffuseTexture)
 }
 
-function setFlags(isInvertNormals, isBlend, isTexture, isLight) {
-	gl.uniform1i(progCompleteLight.uniforms.isBlend, isBlend)
-	gl.uniform1i(progCompleteLight.uniforms.isInvertNormals, isInvertNormals)
-	gl.uniform1i(progCompleteLight.uniforms.isLight, isLight)
-	gl.uniform1i(progCompleteLight.uniforms.isTexture, isTexture)
+function setFlagsCompleteLight(isInvertNormals, isBlend, isTexture, isLight) {
+	gl.uniform1i(progCompleteLight.uniforms.isBlend, isBlend ? 1 : 0)
+	gl.uniform1i(progCompleteLight.uniforms.isInvertNormals, isInvertNormals ? 1 : 0)
+	gl.uniform1i(progCompleteLight.uniforms.isLight, isLight ? 1 : 0)
+	gl.uniform1i(progCompleteLight.uniforms.isTexture, isTexture ? 1 : 0)
 }
 
-function addLight(lightPos, lightColor) {
+function addLightCompleteLight(lightPos, lightColor) {
 	gl.uniform3fv(progCompleteLight.uniforms.lightPos, lightPos)
 }

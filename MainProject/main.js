@@ -18,7 +18,7 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.CloseScene
+var renderScene = SceneEnum.OpenScene
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 var sca = 1.0
@@ -47,7 +47,7 @@ var progForHdr
 var vaoForHdr
 var uniformExposureForHdr
 var currentExposure = 1.0
-var isLoadModels = false
+var isLoadModels = true
 
 assimpjs().then (function (ajs) {
 	if(isLoadModels) {
@@ -336,7 +336,7 @@ function render(time) {
 		// renderCubemapDeep(cameraMatrix, temptex)
 		break
 	case SceneEnum.OpenScene:
-		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix)
+		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition)
 		break
 	case SceneEnum.StudyScene:
 		renderForScene1Kdesh(perspectiveMatrix, cameraMatrix)
@@ -354,7 +354,7 @@ function render(time) {
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
 	break
 	case SceneEnum.CloseScene:
-		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix)
+		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition)
 		break
 	default:
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)
