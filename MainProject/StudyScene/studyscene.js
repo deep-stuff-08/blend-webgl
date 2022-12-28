@@ -3,7 +3,16 @@ var studySceneKdesh = {
     program: null,
     uniforms: null,
     cubeRoom: null,
-    quadWindow: null,
+    quadBill1: null,
+    texBill1: null,
+    quadBill2: null,
+    texBill1: null,
+    quadBill3: null,
+    texBill1: null,
+    quadBill4: null,
+    texBill1: null,
+    quadBill5: null,
+    texBill1: null,
     fboWindow: null,
     texOutside: null,
     texWall: null,
@@ -47,9 +56,18 @@ function initForStudySceneKdesh(sceneCamera) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     studySceneKdesh.cubeRoom = dshapes.initCube();
-    studySceneKdesh.quadWindow = dshapes.initQuad();
+    studySceneKdesh.quadBill1 = dshapes.initQuad();
+    studySceneKdesh.quadBill2 = dshapes.initQuad();
+    studySceneKdesh.quadBill3 = dshapes.initQuad();
+    studySceneKdesh.quadBill4 = dshapes.initQuad();
+    studySceneKdesh.quadBill5 = dshapes.initQuad();
 
     studySceneKdesh.texWall = loadTexture("resources/textures/whitewall.jpg");
+    studySceneKdesh.texBill1 = loadTexture("resources/textures/bill1.png");
+    studySceneKdesh.texBill2 = loadTexture("resources/textures/bill2.png");
+    studySceneKdesh.texBill3 = loadTexture("resources/textures/bill3.png");
+    studySceneKdesh.texBill4 = loadTexture("resources/textures/bill4.png");
+    studySceneKdesh.texBill5 = loadTexture("resources/textures/bill5.png");
 
     sceneCamera.updatePath(studySceneKdesh.cameraPath);
 }
@@ -79,13 +97,20 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     gl.uniform1i(studySceneKdesh.uniforms.isTexture, 1);
     gl.uniform1i(studySceneKdesh.uniforms.diffuseTextureSampler, 0);
     gl.activeTexture(gl.TEXTURE0);
+    
     gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texWall);
-
     var modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [0.0, 1.0, 5.0]);
     mat4.scale(modelMatrix, modelMatrix, [5.0, 4.0, 10.0]);
     gl.uniformMatrix4fv(studySceneKdesh.uniforms.mMat, false, modelMatrix);
     studySceneKdesh.cubeRoom.render();
+
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
+    gl.uniform1i(studySceneKdesh.uniforms.isLight, 0);
+    gl.uniformMatrix4fv(studySceneKdesh.uniforms.mMat, false, mat4.create());
+    gl.uniformMatrix2fv(studySceneKdesh.uniforms.texMat, false, mat2.create());
+    studySceneKdesh.quadBill1.render();
+    gl.uniform1i(studySceneKdesh.uniforms.isLight, 1);
 
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [0.0, 0.5, -4.8]);
@@ -116,4 +141,6 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     mat4.translate(modelMatrix, modelMatrix, [-2.4, -2.775, -4.3]);
     mat4.scale(modelMatrix, modelMatrix, [1.5, 1.5, 1.5]);
     renderForBottleKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition);
+
+    gl.useProgram(null);
 }
