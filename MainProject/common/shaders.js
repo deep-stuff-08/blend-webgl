@@ -158,7 +158,7 @@ function resetCompleteLight() {
 	gl.uniform3f(progCompleteLight.uniforms.light.position, 0.0, 0.0, 0.0)
 }
 
-function setPerojectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos) {
+function setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos) {
 	gl.uniformMatrix4fv(progCompleteLight.uniforms.pMat, false, perspectiveMatrix)
 	gl.uniformMatrix4fv(progCompleteLight.uniforms.vMat, false, viewMatrix)
 	gl.uniform3fv(progCompleteLight.uniforms.viewPos, viewPos)
