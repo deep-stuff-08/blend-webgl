@@ -175,7 +175,9 @@ function main() {
 				showCam = false;
 			}
 		} else if(event.code == 'Space') {
-			renderScene = (renderScene + 1) % 7
+			if(debugMode) {
+				renderScene = (renderScene + 1) % 7
+			}
 		} else if(event.code == 'KeyO') {
 			sca += 0.01
 		} else if(event.code == 'KeyU') {
