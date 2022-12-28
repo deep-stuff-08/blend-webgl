@@ -341,7 +341,7 @@ function render(time) {
 		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix)
 		break
 	case SceneEnum.StudyScene:
-		renderForScene1Kdesh(perspectiveMatrix, cameraMatrix)
+		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix)
 		camSplinePosition += 0.001
 		if(camSplinePosition > 1.0)
 		camSplinePosition = 0.0
