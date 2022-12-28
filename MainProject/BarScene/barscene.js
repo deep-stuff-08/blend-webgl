@@ -21,6 +21,7 @@ var mBottle2;
 var mTable;
 var mChair
 var mStool;
+var mCigar;
 
 var mGlass;
 
@@ -34,6 +35,15 @@ var textureForm;
 var video;
 var copyVideo = false;
 var videoTexture;
+
+var cameraBar =  null;
+var cameraPathBar = [
+	//      position            center               up               velocity      //
+	[ [-1.0,  0.0, -3.0], [ 0.0,  0.0, -3.0], [ 0.0,  1.0,  0.0], [ 0.0,  1.0,  1.0] ],
+	[ [ 0.0,  1.0,  3.0], [ 0.0,  0.0, -3.0], [ 0.0,  1.0,  0.0], [ 0.0,  1.0,  1.0] ],
+	[ [ 1.0,  2.0,  6.0], [ 0.0,  0.0, -3.0], [ 0.0,  1.0,  0.0], [ 0.0,  1.0,  1.0] ]
+];
+
 
 var Light = [];
 
@@ -52,78 +62,9 @@ function setupprogramForBarScene() {
 	deleteShader(fragShader);
 }
 
-function initForBarScene() {
-	var data = new Float32Array([
-		//Front
-		1.0, 1.0, 1.0, 1.0,		1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		1.0, 1.0,
-		-1.0, 1.0, 1.0, 1.0,	1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		0.0, 1.0,
-		-1.0, -1.0, 1.0, 1.0,	1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		0.0, 0.0,
-		
-		-1.0, -1.0, 1.0, 1.0,	1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		0.0, 0.0,
-		1.0, -1.0, 1.0, 1.0,	1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		1.0, 0.0,
-		1.0, 1.0, 1.0, 1.0,		1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		1.0, 1.0,
-
-		//Right
-		1.0, 1.0, -1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		1.0, 1.0,
-		1.0, 1.0, 1.0, 1.0,		0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		0.0, 1.0,
-		1.0, -1.0, 1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		0.0, 0.0,
-		
-		1.0, 1.0, -1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		1.0, 1.0,
-		1.0, -1.0, -1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		1.0, 0.0,
-		1.0, -1.0, 1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		0.0, 0.0,
-
-		//Back
-		-1.0, 1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		1.0, 1.0,
-		1.0, 1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		0.0, 1.0,
-		1.0, -1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		0.0, 0.0,
-
-		-1.0, 1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		1.0, 1.0,
-		-1.0, -1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		1.0, 0.0,
-		1.0, -1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		0.0, 0.0,
-
-		//Left
-		-1.0, 1.0, 1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		1.0, 1.0,
-		-1.0, 1.0, -1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		0.0, 1.0,
-		-1.0, -1.0, -1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		0.0, 0.0,
-		
-		-1.0, -1.0, -1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		0.0, 0.0,
-		-1.0, -1.0, 1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		1.0, 0.0,
-		-1.0, 1.0, 1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		1.0, 1.0,
-
-		//Top
-		1.0, 1.0, -1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		1.0, 1.0,
-		-1.0, 1.0, -1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		0.0, 1.0,
-		-1.0, 1.0, 1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		0.0, 0.0,
-		
-		-1.0, 1.0, 1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		0.0, 0.0,
-		1.0, 1.0, 1.0, 1.0,		0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		1.0, 0.0,
-		1.0, 1.0, -1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		1.0, 1.0,
-
-		//Bottom
-		1.0, -1.0, 1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		1.0, 1.0,
-		-1.0, -1.0, 1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		0.0, 1.0,
-		-1.0, -1.0, -1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		0.0, 0.0,
-		
-		-1.0, -1.0, -1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		0.0, 0.0,
-		1.0, -1.0, -1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		1.0, 0.0,
-		1.0, -1.0, 1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		1.0, 1.0,
-	]);
+function initForBarScene(sceneCamera) {
 
 	vao = gl.createVertexArray();
-	var vbo = gl.createBuffer();
-	gl.bindVertexArray(vao);
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW)
-	gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 4 * 13, 4 * 0)
-	gl.enableVertexAttribArray(0)
-	gl.vertexAttribPointer(5, 4, gl.FLOAT, false, 4 * 13, 4 * 4)
-	gl.enableVertexAttribArray(5)
-	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 4 * 13, 4 * 8)
-	gl.enableVertexAttribArray(1)
-	gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 4 * 13, 4 * 11)
-	gl.enableVertexAttribArray(2)
-	gl.bindBuffer(gl.ARRAY_BUFFER, null);
-	gl.bindVertexArray(null);
 
 	pMatUniformForSceneTwo = gl.getUniformLocation(programForBarScene, "pMat")
 	vMatUniformForSceneTwo = gl.getUniformLocation(programForBarScene, "vMat")
@@ -149,6 +90,7 @@ function initForBarScene() {
 	mCoke = new Model('BarScene/resources/coke.json');
 	mPepsi = new Model('BarScene/resources/pepsi.json');
 	mTable = new Model('BarScene/resources/table.json');
+	mCigar = new Model('BarScene/resources/cigar.json');
 	mChair = new Model('BarScene/resources/chair.json');
 	mStool = new Model('BarScene/resources/stool.json');
 	mGlass = new Model('BarScene/resources/glass.json');
@@ -157,7 +99,7 @@ function initForBarScene() {
 	{	
 		position : [-8.5,-10.0,-13.0],
 		ambient : [0.2,0.2,0.2],
-		diffuse : [1.0,0.0,0.0],
+		diffuse : [1.0,1.0,1.0],
 		specular : [1.0,1.0,1.0]
 	});
 
@@ -171,6 +113,9 @@ function initForBarScene() {
 
 	console.log(Light);
 
+	// camera setup
+
+	sceneCamera.updatePath(cameraPathBar);
 }
 
 function renderForBarScene(time , perspectiveMatrix, viewMatrix) {
@@ -345,6 +290,25 @@ function renderForBarScene(time , perspectiveMatrix, viewMatrix) {
 	mcab1.render(programForBarScene);
 	gl.useProgram(null);
 
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [-4.0,-3.1,-0.5]);
+	//mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
+	//mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [0.0, 0.0, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
+	gl.useProgram(programForBarScene);
+	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
+	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
+	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
+	for(var l = 0; l < Light.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForBarScene,"light["+l+"].direction"),Light[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForBarScene,"light["+l+"].ambient"), Light[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForBarScene,"light["+l+"].diffuse"), Light[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForBarScene,"light["+l+"].specular"), Light[l].specular);
+	}
+	mCigar.render(programForBarScene);
+	gl.useProgram(null);
 
 	var x = -9.5;
 	for(var i = 0; i < 4; i++)

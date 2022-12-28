@@ -39,6 +39,8 @@ var video;
 var copyVideo = false;
 var videoTexture;
 
+var Lights = [];
+
 function setupVideo(url)
 {
 	const video = document.createElement("video");
@@ -449,7 +451,7 @@ class Model{
 
 function setupprogramForSceneTwo() {
 	var vertShader = createShader('HospitalScene/shaders/demo.vert', gl.VERTEX_SHADER);
-	var fragShader = createShader('HospitalScene/shaders/point.frag', gl.FRAGMENT_SHADER);
+	var fragShader = createShader('HospitalScene/shaders/demo.frag', gl.FRAGMENT_SHADER);
 	programForSceneTwo = createProgram([vertShader, fragShader]);
 	deleteShader(vertShader);
 	deleteShader(fragShader);
@@ -469,76 +471,7 @@ function setupprogramForSceneTwo() {
 }
 
 function initForSceneTwo() {
-	var data = new Float32Array([
-		//Front
-		1.0, 1.0, 1.0, 1.0,		1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		1.0, 1.0,
-		-1.0, 1.0, 1.0, 1.0,	1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		0.0, 1.0,
-		-1.0, -1.0, 1.0, 1.0,	1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		0.0, 0.0,
-		
-		-1.0, -1.0, 1.0, 1.0,	1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		0.0, 0.0,
-		1.0, -1.0, 1.0, 1.0,	1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		1.0, 0.0,
-		1.0, 1.0, 1.0, 1.0,		1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		1.0, 1.0,
-
-		//Right
-		1.0, 1.0, -1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		1.0, 1.0,
-		1.0, 1.0, 1.0, 1.0,		0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		0.0, 1.0,
-		1.0, -1.0, 1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		0.0, 0.0,
-		
-		1.0, 1.0, -1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		1.0, 1.0,
-		1.0, -1.0, -1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		1.0, 0.0,
-		1.0, -1.0, 1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		0.0, 0.0,
-
-		//Back
-		-1.0, 1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		1.0, 1.0,
-		1.0, 1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		0.0, 1.0,
-		1.0, -1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		0.0, 0.0,
-
-		-1.0, 1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		1.0, 1.0,
-		-1.0, -1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		1.0, 0.0,
-		1.0, -1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		0.0, 0.0,
-
-		//Left
-		-1.0, 1.0, 1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		1.0, 1.0,
-		-1.0, 1.0, -1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		0.0, 1.0,
-		-1.0, -1.0, -1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		0.0, 0.0,
-		
-		-1.0, -1.0, -1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		0.0, 0.0,
-		-1.0, -1.0, 1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		1.0, 0.0,
-		-1.0, 1.0, 1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		1.0, 1.0,
-
-		//Top
-		1.0, 1.0, -1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		1.0, 1.0,
-		-1.0, 1.0, -1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		0.0, 1.0,
-		-1.0, 1.0, 1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		0.0, 0.0,
-		
-		-1.0, 1.0, 1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		0.0, 0.0,
-		1.0, 1.0, 1.0, 1.0,		0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		1.0, 0.0,
-		1.0, 1.0, -1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		1.0, 1.0,
-
-		//Bottom
-		1.0, -1.0, 1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		1.0, 1.0,
-		-1.0, -1.0, 1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		0.0, 1.0,
-		-1.0, -1.0, -1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		0.0, 0.0,
-		
-		-1.0, -1.0, -1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		0.0, 0.0,
-		1.0, -1.0, -1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		1.0, 0.0,
-		1.0, -1.0, 1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		1.0, 1.0,
-	]);
-
 	vao = gl.createVertexArray();
-	var vbo = gl.createBuffer();
-	gl.bindVertexArray(vao);
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW)
-	gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 4 * 13, 4 * 0)
-	gl.enableVertexAttribArray(0)
-	gl.vertexAttribPointer(5, 4, gl.FLOAT, false, 4 * 13, 4 * 4)
-	gl.enableVertexAttribArray(5)
-	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 4 * 13, 4 * 8)
-	gl.enableVertexAttribArray(1)
-	gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 4 * 13, 4 * 11)
-	gl.enableVertexAttribArray(2)
-	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	gl.bindVertexArray(null);
 
 	pMatUniformForSceneTwo = gl.getUniformLocation(programForSceneTwo, "pMat")
@@ -614,10 +547,32 @@ function initForSceneTwo() {
 	console.log(mECGScreen);
 
 	textureForm = loadTexture("resources/textures/form.png");
+	gl.bindTexture(gl.TEXTURE_2D,textureForm);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.bindTexture(gl.TEXTURE_2D,null);
 	testMat = new material();
 	testMat.texID.push(textureForm);
+	testMat.texType.push(1);
 	mPad.meshes[2].setMaterial(testMat);
 	console.log(mPad);
+
+	// Light Setups
+	Lights.push(
+		{	
+			position : [-3.0,3.5,-4.0],
+			ambient : [0.2,0.2,0.2],
+			diffuse : [1.0,1.0,1.0],
+			specular : [1.0,1.0,1.0]
+		});
+	
+		Lights.push(
+			{	
+				position : [0.0,4.5,14.8],
+				ambient : [0.1,0.1,0.1],
+				diffuse : [1.0,1.0,1.0],
+				specular : [1.0,1.0,1.0]
+			});
 
 }
 
@@ -633,6 +588,11 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	mat4.rotate(modelMatrix, modelMatrix, angle, [1.0, 1.0, 1.0])
 
 	gl.disable(gl.CULL_FACE);
+
+	// light src test
+	for(var l  = 0; l < Lights.length; l++)
+		renderLightSourceDeep(perspectiveMatrix, viewMatrix, Lights[l].position, Lights[l].diffuse);
+
 	// back
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,0.0,-5.0]);
@@ -642,6 +602,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mPlane.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -655,10 +622,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mPlane.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -672,10 +642,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mPlane.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -689,10 +662,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mPlane.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -706,10 +682,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mPlane.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -723,12 +702,38 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mPlane.render(programForSceneTwo);
 	gl.useProgram(null);
+
+
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [-6.0,-0.5,-5.9]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
+	gl.useProgram(programForSceneTwo);
+	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
+	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
+	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
+	mLight.render(programForSceneTwo);
+	gl.useProgram(null);
+
+	//gl.disable(gl.CULL_FACE);
 
 	gl.enable(gl.CULL_FACE);
 	mat4.identity(modelMatrix);
@@ -740,10 +745,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mBed.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -757,10 +765,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mcab1.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -772,10 +783,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mcab2.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -789,10 +803,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mFood.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -806,10 +823,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mPad.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -822,10 +842,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mSerum.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -837,10 +860,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mVentilator.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -871,10 +897,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mSofa.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -887,10 +916,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mSofa.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -903,10 +935,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mTrolley.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -920,45 +955,14 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mLaptop.render(programForSceneTwo);
-	gl.useProgram(null);
-
-	//gl.disable(gl.CULL_FACE);
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-2.0,-0.78,1.2]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-0), [0.0, 1.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.2,0.2,0.2]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mApple.render(programForSceneTwo);
-	gl.useProgram(null);
-
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-6.0,-0.5,-5.9]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mLight.render(programForSceneTwo);
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
@@ -970,33 +974,17 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mFan.render(programForSceneTwo);
 	gl.useProgram(null);
 
-	// light src test
-/*
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [3.5,-0.5,-2.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
-	gl.useProgram(programForSceneTwo);
-	gl.bindVertexArray(vao);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-0.2,-1.0,-1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,0.0,0.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,0.0,0.0]);
-	gl.drawArrays(gl.TRIANGLES, 0, 36);
-	gl.bindVertexArray(null);
-	gl.useProgram(null);
-*/
+
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [7.5,-2.9,-4.5]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
@@ -1008,10 +996,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.1,0.1,0.1]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mStool.render(programForSceneTwo);
 	gl.useProgram(null);
 
@@ -1026,13 +1017,34 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
 	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
 	mDoor.render(programForSceneTwo);
+	
 	gl.useProgram(null);
-
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [-2.0,-0.78,1.2]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-180), [0.0, 1.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.2,0.2,0.2]);
+	gl.useProgram(programForSceneTwo);
+	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
+	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
+	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light["+l+"].specular"), Lights[l].specular);
+	}
+	mApple.render(programForSceneTwo);
+	gl.useProgram(null);
 	// screen texture
 	gl.disable(gl.CULL_FACE);
 	mat4.identity(modelMatrix);

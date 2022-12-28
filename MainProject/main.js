@@ -18,7 +18,7 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.CloseScene
+var renderScene = SceneEnum.BarScene
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 var sca = 1.0
@@ -270,10 +270,10 @@ function init() {
 			initForOpenSceneDeep()
 			break
 		case SceneEnum.StudyScene:
-			initForScene1Kdesh()
+			initForScene1Kdesh(sceneCamera)
 			break
 		case SceneEnum.BarScene:
-			initForBarScene()
+			initForBarScene(sceneCamera)
 			break
 		case SceneEnum.BedroomScene:
 			initForBedroomScene()
@@ -347,7 +347,12 @@ function render(time) {
 		camSplinePosition = 0.0
 		break
 	case SceneEnum.BarScene:
+		camSplinePosition += 0.001;
+		//console.log(time);
+		if(camSplinePosition > 1.0)
+		camSplinePosition = 0.0
 		renderForBarScene(time, perspectiveMatrix, cameraMatrix)
+
 	break
 	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
