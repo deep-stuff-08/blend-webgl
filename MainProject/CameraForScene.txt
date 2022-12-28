@@ -1,0 +1,43 @@
+
+Opening Scene :
+1 : camera pans back
+
+
+Study scene :
+
+1 : Phone focus, Phone On Sofa (Camera Facing Down)
+2 : Scene reveal (Camera faces front)
+3 : Pan Over Entire Room (Right to Left)
+4 : Focus on table and bills
+
+Bar Scene :
+
+1 : Phone focus, Phone On Counter (Camera Facing Down)
+2 : Scene reveal (Camera faces front)
+3 : Pan Over Entire Room (Left to Right)
+4 : Focus on bottle
+
+Hospital Scene : 
+
+1 : Focus on Laptop screen
+2 : Scene reveal (Camera faces front)
+3 : Pan Over Entire Room (Right to Left)
+4 : Focus on Pad
+
+
+Bedroom Scene : 
+
+1 : Focus on Mobile screen
+2 : Scene reveal (Camera faces front)
+3 : Pan Over Entire Room (Left to Right)
+4 : Focus on Bottle
+5 : Zoom In On ring
+
+Closing Scene :
+
+1 : Focus on phone
+2 : Uninstall apps one by one
+3 : Phone falls down
+4 : Camera follows phone falling
+5 : Camera cuts to man standing on ledge facing the ocean
+6 : Camera slightly pans backwards
