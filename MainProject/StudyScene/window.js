@@ -38,22 +38,22 @@ function renderForWindowKdesh(projectionMatrix, viewMatrix, modelMatrix, lightPo
 
     gl.bindTexture(gl.TEXTURE_2D, windowKdesh.texWindow);
     mat4.translate(localMat, modelMatrix, [-1.0, 0.0, 0.0]);
-    mat4.scale(localMat, localMat, [0.1, 1.1, 0.05]);
+    mat4.scale(localMat, localMat, [0.03, 1.05, 0.05]);
     gl.uniformMatrix4fv(windowKdesh.uniforms.mMat, false, localMat);
     windowKdesh.cube.render();
 
     mat4.translate(localMat, modelMatrix, [0.0,-1.0, 0.0]);
-    mat4.scale(localMat, localMat, [1.0, 0.1, 0.05]);
+    mat4.scale(localMat, localMat, [1.0, 0.05, 0.05]);
     gl.uniformMatrix4fv(windowKdesh.uniforms.mMat, false, localMat);
     windowKdesh.cube.render();
 
     mat4.translate(localMat, modelMatrix, [1.0, 0.0, 0.0]);
-    mat4.scale(localMat, localMat, [0.1, 1.1, 0.05]);
+    mat4.scale(localMat, localMat, [0.03, 1.05, 0.05]);
     gl.uniformMatrix4fv(windowKdesh.uniforms.mMat, false, localMat);
     windowKdesh.cube.render();
 
     mat4.translate(localMat, modelMatrix, [0.0, 1.0, 0.0]);
-    mat4.scale(localMat, localMat, [1.0, 0.1, 0.05]);
+    mat4.scale(localMat, localMat, [1.0, 0.05, 0.05]);
     gl.uniformMatrix4fv(windowKdesh.uniforms.mMat, false, localMat);
     windowKdesh.cube.render();
     gl.bindTexture(gl.TEXTURE_2D, null);
