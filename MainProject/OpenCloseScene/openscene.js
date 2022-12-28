@@ -439,7 +439,8 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	setPerojectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
 	setFlagsCompleteLight(0, 0, true, true)
 	setTextureSamplersCompleteLight(0)
-	addLightCompleteLight(lightSource, [1.0, 1.0, 1.0])
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.7, 0.7, 0.7], 100.0, 1.0)
+	addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
 	
 	renderForCitySceneStaticDeep()
 	
@@ -493,7 +494,8 @@ function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	setPerojectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
 	setFlagsCompleteLight(0, 0, true, true)
 	setTextureSamplersCompleteLight(0)
-	addLightCompleteLight(lightSource, [1.0, 1.0, 1.0])
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.7, 0.7, 0.7], 100.0, 1.0)
+	addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
 	
 	renderForCitySceneStaticDeep()
 	

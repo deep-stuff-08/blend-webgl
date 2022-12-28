@@ -18,7 +18,7 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.OpenScene
+var renderScene = SceneEnum.CloseScene
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 var sca = 1.0
@@ -47,7 +47,7 @@ var progForHdr
 var vaoForHdr
 var uniformExposureForHdr
 var currentExposure = 1.0
-var isLoadModels = true
+var isLoadModels = false
 
 assimpjs().then (function (ajs) {
 	if(isLoadModels) {

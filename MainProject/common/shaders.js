@@ -38,12 +38,24 @@ var progCompleteLight = {
 		mMat: null,
 		texMat: null,
 		viewPos: null,
-		lightPos: null,
 		diffuseTextureSampler: null,
 		isInvertNormals: null,
 		isLight: null,
 		isTexture: null,
-		isBlend: null
+		isBlend: null,
+		material: {
+			ambient: null,
+			diffuse: null,
+			specular: null,
+			shininess: null,
+			opacity: null
+		},
+		light: {
+			ambient: null,
+			diffuse: null,
+			specular: null,
+			position: null
+		}
 	}
 }
 
@@ -85,8 +97,8 @@ function setupCommonPrograms() {
 	progPhongLightWithTextureForModel.uniforms.isTexture = gl.getUniformLocation(progPhongLightWithTextureForModel.program, "isTexture")
 	progPhongLightWithTextureForModel.uniforms.isBlend = gl.getUniformLocation(progPhongLightWithTextureForModel.program, "isBlend")
 
-	vertShader = createShader('common/shaders/phonglighttex.vert', gl.VERTEX_SHADER)
-	fragShader = createShader('common/shaders/phonglighttex.frag', gl.FRAGMENT_SHADER)
+	vertShader = createShader('common/shaders/complete.vert', gl.VERTEX_SHADER)
+	fragShader = createShader('common/shaders/complete.frag', gl.FRAGMENT_SHADER)
 	progCompleteLight.program = createProgram([vertShader, fragShader])
 	deleteShader(vertShader)
 	deleteShader(fragShader)
@@ -95,13 +107,26 @@ function setupCommonPrograms() {
 	progCompleteLight.uniforms.vMat = gl.getUniformLocation(progCompleteLight.program, "vMat")
 	progCompleteLight.uniforms.mMat = gl.getUniformLocation(progCompleteLight.program, "mMat")
 	progCompleteLight.uniforms.texMat = gl.getUniformLocation(progCompleteLight.program, "texMat")
-	progCompleteLight.uniforms.lightPos = gl.getUniformLocation(progCompleteLight.program, "lightPos")
 	progCompleteLight.uniforms.viewPos = gl.getUniformLocation(progCompleteLight.program, "viewPos")
+	
 	progCompleteLight.uniforms.diffuseTextureSampler = gl.getUniformLocation(progCompleteLight.program, "samplerDiffuse")
+	
 	progCompleteLight.uniforms.isInvertNormals = gl.getUniformLocation(progCompleteLight.program, "isInvertNormal")
 	progCompleteLight.uniforms.isLight = gl.getUniformLocation(progCompleteLight.program, "isLight")
 	progCompleteLight.uniforms.isTexture = gl.getUniformLocation(progCompleteLight.program, "isTexture")
 	progCompleteLight.uniforms.isBlend = gl.getUniformLocation(progCompleteLight.program, "isBlend")
+	
+	progCompleteLight.uniforms.material.ambient = gl.getUniformLocation(progCompleteLight.program, "material.ambient")
+	progCompleteLight.uniforms.material.diffuse = gl.getUniformLocation(progCompleteLight.program, "material.diffuse")
+	progCompleteLight.uniforms.material.specular = gl.getUniformLocation(progCompleteLight.program, "material.specular")
+	progCompleteLight.uniforms.material.shininess = gl.getUniformLocation(progCompleteLight.program, "material.shininess")
+	progCompleteLight.uniforms.material.opacity = gl.getUniformLocation(progCompleteLight.program, "material.opacity")
+	
+	progCompleteLight.uniforms.light.ambient = gl.getUniformLocation(progCompleteLight.program, "light.ambient")
+	progCompleteLight.uniforms.light.diffuse = gl.getUniformLocation(progCompleteLight.program, "light.diffuse")
+	progCompleteLight.uniforms.light.specular = gl.getUniformLocation(progCompleteLight.program, "light.specular")
+	progCompleteLight.uniforms.light.position = gl.getUniformLocation(progCompleteLight.program, "light.position")
+	
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
 	gl.useProgram(null)
@@ -112,13 +137,25 @@ function resetCompleteLight() {
 	gl.uniformMatrix4fv(progCompleteLight.uniforms.vMat, false, mat4.create())
 	gl.uniformMatrix4fv(progCompleteLight.uniforms.mMat, false, mat4.create())
 	gl.uniformMatrix2fv(progCompleteLight.uniforms.texMat, false, mat2.create())
-	gl.uniform3f(progCompleteLight.uniforms.lightPos, 0.0, 0.0, 0.0)
 	gl.uniform3f(progCompleteLight.uniforms.viewPos, 0.0, 0.0, 0.0)
+	
 	gl.uniform1i(progCompleteLight.uniforms.diffuseTextureSampler, 0)
+
 	gl.uniform1i(progCompleteLight.uniforms.isBlend, 0)
 	gl.uniform1i(progCompleteLight.uniforms.isInvertNormals, 0)
 	gl.uniform1i(progCompleteLight.uniforms.isLight, 0)
 	gl.uniform1i(progCompleteLight.uniforms.isTexture, 0)
+
+	gl.uniform3f(progCompleteLight.uniforms.material.ambient, 0.0, 0.0, 0.0)
+	gl.uniform3f(progCompleteLight.uniforms.material.diffuse, 0.0, 0.0, 0.0)
+	gl.uniform3f(progCompleteLight.uniforms.material.specular, 0.0, 0.0, 0.0)
+	gl.uniform1f(progCompleteLight.uniforms.material.shininess, 0.0)
+	gl.uniform1f(progCompleteLight.uniforms.material.opacity, 0.0)
+	
+	gl.uniform3f(progCompleteLight.uniforms.light.ambient, 0.0, 0.0, 0.0)
+	gl.uniform3f(progCompleteLight.uniforms.light.diffuse, 0.0, 0.0, 0.0)
+	gl.uniform3f(progCompleteLight.uniforms.light.specular, 0.0, 0.0, 0.0)
+	gl.uniform3f(progCompleteLight.uniforms.light.position, 0.0, 0.0, 0.0)
 }
 
 function setPerojectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos) {
@@ -147,6 +184,17 @@ function setFlagsCompleteLight(isInvertNormals, isBlend, isTexture, isLight) {
 	gl.uniform1i(progCompleteLight.uniforms.isTexture, isTexture ? 1 : 0)
 }
 
-function addLightCompleteLight(lightPos, lightColor) {
-	gl.uniform3fv(progCompleteLight.uniforms.lightPos, lightPos)
+function setMaterialCompleteLight(matAmbient, matDiffuse, matSpecular, matShininess, matOpacity) {
+	gl.uniform3fv(progCompleteLight.uniforms.material.ambient, matAmbient)
+	gl.uniform3fv(progCompleteLight.uniforms.material.diffuse, matDiffuse)
+	gl.uniform3fv(progCompleteLight.uniforms.material.specular, matSpecular)
+	gl.uniform1f(progCompleteLight.uniforms.material.shininess, matShininess)
+	gl.uniform1f(progCompleteLight.uniforms.material.opacity, matOpacity)
+}
+
+function addLightCompleteLight(lightPosition, lightAmbient, lightDiffuse, lightSpecular) {
+	gl.uniform3fv(progCompleteLight.uniforms.light.ambient, lightAmbient)
+	gl.uniform3fv(progCompleteLight.uniforms.light.diffuse, lightDiffuse)
+	gl.uniform3fv(progCompleteLight.uniforms.light.specular, lightSpecular)
+	gl.uniform3fv(progCompleteLight.uniforms.light.position, lightPosition)
 }
