@@ -8,7 +8,7 @@ uniform mat4 vMat;
 out vec3 tex;
 
 void main(void) {
-	tex = vec3(vPos.x, -vPos.y, vPos.z);
+	tex = vec3(vPos.x, vPos.y, vPos.z);
 	vec4 pos = pMat * vMat * vec4(vPos);
 	gl_Position = pos.xyzw;
 }

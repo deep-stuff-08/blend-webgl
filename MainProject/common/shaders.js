@@ -187,7 +187,7 @@ function setTextureSamplersCompleteLight(diffuseTexture) {
 function setFlagsCompleteLight(isInvertNormals, isBlend, isTexture, isLight) {
 	gl.uniform1i(progCompleteLight.uniforms.isBlend, isBlend ? 1 : 0)
 	gl.uniform1i(progCompleteLight.uniforms.isInvertNormals, isInvertNormals ? 1 : 0)
-	gl.uniform1i(progCompleteLight.uniforms.isLight, isLight ? 1 : 0)
+	gl.uniform1i(progCompleteLight.uniforms.numLights, isLight ? progCompleteLight.currentLight : 0)
 	gl.uniform1i(progCompleteLight.uniforms.isTexture, isTexture ? 1 : 0)
 }
 

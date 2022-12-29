@@ -448,6 +448,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	renderForCitySceneStaticDeep()
 	
 	setFlagsCompleteLight(false, false, false, false)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.2, 0.6, 0.3], [0.7, 0.7, 0.7], 1.0, 1.0)
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-500.0, 40.0, -500.0])
 	mat4.scale(modelMatrix, modelMatrix, [40.0, 40.0, 40.0])
