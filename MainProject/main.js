@@ -206,7 +206,7 @@ function setupProgram() {
 			setupProgramForOpenSceneDeep()
 			break
 		case SceneEnum.StudyScene:
-			setupProgramForScene1Kdesh()
+			setupProgramForStudySceneKdesh()
 			break
 		case SceneEnum.BarScene:
 			setupprogramForBarScene()
@@ -223,7 +223,7 @@ function setupProgram() {
 		}
 	} else {
 		setupProgramForOpenSceneDeep()
-		setupProgramForScene1Kdesh()
+		setupProgramForStudySceneKdesh()
 		setupprogramForBarScene()
 		setupprogramForSceneTwo()
 		setupprogramForBedroomScene()
@@ -270,7 +270,7 @@ function init() {
 			initForOpenSceneDeep()
 			break
 		case SceneEnum.StudyScene:
-			initForScene1Kdesh()
+			initForStudySceneKdesh(sceneCamera)
 			break
 		case SceneEnum.BarScene:
 			initForBarScene()
@@ -286,7 +286,7 @@ function init() {
 		}
 	} else {
 		initForOpenSceneDeep()
-		initForScene1Kdesh(sceneCamera)
+		initForStudySceneKdesh(sceneCamera)
 		initForSceneTwo()
 		initForBarScene()
 		initForBedroomScene()
