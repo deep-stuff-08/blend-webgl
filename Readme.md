@@ -1,33 +1,39 @@
-Fbo in study scene
+Integrate all scenes into one
 
-Fbo in hospital scene
+Camera Path For all scenes
 
-Unpaid bills
+Finalize lighting in all scenes
 
-Blend alcohol bottle
+Placing phones in all scene
 
-Lamp texture
+Car movement in first scene
 
-Room size
+Delta time for all scenes
 
-Fallen glass
+Ash tray in bar
 
-Finalize the phone throw scene
+Either Fill cupboards with stuff or cover them
 
-Integrate spotlight and point light
+Add tv in living room
+
+Dustbin, clock in all scenes(sensibly)
+
+Animate final scene app uninstall
 
 Thunderstorm
 
 Rain
 
-Happy end/sad end??? 
+Lightning(Noise or Directional Shadow)
+
+Happy end
 
 Smoke
 
-Ocean normal and dudv map
+Ocean normal map, dudv map, reflection, refraction
 
-Shadows
+Omni Shadows
 
-Bloom
+Bloom/GodRays
 
 Audio
