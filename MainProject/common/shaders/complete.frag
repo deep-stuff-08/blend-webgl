@@ -30,7 +30,7 @@ uniform bool isTexture;
 uniform bool isBlend;
 
 uniform material_t material;
-uniform light_t light[12];
+uniform light_t light[13];
 uniform int numOfLights;
 
 uniform sampler2D samplerDiffuse;

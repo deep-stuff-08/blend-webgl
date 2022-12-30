@@ -50,9 +50,10 @@ var progCompleteLight = {
 			shininess: null,
 			opacity: null
 		},
-		light: []
+		light: [],
 	},
-	currentLight: 0
+	currentLight: 0,
+	isLight: false
 }
 
 function setupCommonPrograms() {
@@ -118,7 +119,7 @@ function setupCommonPrograms() {
 	progCompleteLight.uniforms.material.shininess = gl.getUniformLocation(progCompleteLight.program, "material.shininess")
 	progCompleteLight.uniforms.material.opacity = gl.getUniformLocation(progCompleteLight.program, "material.opacity")
 	
-	for(var i = 0; i < 12; i++) {
+	for(var i = 0; i < 13; i++) {
 		var light = {}
 		light.ambient = gl.getUniformLocation(progCompleteLight.program, "light[" + i + "].ambient")
 		light.diffuse = gl.getUniformLocation(progCompleteLight.program, "light[" + i + "].diffuse")
@@ -127,6 +128,7 @@ function setupCommonPrograms() {
 		light.attenuation = gl.getUniformLocation(progCompleteLight.program, "light[" + i + "].attenuation")
 		light.cutoff = gl.getUniformLocation(progCompleteLight.program, "light[" + i + "].cutoff")
 		light.direction = gl.getUniformLocation(progCompleteLight.program, "light[" + i + "].direction")
+		light.isDirectional = gl.getUniformLocation(progCompleteLight.program, "light[" + i + "].isDirectional")
 		progCompleteLight.uniforms.light.push(light)
 	}
 	
@@ -156,13 +158,16 @@ function resetCompleteLight() {
 	gl.uniform1f(progCompleteLight.uniforms.material.shininess, 0.0)
 	gl.uniform1f(progCompleteLight.uniforms.material.opacity, 0.0)
 	
-	gl.uniform3f(progCompleteLight.uniforms.light.ambient, 0.0, 0.0, 0.0)
-	gl.uniform3f(progCompleteLight.uniforms.light.diffuse, 0.0, 0.0, 0.0)
-	gl.uniform3f(progCompleteLight.uniforms.light.specular, 0.0, 0.0, 0.0)
-	gl.uniform3f(progCompleteLight.uniforms.light.position, 0.0, 0.0, 0.0)
-	gl.uniform3f(progCompleteLight.uniforms.light.attenuation, 0.0, 0.0, 0.0)
-	gl.uniform2f(progCompleteLight.uniforms.light.cutoff, 0.0, 0.0)
-	gl.uniform3f(progCompleteLight.uniforms.light.direction, 0.0, 0.0, 0.0)
+	for(var i = 0; i < 13; i++) {
+		gl.uniform3f(progCompleteLight.uniforms.light[i].ambient, 0.0, 0.0, 0.0)
+		gl.uniform3f(progCompleteLight.uniforms.light[i].diffuse, 0.0, 0.0, 0.0)
+		gl.uniform3f(progCompleteLight.uniforms.light[i].specular, 0.0, 0.0, 0.0)
+		gl.uniform3f(progCompleteLight.uniforms.light[i].position, 0.0, 0.0, 0.0)
+		gl.uniform3f(progCompleteLight.uniforms.light[i].attenuation, 0.0, 0.0, 0.0)
+		gl.uniform2f(progCompleteLight.uniforms.light[i].cutoff, 0.0, 0.0)
+		gl.uniform3f(progCompleteLight.uniforms.light[i].direction, 0.0, 0.0, 0.0)
+		gl.uniform1i(progCompleteLight.uniforms.light[i].isDirectional, 0)
+	}
 }
 
 function setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos) {
@@ -189,6 +194,7 @@ function setFlagsCompleteLight(isInvertNormals, isBlend, isTexture, isLight) {
 	gl.uniform1i(progCompleteLight.uniforms.isInvertNormals, isInvertNormals ? 1 : 0)
 	gl.uniform1i(progCompleteLight.uniforms.numLights, isLight ? progCompleteLight.currentLight : 0)
 	gl.uniform1i(progCompleteLight.uniforms.isTexture, isTexture ? 1 : 0)
+	progCompleteLight.isLight = isLight
 }
 
 function setMaterialCompleteLight(matAmbient, matDiffuse, matSpecular, matShininess, matOpacity) {
@@ -200,32 +206,48 @@ function setMaterialCompleteLight(matAmbient, matDiffuse, matSpecular, matShinin
 }
 
 function addLightCompleteLight(lightPosition, lightAmbient, lightDiffuse, lightSpecular) {
-	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].ambient, lightAmbient)
-	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].diffuse, lightDiffuse)
-	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].specular, lightSpecular)
-	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].position, lightPosition)
-	progCompleteLight.currentLight++
-	gl.uniform1i(progCompleteLight.uniforms.numLights, progCompleteLight.currentLight)
+	if(progCompleteLight.isLight) {
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].ambient, lightAmbient)
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].diffuse, lightDiffuse)
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].specular, lightSpecular)
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].position, lightPosition)
+		progCompleteLight.currentLight++
+		gl.uniform1i(progCompleteLight.uniforms.numLights, progCompleteLight.currentLight)
+	}
 }
 
 function addPointLightCompleteLight(lightPosition, lightAmbient, lightDiffuse, lightSpecular, lightAttenuation) {
-	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].ambient, lightAmbient)
-	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].diffuse, lightDiffuse)
-	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].specular, lightSpecular)
-	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].position, lightPosition)
-	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].attenuation, lightAttenuation)
-	progCompleteLight.currentLight++
-	gl.uniform1i(progCompleteLight.uniforms.numLights, progCompleteLight.currentLight)
+	if(progCompleteLight.isLight) {
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].ambient, lightAmbient)
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].diffuse, lightDiffuse)
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].specular, lightSpecular)
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].position, lightPosition)
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].attenuation, lightAttenuation)
+		progCompleteLight.currentLight++
+		gl.uniform1i(progCompleteLight.uniforms.numLights, progCompleteLight.currentLight)
+	}
 }
 
 function addSpotLightCompleteLight(lightPosition, lightAmbient, lightDiffuse, lightSpecular, lightAttenuation, lightCutoff, lightDirection) {
+	if(progCompleteLight.isLight) {
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].ambient, lightAmbient)
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].diffuse, lightDiffuse)
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].specular, lightSpecular)
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].position, lightPosition)
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].attenuation, lightAttenuation)
+		gl.uniform2fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].cutoff, lightCutoff)
+		gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].direction, lightDirection)
+		progCompleteLight.currentLight++
+		gl.uniform1i(progCompleteLight.uniforms.numLights, progCompleteLight.currentLight)
+	}
+}
+
+function addDirectionalCompleteLight(lightDirection, lightAmbient, lightDiffuse, lightSpecular) {
 	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].ambient, lightAmbient)
 	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].diffuse, lightDiffuse)
 	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].specular, lightSpecular)
-	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].position, lightPosition)
-	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].attenuation, lightAttenuation)
-	gl.uniform2fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].cutoff, lightCutoff)
 	gl.uniform3fv(progCompleteLight.uniforms.light[progCompleteLight.currentLight].direction, lightDirection)
+	gl.uniform1i(progCompleteLight.uniforms.light[progCompleteLight.currentLight].isDirectional, 1)
 	progCompleteLight.currentLight++
 	gl.uniform1i(progCompleteLight.uniforms.numLights, progCompleteLight.currentLight)
 }
