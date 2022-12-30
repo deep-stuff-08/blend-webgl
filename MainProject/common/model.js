@@ -199,9 +199,9 @@ function setupMesh(modelObj, json, directory, isFlipTexture) {
 
 function readHeirarchyData(dest, src) {
 	dest.name = src.name
-	var trans = mat4.create()
-	mat4.transpose(trans, src.transformation)
-	dest.transformation = trans
+	var transformMat = mat4.create()
+	mat4.transpose(transformMat, src.transformation)
+	dest.transformation = transformMat
 	for (var i = 0; src.children != undefined && i < src.children.length; i++) {
 		var newData = new dnodedata()
 		readHeirarchyData(newData, src.children[i])

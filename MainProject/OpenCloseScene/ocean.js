@@ -27,8 +27,6 @@ function setupProgramForOceanDeep() {
 }
 
 function initForOceanDeep() {
-	cameraPosition = [0.0, 2.0, 5.0]
-
 	const numCols = 20
 	const numRows = 20
 	oceanDeep.vao = gl.createVertexArray()
