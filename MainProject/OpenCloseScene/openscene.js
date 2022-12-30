@@ -429,18 +429,21 @@ function renderForBuildingDeep(localModelMatrix, texScale, tex) {
 
 function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	var modelMatrix
-	var lightSource = [0.0, 1.0, 6.5]
+	var lightSource = [0.0, 1.0, -6.5]
 
 	//Cubemap
 	renderCubemapDeep(perspectiveMatrix, viewMatrix)
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
-	setPerojectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
+	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
 	setFlagsCompleteLight(0, 0, true, true)
 	setTextureSamplersCompleteLight(0)
-	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.7, 0.7, 0.7], 100.0, 1.0)
-	addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	// addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
+	// addPointLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.014, 0.0007])
+	addSpotLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.014, 0.0007], [52.5, 67.5], [0.0, -1.0, 0.0])
+	addPointLightCompleteLight([0.0, 1.0, -28.5], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.014, 0.0007], [52.5, 67.5], [0.0, -1.0, 0.0])
 	
 	renderForCitySceneStaticDeep()
 	
@@ -491,7 +494,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
-	setPerojectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
+	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
 	setFlagsCompleteLight(0, 0, true, true)
 	setTextureSamplersCompleteLight(0)
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.7, 0.7, 0.7], 100.0, 1.0)

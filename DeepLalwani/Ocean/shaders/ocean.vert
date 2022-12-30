@@ -17,6 +17,7 @@ out vec2 Tex;
 out vec3 N;
 out vec3 P;
 out vec3 viewPos;
+out vec4 C;
 
 void main(void) {
 	vec4 newPos = vPos;
@@ -26,7 +27,8 @@ void main(void) {
 		float frequency = 3.14 / oceanData[i].w;
 		newPos.y += amplitude * sin(dot(normalize(direction), vPos.xz) * frequency + time);
 	}
-	gl_Position = pMat * vMat * mMat * newPos;
+	C = pMat * vMat * mMat * vPos;
+	gl_Position = pMat * vMat * mMat * vPos;
 	Tex = vTex;
 	N = mat3(mMat) * vNor;
 	P = vec3(mMat * newPos);	
