@@ -94,5 +94,6 @@ float fbm (vec3 st) {
 
 void main(void) {
 	float noiseval = fbm(vec3(tex * 4.0));
-	FragColor = vec4(mix(vec3(0.4, 0.6, 0.9), vec3(1.0, 1.0, 1.0), clamp(noiseval, 0.0, 1.0)), 1.0);
+	vec3 skyColor = mix(vec3(0.9, 0.4, 0.2), vec3(0.1, 0.3, 0.6), tex.y);
+	FragColor = vec4(mix(skyColor, vec3(1.0, 1.0, 1.0), clamp(noiseval, 0.0, 1.0) * tex.y), 1.0);
 }
