@@ -15,6 +15,8 @@ function initForLampKdesh() {
 }
 
 function renderForLampKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition) {
+    var cameraPosition = debugCamera.cameraPosition;
+    
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();
     setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, cameraPosition);

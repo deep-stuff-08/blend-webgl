@@ -14,12 +14,13 @@ function initForTableKdesh() {
 }
 
 function renderForTableKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition) {
+    var cameraPosition = debugCamera.cameraPosition;
+
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();
     setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, cameraPosition);
     setTextureMatrixCompleteLight(mat2.create());
     addLightCompleteLight(lightPosition, [0.7, 0.7, 0.7], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]);
-    setMaterialCompleteLight([1.0, 1.0, 1.0], [0.6, 0.2, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
     setFlagsCompleteLight(0, 0, 1, 1);
     setTextureSamplersCompleteLight(0);
     gl.activeTexture(gl.TEXTURE0);
@@ -28,6 +29,7 @@ function renderForTableKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightPo
     var localTransforms = mat4.create();
 
     // top
+    setMaterialCompleteLight([0.5, 0.5, 0.5], [0.5, 0.3, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
     mat4.copy(localTransforms, modelMatrix);
     mat4.scale(localTransforms, localTransforms, [2.0, 0.1, 1.5]);
     setModelMatrixCompleteLight(localTransforms);

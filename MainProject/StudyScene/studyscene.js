@@ -112,6 +112,8 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, lastBoundFbo);
     gl.viewport(lastViewport[0], lastViewport[1], lastViewport[2], lastViewport[3]);
 
+    var cameraPosition = debugCamera.cameraPosition;
+
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();
     setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, cameraPosition);

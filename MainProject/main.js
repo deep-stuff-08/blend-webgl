@@ -24,7 +24,7 @@ var debugCamera = {
 }
 
 var controlVariables = {
-	renderScene: SceneEnum.OpenScene,
+	renderScene: SceneEnum.StudyScene,
 	doRenderToHDR: true,
 	devCam: true,
 	showCamPath: false,

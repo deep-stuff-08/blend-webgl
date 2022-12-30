@@ -20,6 +20,8 @@ function initForWindowKdesh() {
 }
 
 function renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition, texOutside) {
+    var cameraPosition = debugCamera.cameraPosition;
+    
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();
     setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, cameraPosition);
@@ -36,7 +38,7 @@ function renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightP
     setModelMatrixCompleteLight(modelMatrix);
     windowKdesh.quad.render();
 
-    setMaterialCompleteLight([1.0, 1.0, 1.0], [0.6, 0.2, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
+    setMaterialCompleteLight([0.5, 0.5, 0.5], [0.4, 0.1, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
     gl.bindTexture(gl.TEXTURE_2D, windowKdesh.texWindow);
     mat4.translate(localMat, modelMatrix, [-1.0, 0.0, 0.0]);
     mat4.scale(localMat, localMat, [0.03, 1.05, 0.05]);
