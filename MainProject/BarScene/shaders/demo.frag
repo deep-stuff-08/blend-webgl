@@ -38,7 +38,7 @@ uniform Texture specularTex;
 uniform Texture normalTex;
 uniform Texture alphaTex;
 
-vec4 directionalLight(Light light, Material material,vec3 normal, vec3 viewDir)
+vec3 directionalLight(Light light, Material material,vec3 normal, vec3 viewDir)
 {
 	vec3 ambient = light.ambient * material.diffuseMat;
 
@@ -58,10 +58,10 @@ vec4 directionalLight(Light light, Material material,vec3 normal, vec3 viewDir)
         specular *= texture(specularTex.texSampler,Tex).rgb;
     }
 
-	return vec4((ambient+diffuse+specular),material.opacity);
+	return vec3((ambient+diffuse+specular));
 }
 
-vec4 pointLight(Light light, Material material,vec3 normal, vec3 viewDir)
+vec3 pointLight(Light light, Material material,vec3 normal, vec3 viewDir)
 {
 	vec3 ambient = light.ambient * material.diffuseMat;
 
@@ -84,13 +84,13 @@ vec4 pointLight(Light light, Material material,vec3 normal, vec3 viewDir)
 	// attenuation
     float dist = length(light.direction - P);
     // attenuation = constant + linear * distance + quadratic * distance * distance
-    float attenuation = 1.0 / (1.0 + 0.0014 * dist + 0.00007 * (dist * dist));
+    float attenuation = 1.0 / (1.0 + 0.022 * dist + 0.0019 * (dist * dist));
 
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
 
-	return vec4((ambient+diffuse+specular),material.opacity);
+	return vec3((ambient+diffuse+specular));
 }
 
 vec4 spotLight(Light light, Material material,vec3 normal, vec3 viewDir)
@@ -127,7 +127,8 @@ vec4 spotLight(Light light, Material material,vec3 normal, vec3 viewDir)
     // attenuation
     float dist = length(light.direction - P);
     // attenuation = constant + linear * distance + quadratic * distance * distance
-    float attenuation = 1.0 / (1.0 + 0.09 * dist + 0.032 * (dist * dist));
+    float attenuation = 1.0 / (1.0 + 10.0 * dist + 10.0 * (dist * dist));
+
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
@@ -140,6 +141,8 @@ out vec4 color;
 void main(void) {
 	vec3 normal = normalize(N);
 	vec3 viewDir = normalize(viewPos - P);
-	color = directionalLight(light[0],material,normal,viewDir);
-	//color += spotLight(light[1],material,normal,viewDir); 
+    vec3 FragColor = directionalLight(light[0],material,normal,viewDir);
+	FragColor += directionalLight(light[1],material,normal,viewDir);
+    color = vec4(FragColor,material.opacity);
+    //color += 
 }

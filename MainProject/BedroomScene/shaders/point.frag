@@ -31,7 +31,7 @@ struct Texture
 uniform vec3 viewPos;
 
 uniform Material material;
-uniform Light light[2];
+uniform Light light[3];
 
 uniform Texture diffuseTex;
 uniform Texture specularTex;
@@ -84,7 +84,7 @@ vec4 pointLight(Light light, Material material,vec3 normal, vec3 viewDir)
 	// attenuation
     float dist = length(light.direction - P);
     // attenuation = constant + linear * distance + quadratic * distance * distance
-    float attenuation = 1.0 / (1.0 + 0.022 * dist + 0.0019 * (dist * dist));
+    float attenuation = 1.0 / (1.0 + 0.014 * dist + 0.0007 * (dist * dist));
 
     ambient *= attenuation;
     diffuse *= attenuation;
@@ -140,6 +140,7 @@ out vec4 color;
 void main(void) {
 	vec3 normal = normalize(N);
 	vec3 viewDir = normalize(viewPos - P);
-	color = pointLight(light[0],material,normal,viewDir);
-	//color = pointLight(light[1],material,normal,viewDir); 
+	color = pointLight(light[1],material,normal,viewDir);
+	//wcolor += pointLight(light[2],material,normal,viewDir); 
+    //color += pointLight(light[2],material,normal,viewDir); 
 }

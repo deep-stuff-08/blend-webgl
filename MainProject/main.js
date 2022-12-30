@@ -18,7 +18,7 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.BarScene
+var renderScene = SceneEnum.OpenScene
 var doRenderToHdr = true
 var trans = [ 0.0, 0.0, 0.0 ]
 var sca = 1.0

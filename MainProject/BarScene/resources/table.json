@@ -4946,6 +4946,13 @@
 					,"type": 1
 					,"value": 1.45
 				}
+				,{
+					"key": "$tex.file"
+					,"semantic": 1
+					,"index": 0
+					,"type": 3
+					,"value": "BarScene/resources/textures/table.jpg"
+				}
 			]
 		}
 	]
