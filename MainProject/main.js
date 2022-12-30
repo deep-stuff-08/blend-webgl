@@ -23,16 +23,24 @@ var debugCamera = {
 	cameraUp: vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 }
 
-var renderScene = SceneEnum.OpenScene
-var doRenderToHdr = true
-var trans = [ 0.0, 0.0, 0.0 ]
-var sca = 1.0
+var controlVariables = {
+	renderScene: SceneEnum.OpenScene,
+	doRenderToHDR: true,
+	devCam: true,
+	showCamPath: false,
+	showCam: false,
+	debugMode: true,
+	isLoadModels: true,
+	currentExposure: 1.0
+}
+
+var placementHelp = {
+	trans: [ 0.0, 0.0, 0.0 ],
+	sca: 1.0	
+}
+
 var sceneCamera
-var devCam = true
-var showCamPath = false
-var showCam = false
 var camSplinePosition = 0.0
-var debugMode = true
 
 var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
@@ -51,11 +59,9 @@ var texForHdr
 var progForHdr
 var vaoForHdr
 var uniformExposureForHdr
-var currentExposure = 1.0
-var isLoadModels = true
 
 assimpjs().then (function (ajs) {
-	if(isLoadModels) {
+	if(controlVariables.isLoadModels) {
 		Promise.all(modelList.flatMap(o => o.files).map((fileToLoad) => fetch (fileToLoad))).then ((responses) => {
 			return Promise.all(responses.map ((res) => res.arrayBuffer()))
 		}).then((arrayBuffers) => {
@@ -152,41 +158,41 @@ function main() {
 			vec3.multiply(dir, dir, [speed, speed, speed])
 			vec3.add(debugCamera.cameraPosition, debugCamera.cameraPosition, dir)
 		} else if(event.code == 'KeyI') {
-			trans[1] += 0.1
+			placementHelp.trans[1] += 0.1
 		} else if(event.code == 'KeyK') {
-			trans[1] -= 0.1
+			placementHelp.trans[1] -= 0.1
 		} else if(event.code == 'KeyJ') {
-			trans[0] -= 0.1
+			placementHelp.trans[0] -= 0.1
 		} else if(event.code == 'KeyL') {
-			trans[0] += 0.1
+			placementHelp.trans[0] += 0.1
 		} else if(event.code == 'KeyM') {
-			trans[2] -= 0.1
+			placementHelp.trans[2] -= 0.1
 		} else if(event.code == 'KeyN') {
-			trans[2] += 0.1
+			placementHelp.trans[2] += 0.1
 		} else if(event.code == 'KeyE') {
-			currentExposure -= 0.01
+			controlVariables.currentExposure -= 0.01
 		} else if(event.code == 'KeyR') {
-			currentExposure += 0.01
+			controlVariables.currentExposure += 0.01
 		} else if(event.code == 'KeyP') {
-			if(devCam)
-				showCamPath = !showCamPath
+			if(controlVariables.devCam)
+				controlVariables.showCamPath = !controlVariables.showCamPath
 		} else if(event.code == 'KeyC') {
-			if(devCam)
-				showCam = !showCam
+			if(controlVariables.devCam)
+				controlVariables.showCam = !controlVariables.showCam
 		} else if(event.code == 'KeyV') {
-			devCam = !devCam
-			if(!devCam) {
-				showCamPath = false;
-				showCam = false;
+			controlVariables.devCam = !controlVariables.devCam
+			if(!controlVariables.devCam) {
+				controlVariables.showCamPath = false;
+				controlVariables.showCam = false;
 			}
 		} else if(event.code == 'Space') {
-			if(debugMode) {
-				renderScene = (renderScene + 1) % 7
+			if(controlVariables.debugMode) {
+				controlVariables.renderScene = (controlVariables.renderScene + 1) % 7
 			}
 		} else if(event.code == 'KeyO') {
-			sca += 0.01
+			placementHelp.sca += 0.01
 		} else if(event.code == 'KeyU') {
-			sca -= 0.01
+			placementHelp.sca -= 0.01
 		}
 	})
 	
@@ -205,8 +211,8 @@ function setupProgram() {
 	setupProgramForLightSourceRendererDeep()
 	// setupProgramForTestModelLoadByDeep()
 
-	if(debugMode) {
-		switch(renderScene) {
+	if(controlVariables.debugMode) {
+		switch(controlVariables.renderScene) {
 		case SceneEnum.OpenScene:
 			setupProgramForOpenSceneDeep()
 			break
@@ -269,8 +275,8 @@ function init() {
 
 	sceneCamera = new kcamera()
 
-	if(debugMode) {
-		switch(renderScene) {
+	if(controlVariables.debugMode) {
+		switch(controlVariables.renderScene) {
 		case SceneEnum.OpenScene:
 			initForOpenSceneDeep()
 			break
@@ -306,7 +312,7 @@ function printMatrix(m) {
 }
 
 function render(time) {
-	if(doRenderToHdr) {
+	if(controlVariables.doRenderToHDR) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, fboForHdr)
 		gl.viewport(0, 0, 2048, 2048)
 	} else {
@@ -321,7 +327,7 @@ function render(time) {
 	vec3.add(newfront, debugCamera.cameraFront, debugCamera.cameraPosition)
 	mat4.lookAt(cameraMatrix, debugCamera.cameraPosition, newfront, debugCamera.cameraUp) */
 	
-	if(devCam) {
+	if(controlVariables.devCam) {
 		var cameraMatrix = mat4.create()
 		var newfront = vec3.create()
 		vec3.add(newfront, debugCamera.cameraFront, debugCamera.cameraPosition)
@@ -333,12 +339,12 @@ function render(time) {
 	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
-	if(showCamPath)
+	if(controlVariables.showCamPath)
 		sceneCamera.renderPath(perspectiveMatrix, cameraMatrix)
-	if(showCam)
+	if(controlVariables.showCam)
 		sceneCamera.render(perspectiveMatrix, cameraMatrix, camSplinePosition)
 
-	switch(renderScene) {
+	switch(controlVariables.renderScene) {
 	case SceneEnum.Tester:
 		// renderCubemapDeep(cameraMatrix, temptex)
 		break
@@ -374,13 +380,13 @@ function render(time) {
 	}
 	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
 
-	if(doRenderToHdr) {
+	if(controlVariables.doRenderToHDR) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 		gl.clearBufferfv(gl.COLOR, 0, [0.1, 0.1, 0.1, 1.0])
 		gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 		gl.viewport(0, 0, canvas.width, canvas.height)
 		gl.useProgram(progForHdr)
-		gl.uniform1f(uniformExposureForHdr, currentExposure)
+		gl.uniform1f(uniformExposureForHdr, controlVariables.currentExposure)
 		gl.activeTexture(gl.TEXTURE0)
 		gl.bindTexture(gl.TEXTURE_2D, texForHdr)
 		gl.bindVertexArray(vaoForHdr)
