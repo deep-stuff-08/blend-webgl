@@ -2,50 +2,42 @@
 var studySceneKdesh = {
     program: null,
     uniforms: null,
-    programForModels: null,
-    uniformsForModels: {
-        pMat: null,
-        vMat: null,
-        mMat: null,
-        viewPos: null
-    },
-    lights: [],
     cubeRoom: null,
-    bottle: null,
-    glass: null,
-    dustbin: null,
+    quadBill: null,
     sofa: null,
-    quadBill1: null,
+    liquorCabinet: null,
+    chair: null,
+    dustbin: null,
+    wine: null,
+    champagne: null,
+    hennessy: null,
+    jackDaniels: null,
+    glass: null,
+    crumbledPaper: null,
     texBill1: null,
-    quadBill2: null,
     texBill1: null,
-    quadBill3: null,
     texBill1: null,
-    quadBill4: null,
     texBill1: null,
-    quadBill5: null,
     texBill1: null,
-    fboWindow: null,
-    texOutside: null,
+    texSteel: null,
     texWall: null,
-    camera: null,
+    texWood: null,
+    texSofa: null,
+    texOutside: null,
+    fboWindow: null,
     cameraPath: [
-        //      position            center               up               velocity      //
-        [ [-1.0,  0.0, -3.0], [ 0.0,  0.0, -3.0], [ 0.0,  1.0,  0.0], [ 0.0,  1.0,  1.0] ],
-        [ [ 0.0,  1.0,  3.0], [ 0.0,  0.0, -3.0], [ 0.0,  1.0,  0.0], [ 0.0,  1.0,  1.0] ],
-        [ [ 1.0,  2.0,  6.0], [ 0.0,  0.0, -3.0], [ 0.0,  1.0,  0.0], [ 0.0,  1.0,  1.0] ]
+        //  position            center             up             velocity      //
+        [[4.5, -1.0, 4.8], [4.5, -1.8, 4.8], [0.0, 1.0, 0.0], [-0.5, 0.5, 0.4]],
+        [[2.0, -0.5, 5.0], [2.5, -0.45, 5.0], [0.0, 1.0, 0.0], [-0.34, 0.5, -0.4]],
+        [[3.0, 0.0, 5.0], [1.5, 0.15, 5.0], [0.0, 1.0, 0.0], [-0.17, 0.5, 0.4]],
+        [[0.0, 0.5, 4.0], [0.0, 0.0, 2.0], [0.0, 1.0, 0.0], [0.0, 0.5, -0.4]],
+        [[0.0, 1.0, -1.0], [0.0, -2.0, -4.0], [0.0, 1.0, 0.0], [0.0, -0.5, -0.4]]
     ]
 };
 
 function setupProgramForStudySceneKdesh() {
     studySceneKdesh.program = progPhongLightWithTexture.program;
 	studySceneKdesh.uniforms = progPhongLightWithTexture.uniforms;
-
-    var vertShader = createShader('BarScene/shaders/demo.vert', gl.VERTEX_SHADER);
-	var fragShader = createShader('BarScene/shaders/demo.frag', gl.FRAGMENT_SHADER);
-	studySceneKdesh.programForModels = createProgram([vertShader, fragShader]);
-	deleteShader(vertShader);
-	deleteShader(fragShader);
 
     setupProgramForTableKdesh();
     setupProgramForLampKdesh();
@@ -73,17 +65,8 @@ function initForStudySceneKdesh(sceneCamera) {
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-    studySceneKdesh.uniformsForModels.pMat = gl.getUniformLocation(studySceneKdesh.programForModels, "pMat");
-	studySceneKdesh.uniformsForModels.vMat = gl.getUniformLocation(studySceneKdesh.programForModels, "vMat");
-	studySceneKdesh.uniformsForModels.mMat = gl.getUniformLocation(studySceneKdesh.programForModels, "mMat");
-	studySceneKdesh.uniformsForModels.viewPos = gl.getUniformLocation(studySceneKdesh.programForModels, "viewPos");
-
     studySceneKdesh.cubeRoom = dshapes.initCube();
-    studySceneKdesh.quadBill1 = dshapes.initQuad();
-    studySceneKdesh.quadBill2 = dshapes.initQuad();
-    studySceneKdesh.quadBill3 = dshapes.initQuad();
-    studySceneKdesh.quadBill4 = dshapes.initQuad();
-    studySceneKdesh.quadBill5 = dshapes.initQuad();
+    studySceneKdesh.quadBill = dshapes.initQuad();
 
     studySceneKdesh.texWall = loadTexture("resources/textures/whitewall.jpg");
     studySceneKdesh.texBill1 = loadTexture("resources/textures/bill1.png", true);
@@ -91,11 +74,20 @@ function initForStudySceneKdesh(sceneCamera) {
     studySceneKdesh.texBill3 = loadTexture("resources/textures/bill3.png");
     studySceneKdesh.texBill4 = loadTexture("resources/textures/bill4.png");
     studySceneKdesh.texBill5 = loadTexture("resources/textures/bill5.png");
+    studySceneKdesh.texSteel = loadTexture("resources/textures/steel.jpg");
+    studySceneKdesh.texWood = loadTexture("resources/textures/wood.png");
+    studySceneKdesh.texSofa = loadTexture("resources/textures/sofa.jpg");
 
-    studySceneKdesh.bottle = new Model('BarScene/resources/bottle.json');
     studySceneKdesh.glass = new Model('BarScene/resources/glass.json');
     studySceneKdesh.dustbin = new Model('resources/models/static/Dustbin/dustbin.json');
-    studySceneKdesh.sofa = new Model('HospitalScene/resources/sofa.json');
+    studySceneKdesh.sofa = new Model('resources/models/static/Sofa/sofa.json');
+    studySceneKdesh.chair = new Model('resources/models/static/StudyChair/studychair.json');
+    studySceneKdesh.liquorCabinet = new Model('resources/models/static/LiquorCabinet/liquorcabinet.json');
+    studySceneKdesh.crumbledPaper = new Model('resources/models/static/CrumbledPaper/crumbledPaper.json');
+    studySceneKdesh.wine = new Model('resources/models/static/LiquorBottles/wine.json');
+    studySceneKdesh.champagne = new Model('resources/models/static/LiquorBottles/champagne.json');
+    studySceneKdesh.hennessy = new Model('resources/models/static/LiquorBottles/hennessy.json');
+    studySceneKdesh.jackDaniels = new Model('resources/models/static/LiquorBottles/jackdaniels.json');
 
     sceneCamera.updatePath(studySceneKdesh.cameraPath);
 }
@@ -104,11 +96,15 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     var lastBoundFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING);
     var lastViewport = gl.getParameter(gl.VIEWPORT);
 
-    var lightPosition = [0.0, 4.5, 0.0];
-    // renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightPosition, [1.0, 0.0, 0.0]);
+    var lightPosition = [0.8, -0.05, -4.5];
+    var phonePosition = [4.5, -1.75, 4.8];
+    var bottlePosition = [-5.5, -1.2, -3.0];
+    renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightPosition, [1.0, 1.0, 1.0]);
+    renderLightSourceDeep(perspectiveMatrix, viewMatrix, phonePosition, [1.0, 1.0, 1.0]);
+    renderLightSourceDeep(perspectiveMatrix, viewMatrix, bottlePosition, [1.0, 1.0, 1.0]);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, studySceneKdesh.fboWindow);
-    gl.clearBufferfv(gl.COLOR, 0, [0.1, 0.1, 0.1, 1.0]);
+    gl.clearBufferfv(gl.COLOR, 0, [0.1, 0.5, 0.1, 1.0]);
     gl.viewport(0, 0, 1024, 1024);
 
     // TODO: render window outside
@@ -120,7 +116,10 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     resetCompleteLight();
     setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, cameraPosition);
     setTextureMatrixCompleteLight(mat2.create());
-    addLightCompleteLight(lightPosition, [0.7, 0.7, 0.7], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]);
+    // addPointLightCompleteLight(lightPosition, [0.7, 0.7, 0.7], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0]);
+    addPointLightCompleteLight(lightPosition, [0.7, 0.7, 0.7], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.8, 0.1, 0.05]);
+    addPointLightCompleteLight(phonePosition, [0.5, 0.5, 0.5], [1.0, 1.0, 1.0], [0.1, 0.1, 0.1], [0.8, 0.8, 0.8]);
+    addPointLightCompleteLight(bottlePosition, [0.2, 0.7, 0.8], [1.0, 1.0, 1.0], [0.1, 0.1, 0.1], [0.99, 0.99, 0.99]);
     setMaterialCompleteLight([0.8, 0.8, 0.8], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], 128, 1.0);
     setFlagsCompleteLight(1, 0, 1, 1);
     setTextureSamplersCompleteLight(0);
@@ -133,7 +132,7 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     setModelMatrixCompleteLight(modelMatrix);
     studySceneKdesh.cubeRoom.render();
 
-    setFlagsCompleteLight(1, 0, 1, 0);  // !!! lights going off
+    setFlagsCompleteLight(0, 0, 1, 0);  // !!! lights going off
     gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [0.98, -0.945, -3.3]);
@@ -141,68 +140,177 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 6, [0.0, 0.0, -1.0]);
     mat4.scale(modelMatrix, modelMatrix, [0.6, 0.7, 1.0]);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.quadBill1.render();
-
+    studySceneKdesh.quadBill.render();
     gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill2);
-    modelMatrix = mat4.create();
-    mat4.translate(modelMatrix, modelMatrix, [0.5, -0.94, -3.3]);
+    mat4.identity(modelMatrix)
+    mat4.translate(modelMatrix, modelMatrix, [0.5, -0.935, -3.3]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 12, [0.0, 0.0, 1.0]);
     mat4.scale(modelMatrix, modelMatrix, [0.6, 0.7, 1.0]);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.quadBill1.render();
-
-    /* modelMatrix = mat4.create();
-    mat4.translate(modelMatrix, modelMatrix, [0.5, -2.5, -4.5]);
+    studySceneKdesh.quadBill.render();
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill3);
+    mat4.identity(modelMatrix);
+    setFlagsCompleteLight(1, 0, 1, 0);
+    mat4.translate(modelMatrix, modelMatrix, [-0.5, -0.94, -3.3]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
-    mat4.scale(modelMatrix, modelMatrix, [5.0, 5.0, 5.0]);
-    gl.uniformMatrix4fv(studySceneKdesh.uniforms.mMat, false, modelMatrix);
-    studySceneKdesh.bottle.render(studySceneKdesh.program);  // rendered light
-    mat4.translate(modelMatrix, modelMatrix, [0.1, 0.0, 0.0]);
-    gl.uniformMatrix4fv(studySceneKdesh.uniforms.mMat, false, modelMatrix);
-    studySceneKdesh.bottle.render(studySceneKdesh.program);  // rendered dark??
-    mat4.translate(modelMatrix, modelMatrix, [-0.05, 0.05, 0.0]);
-    gl.uniformMatrix4fv(studySceneKdesh.uniforms.mMat, false, modelMatrix);
-    studySceneKdesh.bottle.render(studySceneKdesh.program);  // rendered dark?? */
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 12, [0.0, 0.0, 1.0]);
+    mat4.scale(modelMatrix, modelMatrix, [0.6, 0.7, 1.0]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.quadBill.render();
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill4);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [-1.0, -0.93, -3.3]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 24, [0.0, 0.0, -1.0]);
+    mat4.scale(modelMatrix, modelMatrix, [0.6, 0.7, 1.0]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.quadBill.render();
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill5);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [-1.3, -0.935, -3.3]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 12, [0.0, 0.0, -1.0]);
+    mat4.scale(modelMatrix, modelMatrix, [0.6, 0.7, 1.0]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.quadBill.render();
 
-    /* modelMatrix = mat4.create();
-    mat4.translate(modelMatrix, modelMatrix, [3.5, -3.0, -4.2]);
+    setFlagsCompleteLight(0, 0, 1, 1);
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texSteel);
+    modelMatrix = mat4.create();
+    mat4.translate(modelMatrix, modelMatrix, [3.5, -3.02, -4.2]);
     mat4.rotate(modelMatrix,modelMatrix, Math.PI / 2, [0.0, -1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix, [0.2, 0.2, 0.2]);
-	gl.useProgram(studySceneKdesh.programForModels);
-	gl.uniformMatrix4fv(studySceneKdesh.uniformsForModels.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(studySceneKdesh.uniformsForModels.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(studySceneKdesh.uniformsForModels.mMat, false, modelMatrix);
-	gl.uniform3fv(studySceneKdesh.uniformsForModels.viewPos, cameraPosition);
-	for(var l = 0; l < studySceneKdesh.lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(studySceneKdesh.programForModels,"light["+l+"].direction"),studySceneKdesh.lights[l].position);
-		gl.uniform3fv(gl.getUniformLocation(studySceneKdesh.programForModels,"light["+l+"].ambient"), studySceneKdesh.lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(studySceneKdesh.programForModels,"light["+l+"].diffuse"), studySceneKdesh.lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(studySceneKdesh.programForModels,"light["+l+"].specular"), studySceneKdesh.lights[l].specular);
-	}
-    studySceneKdesh.dustbin.render(studySceneKdesh.program);
-    gl.useProgram(null);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.dustbin.render(progCompleteLight.program);
 
+    setFlagsCompleteLight(0, 0, 1, 1);
     modelMatrix = mat4.create();
-    mat4.translate(modelMatrix, modelMatrix, [5.3, -2.2, 3.5]);
-    mat4.rotate(modelMatrix,modelMatrix, Math.PI / 2, [0.0, -1.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.8, 0.3, 0.3]);
-	gl.useProgram(studySceneKdesh.programForModels);
-	gl.uniformMatrix4fv(studySceneKdesh.uniformsForModels.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(studySceneKdesh.uniformsForModels.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(studySceneKdesh.uniformsForModels.mMat, false, modelMatrix);
-	gl.uniform3fv(studySceneKdesh.uniformsForModels.viewPos, cameraPosition);
-	for(var l = 0; l < studySceneKdesh.lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(studySceneKdesh.programForModels,"light["+l+"].direction"),studySceneKdesh.lights[l].position);
-		gl.uniform3fv(gl.getUniformLocation(studySceneKdesh.programForModels,"light["+l+"].ambient"), studySceneKdesh.lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(studySceneKdesh.programForModels,"light["+l+"].diffuse"), studySceneKdesh.lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(studySceneKdesh.programForModels,"light["+l+"].specular"), studySceneKdesh.lights[l].specular);
-	}
-	studySceneKdesh.sofa.render(studySceneKdesh.programForModels);
-	gl.useProgram(null); */
-    // !!! lights coming back on
+    mat4.translate(modelMatrix, modelMatrix, [-5.6, -0.2, -3.7]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.champagne.render(progCompleteLight.program);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [-5.6, -0.2, -3.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.hennessy.render(progCompleteLight.program);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [-5.6, -0.2, -2.3]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.jackDaniels.render(progCompleteLight.program);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [-5.6, -1.75, -3.7]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.champagne.render(progCompleteLight.program);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [-5.6, -1.75, -3.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.hennessy.render(progCompleteLight.program);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [-5.6, -1.75, -2.3]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.jackDaniels.render(progCompleteLight.program);
+
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
+    modelMatrix = mat4.create();
+    mat4.translate(modelMatrix, modelMatrix, [3.5, -2.9, -4.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
+    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [2.5, -2.9, -3.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
+    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [4.5, -2.9, -3.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
+    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [-1.5, -2.9, -2.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
+    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [0.5, -2.9, -1.4]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
+    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [4.5, -2.9, -4.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
+    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
+    mat4.identity(modelMatrix);
+    mat4.translate(modelMatrix, modelMatrix, [0.0, -2.9, 0.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
+    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+
+    setMaterialCompleteLight([0.5, 0.5, 0.5], [0.6, 0.2, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texSofa);
+    modelMatrix = mat4.create();
+    mat4.translate(modelMatrix, modelMatrix, [5.6, -3.0, 1.5]);
+    mat4.rotate(modelMatrix,modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, -1.0]);
+	mat4.scale(modelMatrix,modelMatrix,[3.0, 3.0, 3.0]);
+	setModelMatrixCompleteLight(modelMatrix);
+	studySceneKdesh.sofa.render(progCompleteLight.program);
+
+    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texWood);
+    modelMatrix = mat4.create();
+    mat4.translate(modelMatrix, modelMatrix, [1.0, -3.0, -1.0]);
+    mat4.rotate(modelMatrix, modelMatrix, 3 * Math.PI / 4, [0.0, -1.0, 0.0]);
+    mat4.scale(modelMatrix, modelMatrix, [3.0, 3.0, 3.0]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.chair.render(studySceneKdesh.program);
+
+    setMaterialCompleteLight([0.8, 0.8, 0.8], [0.6, 0.2, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
+    setFlagsCompleteLight(0, 0, 1, 1);
+    modelMatrix = mat4.create();
+    mat4.translate(modelMatrix, modelMatrix, [-5.55, -1.7, -3.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+    mat4.scale(modelMatrix, modelMatrix, [0.15, 0.15, 0.15]);
+    setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.liquorCabinet.render(progCompleteLight.program);
 
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [0.0, 1.0, -4.8]);
@@ -210,15 +318,11 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition, studySceneKdesh.texOutside);
 
     modelMatrix = mat4.create();
-    mat4.translate(modelMatrix, modelMatrix, [0.9, -0.93, -2.7]);
+    mat4.translate(modelMatrix, modelMatrix, phonePosition);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 6, [0.0, 0.0, -1.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 3, [0.0, 0.0, 1.0]);
     mat4.scale(modelMatrix, modelMatrix, [0.2, 0.2, 0.2]);
     renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition, studySceneKdesh.texOutside);
-
-    modelMatrix = mat4.create();
-    mat4.translate(modelMatrix, modelMatrix, [0.0, -1.05, -3.49]);
-    renderForTableKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition);
 
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [0.9, -0.9, -4.5]);
@@ -226,23 +330,11 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     mat4.scale(modelMatrix, modelMatrix, [0.6, 0.6, 0.6]);
     renderForLampKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition);
 
-    gl.enable(gl.BLEND);
-    gl.useProgram(studySceneKdesh.programForModels);
-	gl.uniformMatrix4fv(studySceneKdesh.uniformsForModels.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(studySceneKdesh.uniformsForModels.vMat, false, viewMatrix);
-    gl.uniform3fv(studySceneKdesh.uniformsForModels.viewPos, cameraPosition);
     modelMatrix = mat4.create();
-    mat4.rotate(modelMatrix,modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[5.0,5.0,5.0]);
-    mat4.translate(modelMatrix, modelMatrix, [0.5, -2.5, -4.5]);
-	gl.uniformMatrix4fv(studySceneKdesh.uniformsForModels.mMat, false, modelMatrix);
-    gl.uniform3fv(gl.getUniformLocation(studySceneKdesh.programForModels,"light[0].direction"), [0.5, -2.5, -4.0]);
-    gl.uniform3fv(gl.getUniformLocation(studySceneKdesh.programForModels,"light[0].ambient"), [0.5,0.5,0.5]);
-    gl.uniform3fv(gl.getUniformLocation(studySceneKdesh.programForModels,"light[0].diffuse"), [0.8,0.8,0.8]);
-    gl.uniform3fv(gl.getUniformLocation(studySceneKdesh.programForModels,"light[0].specular"), [1.0,1.0,1.0]);
-	studySceneKdesh.bottle.render(studySceneKdesh.programForModels);
-    gl.useProgram(null);
+    mat4.translate(modelMatrix, modelMatrix, [0.0, -1.05, -3.49]);
+    renderForTableKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition);
 
+    gl.enable(gl.BLEND);
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();
     setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, cameraPosition);

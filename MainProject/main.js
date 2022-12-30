@@ -342,9 +342,9 @@ function render(time) {
 		break
 	case SceneEnum.StudyScene:
 		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix)
-		camSplinePosition += 0.001
-		if(camSplinePosition > 1.0)
-		camSplinePosition = 0.0
+		camSplinePosition += 0.0003
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 		break
 	case SceneEnum.BarScene:
 		renderForBarScene(time, perspectiveMatrix, cameraMatrix)
