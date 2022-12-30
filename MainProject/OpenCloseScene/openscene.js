@@ -395,7 +395,7 @@ function renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, z, lightSourc
 function renderForBuildingDeep(localModelMatrix, texScale, tex) {
 	var modelMatrix
 	var texMatrix
-	
+
 	const buildingHeight = 3.0
 	const buildingWidth = 1.0
 	const buildingDepth = 1.0
@@ -484,6 +484,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 
 	//Cars
 	setFlagsCompleteLight(false, false, true, true)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
 	renderForCarDeep(-10.0, 1, 0)
 	renderForCarDeep(-20.0, -1, 1)
 	renderForCarDeep(-30.0, 1, 2)

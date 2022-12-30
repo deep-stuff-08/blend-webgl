@@ -1,11 +1,6 @@
 "use strict"
 var canvas
 var gl
-var lastmousex = -1, lastmousey = -1
-var cameraYaw = -90.0, cameraPitch = 0.0
-var cameraFront = vec3.set(vec3.create(), 0.0, 0.0, -1.0)
-var cameraPosition = vec3.set(vec3.create(), 0.0, 0.0, 5.0)
-var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 
 const SceneEnum = {
 	Tester: -1,
@@ -16,6 +11,16 @@ const SceneEnum = {
 	BedroomScene: 4,
 	UninstallScene: 5,
 	CloseScene: 6
+}
+
+var debugCamera = {
+	lastmousex: -1,
+	lastmousey: -1,
+	cameraYaw: -90.0,
+	cameraPitch: 0.0,
+	cameraFront: vec3.set(vec3.create(), 0.0, 0.0, -1.0),
+	cameraPosition: vec3.set(vec3.create(), 0.0, 0.0, 5.0),
+	cameraUp: vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 }
 
 var renderScene = SceneEnum.OpenScene
@@ -33,7 +38,7 @@ var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
 	// { name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
-	{ name: "Brian", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
+	// { name: "Brian", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
 	{ name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
 	{ name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },
 	{ name: "SilverCar", files:[ 'resources/models/static/Car/silvercar.obj', 'resources/models/static/Car/silvercar.mtl' ], flipTex:true },
@@ -47,7 +52,7 @@ var progForHdr
 var vaoForHdr
 var uniformExposureForHdr
 var currentExposure = 1.0
-var isLoadModels = false
+var isLoadModels = true
 
 assimpjs().then (function (ajs) {
 	if(isLoadModels) {
@@ -96,56 +101,56 @@ function main() {
 		canvas.height = window.innerHeight
 	})
 	canvas.addEventListener('mousedown', function (event) {
-		lastmousex = event.x
-		lastmousey = event.y
+		debugCamera.lastmousex = event.x
+		debugCamera.lastmousey = event.y
 	})
 	canvas.addEventListener('mousemove', function (event) {
-		if(lastmousex != -1 && lastmousey != -1) {
-			var xoffset = event.x - lastmousex
-			var yoffset = lastmousey - event.y 
-			lastmousex = event.x
-			lastmousey = event.y
+		if(debugCamera.lastmousex != -1 && debugCamera.lastmousey != -1) {
+			var xoffset = event.x - debugCamera.lastmousex
+			var yoffset = debugCamera.lastmousey - event.y 
+			debugCamera.lastmousex = event.x
+			debugCamera.lastmousey = event.y
 			const sensitivity = 0.1
 			xoffset *= sensitivity
 			yoffset *= sensitivity
-			cameraYaw += xoffset
-			cameraPitch += yoffset
+			debugCamera.cameraYaw += xoffset
+			debugCamera.cameraPitch += yoffset
 		
-			if(cameraPitch > 89.0) {
-				cameraPitch = 89.0
-			} else if(cameraPitch < -89.0) {
-				cameraPitch = -89.0
+			if(debugCamera.cameraPitch > 89.0) {
+				debugCamera.cameraPitch = 89.0
+			} else if(debugCamera.cameraPitch < -89.0) {
+				debugCamera.cameraPitch = -89.0
 			}
-			var direction = [Math.cos(glMatrix.toRadian(cameraYaw)) * Math.cos(glMatrix.toRadian(cameraPitch)), Math.sin(glMatrix.toRadian(cameraPitch)), Math.sin(glMatrix.toRadian(cameraYaw)) * Math.cos(glMatrix.toRadian(cameraPitch))]
-			vec3.normalize(cameraFront, direction)
+			var direction = [Math.cos(glMatrix.toRadian(debugCamera.cameraYaw)) * Math.cos(glMatrix.toRadian(debugCamera.cameraPitch)), Math.sin(glMatrix.toRadian(debugCamera.cameraPitch)), Math.sin(glMatrix.toRadian(debugCamera.cameraYaw)) * Math.cos(glMatrix.toRadian(debugCamera.cameraPitch))]
+			vec3.normalize(debugCamera.cameraFront, direction)
 		}
 	})
 	canvas.addEventListener('mouseup', function (event) {
-		lastmousex = -1
-		lastmousey = -1
+		debugCamera.lastmousex = -1
+		debugCamera.lastmousey = -1
 	})
 	window.addEventListener("keypress", function (event) {
 		var speed = 0.3
 		if(event.code == 'KeyA') {
 			var dir = vec3.create()
-			vec3.cross(dir, cameraFront, cameraUp)
+			vec3.cross(dir, debugCamera.cameraFront, debugCamera.cameraUp)
 			vec3.normalize(dir, dir)
 			vec3.multiply(dir, dir, [speed, speed, speed])
-			vec3.subtract(cameraPosition, cameraPosition, dir)
+			vec3.subtract(debugCamera.cameraPosition, debugCamera.cameraPosition, dir)
 		} else if(event.code == 'KeyW') {
 			var dir = vec3.create()
-			vec3.multiply(dir, cameraFront, [speed, speed, speed])
-			vec3.add(cameraPosition, cameraPosition, dir)
+			vec3.multiply(dir, debugCamera.cameraFront, [speed, speed, speed])
+			vec3.add(debugCamera.cameraPosition, debugCamera.cameraPosition, dir)
 		} else if(event.code == 'KeyS') {
 			var dir = vec3.create()
-			vec3.multiply(dir, cameraFront, [speed, speed, speed])
-			vec3.subtract(cameraPosition, cameraPosition, dir)
+			vec3.multiply(dir, debugCamera.cameraFront, [speed, speed, speed])
+			vec3.subtract(debugCamera.cameraPosition, debugCamera.cameraPosition, dir)
 		} else if(event.code == 'KeyD') {
 			var dir = vec3.create()
-			vec3.cross(dir, cameraFront, cameraUp)
+			vec3.cross(dir, debugCamera.cameraFront, debugCamera.cameraUp)
 			vec3.normalize(dir, dir)
 			vec3.multiply(dir, dir, [speed, speed, speed])
-			vec3.add(cameraPosition, cameraPosition, dir)
+			vec3.add(debugCamera.cameraPosition, debugCamera.cameraPosition, dir)
 		} else if(event.code == 'KeyI') {
 			trans[1] += 0.1
 		} else if(event.code == 'KeyK') {
@@ -313,14 +318,14 @@ function render(time) {
 
 	/* var cameraMatrix = mat4.create()
 	var newfront = vec3.create()
-	vec3.add(newfront, cameraFront, cameraPosition)
-	mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp) */
+	vec3.add(newfront, debugCamera.cameraFront, debugCamera.cameraPosition)
+	mat4.lookAt(cameraMatrix, debugCamera.cameraPosition, newfront, debugCamera.cameraUp) */
 	
 	if(devCam) {
 		var cameraMatrix = mat4.create()
 		var newfront = vec3.create()
-		vec3.add(newfront, cameraFront, cameraPosition)
-		mat4.lookAt(cameraMatrix, cameraPosition, newfront, cameraUp)
+		vec3.add(newfront, debugCamera.cameraFront, debugCamera.cameraPosition)
+		mat4.lookAt(cameraMatrix, debugCamera.cameraPosition, newfront, debugCamera.cameraUp)
 	} else {
 		var cameraMatrix = sceneCamera.matrix(camSplinePosition)
 	}
@@ -338,7 +343,7 @@ function render(time) {
 		// renderCubemapDeep(cameraMatrix, temptex)
 		break
 	case SceneEnum.OpenScene:
-		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition)
+		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition)
 		break
 	case SceneEnum.StudyScene:
 		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix)
@@ -361,7 +366,7 @@ function render(time) {
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
 	break
 	case SceneEnum.CloseScene:
-		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition)
+		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition)
 		break
 	default:
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)
