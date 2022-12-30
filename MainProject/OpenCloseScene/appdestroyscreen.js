@@ -54,7 +54,7 @@ function renderForAppDestroyDeep() {
 	mat4.translate(modelMat, modelMat, [ -0.7, 1.2, 0.0 ])
 	mat4.scale(modelMat, modelMat, [ 0.3, 0.3, 0.3 ])
 	renderForExplosionDeep(mal, modelMat, appdestroyDeep.texInstagram, appdestroyDeep.timeInstagram)
-	
+
 	modelMat = mat4.create()
 	mat4.translate(modelMat, modelMat, [ -0.23, 1.19, 0.0 ])
 	mat4.scale(modelMat, modelMat, [ 0.3, 0.3, 0.3 ])

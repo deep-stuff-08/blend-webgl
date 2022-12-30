@@ -30,11 +30,14 @@ const opensceneDeepConsts = {
 	footpathLeftDepth: 100.0,
 	groundWidth: 30.0,
 	wallHeight: 1.5,
+	wallWidth: 0.2,
 	buildingXTrans: 10.0,
 	buildingZTrans: 12.5,
 	buildingZSpace: 30.0,
 	oceanWidth: 1000.0,
 	oceanDepth: 100.0,
+	lampCount: 8,
+	lampDelta: 0
 }
 
 var testProgram;
@@ -51,6 +54,8 @@ function initForOpenSceneDeep() {
 	initForStreetLamp()
 	initForOceanDeep()
 	initForAppDestroyDeep()
+
+	opensceneDeepConsts.lampDelta = (opensceneDeepConsts.footpathLeftDepth * 2.0) / (opensceneDeepConsts.lampCount - 1)
 
 	opensceneDeep.objQuad = dshapes.initQuad()
 	opensceneDeep.objCube = dshapes.initCube()
@@ -289,21 +294,6 @@ function renderForCitySceneStaticDeep() {
 	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 
-	//Lamps
-	const lampCount = 6
-	const lampDelta = (opensceneDeepConsts.footpathLeftDepth * 2.0) / (lampCount - 1)
-	for(var j = 0; j < 2; j++) {
-		modelMatrix = mat4.create()
-		mat4.translate(modelMatrix, modelMatrix, [0.0, opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderHeight * 2.0), opensceneDeepConsts.sceneZ])
-		mat4.rotate(modelMatrix, modelMatrix, j * Math.PI, [0.0, 1.0, 0.0])
-		for(var i = 0; i < lampCount; i++) {
-			var lmodelMatrix = mat4.clone(modelMatrix)
-			mat4.translate(lmodelMatrix, lmodelMatrix, [-(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathborderWidth + 0.1), 0.0, opensceneDeepConsts.footpathLeftDepth - (i * lampDelta)])
-			mat4.scale(lmodelMatrix, lmodelMatrix, [3.4, 3.4, 3.4])
-			renderForStreetLamp(lmodelMatrix)
-		}
-	}
-
 	//Ground
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth) * 2.0) + opensceneDeepConsts.groundWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ])
@@ -327,6 +317,15 @@ function renderForCitySceneStaticDeep() {
 	mat2.scale(texMatrix, texMatrix, [50.0, 1.5])
 	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth) * 2.0) + opensceneDeepConsts.wallWidth), opensceneDeepConsts.sceneY + ((opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.wallHeight) * 2.0), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.wallWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, [0.1, 50.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
 
 	//Building
 	for(var i = 0; i < 6; i++) {
@@ -341,6 +340,19 @@ function renderForCitySceneStaticDeep() {
 		mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth) * 2.0)) + opensceneDeepConsts.buildingXTrans, opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ + opensceneDeepConsts.footpathLeftDepth - ((opensceneDeepConsts.buildingZSpace * i) + opensceneDeepConsts.buildingZTrans + (opensceneDeepConsts.buildingZSpace / 2.0))])
 		mat4.scale(modelMatrix, modelMatrix, [5.0, 6.0, 5.0])
 		renderForBuildingDeep(modelMatrix, [2.0, 3.0], opensceneDeep.texBuilding2)
+	}
+
+	//Lamps
+	for(var j = 0; j < 2; j++) {
+		modelMatrix = mat4.create()
+		mat4.translate(modelMatrix, modelMatrix, [0.0, opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderHeight * 2.0), opensceneDeepConsts.sceneZ])
+		mat4.rotate(modelMatrix, modelMatrix, j * Math.PI, [0.0, 1.0, 0.0])
+		for(var i = 0; i < opensceneDeepConsts.lampCount; i++) {
+			var lmodelMatrix = mat4.clone(modelMatrix)
+			mat4.translate(lmodelMatrix, lmodelMatrix, [-(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathborderWidth + 0.1), 0.0, opensceneDeepConsts.footpathLeftDepth - (i * opensceneDeepConsts.lampDelta)])
+			mat4.scale(lmodelMatrix, lmodelMatrix, [3.4, 3.4, 3.4])
+			renderForStreetLamp(lmodelMatrix)
+		}
 	}
 }
 
@@ -382,6 +394,8 @@ function renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, z, lightSourc
 
 function renderForBuildingDeep(localModelMatrix, texScale, tex) {
 	var modelMatrix
+	var texMatrix
+
 	const buildingHeight = 3.0
 	const buildingWidth = 1.0
 	const buildingDepth = 1.0
@@ -429,7 +443,18 @@ function renderForBuildingDeep(localModelMatrix, texScale, tex) {
 
 function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	var modelMatrix
-	var lightSource = [0.0, 1.0, -6.5]
+	var lightSources = []
+	var start = 5.0
+	for(var i = 0; i < 6; i++) {
+		lightSources.push([-4.0, 4.5, start])
+		lightSources.push([4.0, 4.5, start])
+		start -= opensceneDeepConsts.lampDelta
+	}
+
+	const spotCutoff = [50, 60]
+	const spotDirection = [ 0.0, -1.0, 0.0 ]
+	const lightOne = [1.0, 1.0, 1.0]
+	const pointAttenuation = [1.0, 0.014, 0.0007]
 
 	//Cubemap
 	renderCubemapDeep(perspectiveMatrix, viewMatrix)
@@ -437,17 +462,20 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
 	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
-	setFlagsCompleteLight(0, 0, true, true)
+	setFlagsCompleteLight(false, false, true, true)
 	setTextureSamplersCompleteLight(0)
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
 	// addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
 	// addPointLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.014, 0.0007])
-	addSpotLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.014, 0.0007], [52.5, 67.5], [0.0, -1.0, 0.0])
-	addPointLightCompleteLight([0.0, 1.0, -28.5], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.014, 0.0007], [52.5, 67.5], [0.0, -1.0, 0.0])
-	
+	addLightCompleteLight([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [1.0, 0.5, 0.0], [1.0, 0.0, 0.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		addSpotLightCompleteLight(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
+	}
+
 	renderForCitySceneStaticDeep()
 	
 	setFlagsCompleteLight(false, false, false, false)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.2, 0.6, 0.3], [0.7, 0.7, 0.7], 1.0, 1.0)
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-500.0, 40.0, -500.0])
 	mat4.scale(modelMatrix, modelMatrix, [40.0, 40.0, 40.0])
@@ -456,13 +484,16 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 
 	//Cars
 	setFlagsCompleteLight(false, false, true, true)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
 	renderForCarDeep(-10.0, 1, 0)
 	renderForCarDeep(-20.0, -1, 1)
 	renderForCarDeep(-30.0, 1, 2)
 
-	renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, -10.0, lightSource)
+	renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, -10.0, lightSources[0])
 
-	renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSources[i], [1.0, 1.0, 1.0])
+	}
 
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
@@ -495,7 +526,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
 	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
-	setFlagsCompleteLight(0, 0, true, true)
+	setFlagsCompleteLight(false, false, true, true)
 	setTextureSamplersCompleteLight(0)
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.7, 0.7, 0.7], 100.0, 1.0)
 	addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])

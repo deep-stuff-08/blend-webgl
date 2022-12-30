@@ -30,7 +30,7 @@ uniform bool isTexture;
 uniform bool isBlend;
 
 uniform material_t material;
-uniform light_t light[12];
+uniform light_t light[13];
 uniform int numOfLights;
 
 uniform sampler2D samplerDiffuse;
@@ -42,11 +42,14 @@ void main(void) {
 	float alpha;
 	if(isTexture) {
 		vec4 t = texture(samplerDiffuse, Tex);
-		color = t.rgb;
+		color = t.rgb * material.diffuse;
 		alpha = t.a * material.opacity;
 	} else {
-		color = vec3(1.0);
+		color = material.diffuse;
 		alpha = material.opacity;
+	}
+	if(!isBlend) {
+		alpha = 1.0;
 	}
 	if(numOfLights > 0) {
 		vec3 fcolor = vec3(0.0, 0.0, 0.0);
@@ -67,7 +70,7 @@ void main(void) {
 				intensity = clamp((theta - cos(radians(light[i].cutoff.y))) / epsilon, 0.0, 1.0);
 			}
 			vec3 ambient = attenuation * color * light[i].ambient * material.ambient;
-			vec3 diffuse = intensity * attenuation * max(dot(N, L), 0.0) * color * light[i].diffuse * material.diffuse;
+			vec3 diffuse = intensity * attenuation * max(dot(N, L), 0.0) * color * light[i].diffuse;
 			vec3 specular = intensity * attenuation * pow(max(dot(R, V), 0.0), material.shininess) * light[i].specular * material.specular;
 			fcolor +=  ambient + diffuse + specular;
 		}

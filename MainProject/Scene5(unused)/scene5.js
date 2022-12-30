@@ -112,7 +112,6 @@ function initForScene5Deep() {
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 
-	cameraPosition = [ 0.0, -1.8, -5.0 ]
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 }
 

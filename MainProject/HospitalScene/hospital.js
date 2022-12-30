@@ -8,6 +8,60 @@ var mMatUniformForSceneTwo;
 var viewPosUniformForSceneTwo;
 var angle = 0.0;
 
+var programRenderHospital = {
+	program : null,
+	uniform : {
+		pMat : null,
+		vMat : null,
+		mMat : null,
+		viewPos : null
+	}
+};
+
+var programRenderVideo = {
+	program : null,
+	uniform : {
+		pMat : null,
+		vMat : null,
+		mMat : null,
+		viewPos : null,
+		lights : {
+			position : null,
+			color : null
+		},
+		flip : null,
+		video : null
+	}
+};
+
+var programRenderSineWave = {
+	program : null,
+	uniform : {
+		iReolution  : null,
+		iTime : null
+	}
+};
+
+var HospitalSceneObjects = {
+	mPlane : null,
+	mBed : null,
+	mcab1 : null,
+	mcab2 : null,
+	mFood : null,
+	mPad : null,
+	mSerum : null,
+	mSofa : null,
+	mTrolley : null,
+	mLaptop : null,
+	mLight : null,
+	mDoor : null,
+	mStool : null,
+	mVentilator : null,
+	mFan : null,
+	mECGScreen : null,
+	mScreen : null
+};
+
 var mCube;
 var mBed;
 var mcab1;
@@ -23,13 +77,8 @@ var mDoor;
 var mStool;
 var mVentilator;
 var mFan;
-var mApple;
 var mECGScreen;
 var mScreen;
-
-var quad;
-
-var angle;
 
 var fboECGWave;
 var textureECGWave;
@@ -38,6 +87,8 @@ var textureForm;
 var video;
 var copyVideo = false;
 var videoTexture;
+
+var Lights = [];
 
 function setupVideo(url)
 {
@@ -449,96 +500,48 @@ class Model{
 
 function setupprogramForSceneTwo() {
 	var vertShader = createShader('HospitalScene/shaders/demo.vert', gl.VERTEX_SHADER);
-	var fragShader = createShader('HospitalScene/shaders/point.frag', gl.FRAGMENT_SHADER);
+	var fragShader = createShader('HospitalScene/shaders/demo.frag', gl.FRAGMENT_SHADER);
 	programForSceneTwo = createProgram([vertShader, fragShader]);
+	programRenderHospital.program = createProgram([vertShader, fragShader]);
 	deleteShader(vertShader);
 	deleteShader(fragShader);
+
+	programRenderHospital.uniform.pMat = gl.getUniformLocation(programRenderHospital.program,"pMat");
+	programRenderHospital.uniform.vMat = gl.getUniformLocation(programRenderHospital.program,"vMat");
+	programRenderHospital.uniform.mMat = gl.getUniformLocation(programRenderHospital.program,"mMat");
+	programRenderHospital.uniform.viewPos = gl.getUniformLocation(programRenderHospital.program,"viewPos");
 
 	vertShader = createShader('HospitalScene/shaders/video.vert', gl.VERTEX_SHADER);
 	fragShader = createShader('HospitalScene/shaders/video.frag', gl.FRAGMENT_SHADER);
 	programVideoRender = createProgram([vertShader, fragShader]);
+
+	programRenderVideo.program = createProgram([vertShader, fragShader]);
 	deleteShader(vertShader);
 	deleteShader(fragShader);
+
+	programRenderVideo.uniform.pMat = gl.getUniformLocation(programRenderVideo.program,"pMat");
+	programRenderVideo.uniform.vMat = gl.getUniformLocation(programRenderVideo.program,"vMat");
+	programRenderVideo.uniform.mMat = gl.getUniformLocation(programRenderVideo.program,"mMat");
+	programRenderVideo.uniform.viewPos = gl.getUniformLocation(programRenderVideo.program,"viewPos");
+	programRenderVideo.uniform.lights.position = gl.getUniformLocation(programRenderVideo.program,"lights.position");
+	programRenderVideo.uniform.lights.color = gl.getUniformLocation(programRenderVideo.program,"lights.color");
+	programRenderVideo.uniform.flip = gl.getUniformLocation(programRenderVideo.program,"flip");
+	programRenderVideo.uniform.video = gl.getUniformLocation(programRenderVideo.program,"video");
 
 	vertShader = createShader('HospitalScene/shaders/quad.vert', gl.VERTEX_SHADER);
 	fragShader = createShader('HospitalScene/shaders/sinewave.frag', gl.FRAGMENT_SHADER);
 	programForECG = createProgram([vertShader, fragShader]);
+	programRenderSineWave.program = createProgram([vertShader, fragShader]);
 	deleteShader(vertShader);
 	deleteShader(fragShader);
+
+	programRenderSineWave.uniform.iReolution = gl.getUniformLocation(programRenderSineWave.program,"iResolution");
+	programRenderSineWave.uniform.iTime = gl.getUniformLocation(programRenderSineWave.program,"iTime");
 
 }
 
 function initForSceneTwo() {
-	var data = new Float32Array([
-		//Front
-		1.0, 1.0, 1.0, 1.0,		1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		1.0, 1.0,
-		-1.0, 1.0, 1.0, 1.0,	1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		0.0, 1.0,
-		-1.0, -1.0, 1.0, 1.0,	1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		0.0, 0.0,
-		
-		-1.0, -1.0, 1.0, 1.0,	1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		0.0, 0.0,
-		1.0, -1.0, 1.0, 1.0,	1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		1.0, 0.0,
-		1.0, 1.0, 1.0, 1.0,		1.0, 0.0, 0.0, 1.0,		0.0, 0.0, 1.0,		1.0, 1.0,
-
-		//Right
-		1.0, 1.0, -1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		1.0, 1.0,
-		1.0, 1.0, 1.0, 1.0,		0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		0.0, 1.0,
-		1.0, -1.0, 1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		0.0, 0.0,
-		
-		1.0, 1.0, -1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		1.0, 1.0,
-		1.0, -1.0, -1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		1.0, 0.0,
-		1.0, -1.0, 1.0, 1.0,	0.0, 0.0, 1.0, 1.0,		1.0, 0.0, 0.0,		0.0, 0.0,
-
-		//Back
-		-1.0, 1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		1.0, 1.0,
-		1.0, 1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		0.0, 1.0,
-		1.0, -1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		0.0, 0.0,
-
-		-1.0, 1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		1.0, 1.0,
-		-1.0, -1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		1.0, 0.0,
-		1.0, -1.0, -1.0, 1.0,	1.0, 0.0, 1.0, 1.0,		0.0, 0.0, -1.0,		0.0, 0.0,
-
-		//Left
-		-1.0, 1.0, 1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		1.0, 1.0,
-		-1.0, 1.0, -1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		0.0, 1.0,
-		-1.0, -1.0, -1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		0.0, 0.0,
-		
-		-1.0, -1.0, -1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		0.0, 0.0,
-		-1.0, -1.0, 1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		1.0, 0.0,
-		-1.0, 1.0, 1.0, 1.0,	0.0, 1.0, 1.0, 1.0,		-1.0, 0.0, 0.0,		1.0, 1.0,
-
-		//Top
-		1.0, 1.0, -1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		1.0, 1.0,
-		-1.0, 1.0, -1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		0.0, 1.0,
-		-1.0, 1.0, 1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		0.0, 0.0,
-		
-		-1.0, 1.0, 1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		0.0, 0.0,
-		1.0, 1.0, 1.0, 1.0,		0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		1.0, 0.0,
-		1.0, 1.0, -1.0, 1.0,	0.0, 1.0, 0.0, 1.0,		0.0, 1.0, 0.0,		1.0, 1.0,
-
-		//Bottom
-		1.0, -1.0, 1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		1.0, 1.0,
-		-1.0, -1.0, 1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		0.0, 1.0,
-		-1.0, -1.0, -1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		0.0, 0.0,
-		
-		-1.0, -1.0, -1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		0.0, 0.0,
-		1.0, -1.0, -1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		1.0, 0.0,
-		1.0, -1.0, 1.0, 1.0,	1.0, 1.0, 0.0, 1.0,		0.0, -1.0, 0.0,		1.0, 1.0,
-	]);
-
 	vao = gl.createVertexArray();
-	var vbo = gl.createBuffer();
-	gl.bindVertexArray(vao);
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW)
-	gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 4 * 13, 4 * 0)
-	gl.enableVertexAttribArray(0)
-	gl.vertexAttribPointer(5, 4, gl.FLOAT, false, 4 * 13, 4 * 4)
-	gl.enableVertexAttribArray(5)
-	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 4 * 13, 4 * 8)
-	gl.enableVertexAttribArray(1)
-	gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 4 * 13, 4 * 11)
-	gl.enableVertexAttribArray(2)
-	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	gl.bindVertexArray(null);
 
 	pMatUniformForSceneTwo = gl.getUniformLocation(programForSceneTwo, "pMat")
@@ -548,31 +551,28 @@ function initForSceneTwo() {
 	//diffuseUnifromForDeepCube = gl.getUniformLocation(programForSceneTwo, "diffuse")
 
 	var v = [[1.0, 1.0, 0.0,-1.0, 1.0, 0.0,-1.0, -1.0, 0.0,-1.0,-1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0],[0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0],[1.0, 1.0, 0.0, 1.0,0.0, 0.0, 0.0, 0.0,	1.0, 0.0,1.0, 1.0,]];
-	mPlane = new mesh(v,null,null);
-	console.log(mPlane);
+	HospitalSceneObjects.mPlane = new mesh(v,null,null);
+	console.log(HospitalSceneObjects.mPlane);
 
 	var v = [[1.0, 1.0, 0.0,-1.0, 1.0, 0.0,-1.0, -1.0, 0.0,-1.0,-1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0],[0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0],[1.0, 1.0, 0.0, 1.0,0.0, 0.0, 0.0, 0.0,	1.0, 0.0,1.0, 1.0,]];
 	//var i = [0,1,2,1,2,3];
-	mScreen = new mesh(v,null,null);
-	console.log(mScreen);
+	HospitalSceneObjects.mScreen = new mesh(v,null,null);
+	console.log(HospitalSceneObjects.mScreen);
 
-	quad = dshapes.initQuad();
-
-	mBed = new Model('HospitalScene/resources/bedf.json');
-	mcab1 = new Model('HospitalScene/resources/cab1.json');
-	mcab2 = new Model('HospitalScene/resources/cab2.json');
-	mFood = new Model('HospitalScene/resources/food.json');
-	mPad = new Model('HospitalScene/resources/pad.json');
-	mSerum = new Model('HospitalScene/resources/serum.json');
-	mSofa = new Model('HospitalScene/resources/sofa.json');
-	mTrolley = new Model('HospitalScene/resources/trolley.json');
-	mLaptop = new Model('HospitalScene/resources/laptop.json');
-	mLight = new Model('HospitalScene/resources/light.json');
-	mStool = new Model('HospitalScene/resources/stool.json');
-	mVentilator = new Model('HospitalScene/resources/ventilator.json');
-	mDoor = new Model('HospitalScene/resources/door.json');
-	mFan = new Model('HospitalScene/resources/fan.json');
-	mApple = new Model('HospitalScene/resources/apple.json');
+	HospitalSceneObjects.mBed = new Model('HospitalScene/resources/bedf.json');
+	HospitalSceneObjects.mcab1 = new Model('HospitalScene/resources/cab1.json');
+	HospitalSceneObjects.mcab2 = new Model('HospitalScene/resources/cab2.json');
+	HospitalSceneObjects.mFood = new Model('HospitalScene/resources/food.json');
+	HospitalSceneObjects.mPad = new Model('HospitalScene/resources/pad.json');
+	HospitalSceneObjects.mSerum = new Model('HospitalScene/resources/serum.json');
+	HospitalSceneObjects.mSofa = new Model('HospitalScene/resources/sofa.json');
+	HospitalSceneObjects.mTrolley = new Model('HospitalScene/resources/trolley.json');
+	HospitalSceneObjects.mLaptop = new Model('HospitalScene/resources/laptop.json');
+	HospitalSceneObjects.mLight = new Model('HospitalScene/resources/light.json');
+	HospitalSceneObjects.mStool = new Model('HospitalScene/resources/stool.json');
+	HospitalSceneObjects.mVentilator = new Model('HospitalScene/resources/ventilator.json');
+	HospitalSceneObjects.mDoor = new Model('HospitalScene/resources/door.json');
+	HospitalSceneObjects.mFan = new Model('HospitalScene/resources/fan.json');
 
 	fboECGWave = gl.createFramebuffer();
 	gl.bindFramebuffer(gl.FRAMEBUFFER, fboECGWave);
@@ -609,15 +609,37 @@ function initForSceneTwo() {
 	testMat.shininess = 32.0;
 	testMat.texID.push(textureECGWave);
 	
-	mECGScreen = new mesh(mVentilator.meshes[0].vertices, mVentilator.meshes[0].indices,0);
-	mECGScreen.setMaterial(testMat);
+	HospitalSceneObjects.mECGScreen = new mesh(HospitalSceneObjects.mVentilator.meshes[0].vertices,HospitalSceneObjects.mVentilator.meshes[0].indices,0);
+	HospitalSceneObjects.mECGScreen.setMaterial(testMat);
 	console.log(mECGScreen);
 
 	textureForm = loadTexture("resources/textures/form.png");
+	gl.bindTexture(gl.TEXTURE_2D,textureForm);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.bindTexture(gl.TEXTURE_2D,null);
 	testMat = new material();
 	testMat.texID.push(textureForm);
-	mPad.meshes[2].setMaterial(testMat);
+	testMat.texType.push(1);
+	HospitalSceneObjects.mPad.meshes[2].setMaterial(testMat);
 	console.log(mPad);
+
+	// Light Setups
+	Lights.push(
+		{	
+			position : [-3.0,3.5,-4.0],
+			ambient : [0.2,0.2,0.2],
+			diffuse : [1.0,1.0,1.0],
+			specular : [1.0,1.0,1.0]
+		});
+	
+		Lights.push(
+			{	
+				position : [0.0,4.5,14.8],
+				ambient : [0.1,0.1,0.1],
+				diffuse : [1.0,1.0,1.0],
+				specular : [1.0,1.0,1.0]
+			});
 
 }
 
@@ -633,16 +655,28 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	mat4.rotate(modelMatrix, modelMatrix, angle, [1.0, 1.0, 1.0])
 
 	gl.disable(gl.CULL_FACE);
+
+	// light src test
+	for(var l  = 0; l < Lights.length; l++)
+		renderLightSourceDeep(perspectiveMatrix, viewMatrix, Lights[l].position, Lights[l].diffuse);
+
 	// back
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,0.0,-5.0]);
 	mat4.scale(modelMatrix,modelMatrix,[10.0,5.0,5.0]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	mPlane.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mPlane.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	//front
@@ -650,16 +684,19 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	mat4.translate(modelMatrix, modelMatrix, [0.0,0.0,15.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-180.0), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[10.0,5.0,5.0]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mPlane.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mPlane.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	// right
@@ -667,16 +704,20 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	mat4.translate(modelMatrix, modelMatrix, [10.0,0.0,5.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-90.0), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[10.0,5.0,5.0]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
 	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mPlane.render(programForSceneTwo);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mPlane.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	// left
@@ -684,16 +725,19 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	mat4.translate(modelMatrix, modelMatrix, [-10.0,0.0,5.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[10.0,5.0,5.0]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mPlane.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mPlane.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	// bottom
@@ -701,16 +745,19 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	mat4.translate(modelMatrix, modelMatrix, [0.0,-5.0,5.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-90.0), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[10.0,10.0,5.0]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mPlane.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mPlane.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	//top
@@ -718,33 +765,81 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	mat4.translate(modelMatrix, modelMatrix, [0.0,5.0,5.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[10.0,10.0,5.0]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mPlane.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mPlane.render(programRenderHospital.program);
 	gl.useProgram(null);
+
+
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [-6.0,-0.5,-5.9]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mLight.render(programRenderHospital.program);
+	gl.useProgram(null);
+
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [-8.0,-1.5,14.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.1,0.1,0.1]);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mcab2.render(programRenderHospital.program);
+	gl.useProgram(null);
+	
+	//gl.disable(gl.CULL_FACE);
+
 
 	gl.enable(gl.CULL_FACE);
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-4.0,-4.8,0.5]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mBed.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mBed.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
@@ -752,31 +847,19 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(-90.0), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.15,0.15,0.15]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mcab1.render(programForSceneTwo);
-	gl.useProgram(null);
-
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-8.0,-1.5,14.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.1,0.1,0.1]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mcab2.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mcab1.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
@@ -784,235 +867,215 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mFood.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mFood.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-4.0,-3.5,13.0]);
+	mat4.translate(modelMatrix, modelMatrix, [-4.0,-0.9,0.8]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
-	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(230.0), [0.0, 0.0, 1.0]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(190.0), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mPad.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mPad.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,-0.0,-3.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mSerum.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mSerum.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [3.0,-5.0,2.0]);
+	mat4.translate(modelMatrix, modelMatrix, [-1.0,-5.0,0.5]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-50.0), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.15,0.15,0.1]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mVentilator.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mVentilator.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [3.0,-5.0,2.05]);
+	mat4.translate(modelMatrix, modelMatrix, [-1.0,-5.0,0.55]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-50.0), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.15,0.15,0.1]);
-	gl.useProgram(programVideoRender);
-	gl.uniformMatrix4fv(gl.getUniformLocation(programVideoRender,"pMat"), false, perspectiveMatrix)
-	gl.uniformMatrix4fv(gl.getUniformLocation(programVideoRender,"vMat"), false, viewMatrix)
-	gl.uniformMatrix4fv(gl.getUniformLocation(programVideoRender,"mMat"), false, modelMatrix)
-	gl.uniform3fv(gl.getUniformLocation(programVideoRender,"viewPos"), cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programVideoRender,"lights.position"), [3.5,-0.5,-2.5]);
-	gl.uniform3fv(gl.getUniformLocation(programVideoRender,"lights.color"), [1.0,1.0,1.0]);
-	gl.uniform1i(gl.getUniformLocation(programVideoRender,"flip"), 1);
-	gl.uniform1i(gl.getUniformLocation(programVideoRender,"video"), 0);
+	gl.useProgram(programRenderVideo.program);
+	gl.uniformMatrix4fv(programRenderVideo.uniform.pMat, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(programRenderVideo.uniform.vMat, false, viewMatrix)
+	gl.uniformMatrix4fv(programRenderVideo.uniform.mMat, false, modelMatrix)
+	gl.uniform3fv(programRenderVideo.uniform.viewPos, cameraPosition)
+	gl.uniform3fv(programRenderVideo.uniform.lights.position, [2.8,-0.8,-1.8]);
+	gl.uniform3fv(programRenderVideo.uniform.lights.color, [1.0,1.0,1.0]);
+	gl.uniform1i(programRenderVideo.uniform.flip, 1);
+	gl.uniform1i(programRenderVideo.uniform.video, 0);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, textureECGWave);
-	mECGScreen.render(programVideoRender);
+	HospitalSceneObjects.mECGScreen.render(programRenderVideo.program);
 	gl.useProgram(null);
 
+	//renderLightSourceDeep(perspectiveMatrix, viewMatrix, [2.8,-0.8,-1.8], Lights[1].diffuse);
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-4.0,-3.5,13.5]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-200), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mSofa.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mSofa.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [2.0,-3.5,13.7]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-170), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mSofa.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mSofa.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-3.0,-3.6,1.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.25,0.25,0.2]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mTrolley.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mTrolley.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-3.7,-0.9,1.2]);
+	mat4.translate(modelMatrix, modelMatrix, [-2.5,-0.9,1.2]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-20), [0.0, 0.0, 1.0]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(20), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mLaptop.render(programForSceneTwo);
-	gl.useProgram(null);
-
-	//gl.disable(gl.CULL_FACE);
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-2.0,-0.78,1.2]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-0), [0.0, 1.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.2,0.2,0.2]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mApple.render(programForSceneTwo);
-	gl.useProgram(null);
-
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-6.0,-0.5,-5.9]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mLight.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mLaptop.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,4.3,4.0]);
 	mat4.rotate(modelMatrix, modelMatrix, angle, [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mFan.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mFan.render(programRenderHospital.program);
 	gl.useProgram(null);
 
-	// light src test
-/*
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [3.5,-0.5,-2.0]);
-	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
-	gl.useProgram(programForSceneTwo);
-	gl.bindVertexArray(vao);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-0.2,-1.0,-1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,0.0,0.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,0.0,0.0]);
-	gl.drawArrays(gl.TRIANGLES, 0, 36);
-	gl.bindVertexArray(null);
-	gl.useProgram(null);
-*/
+
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [7.5,-2.9,-4.5]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
 	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
 	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.1,0.1,0.1]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mStool.render(programForSceneTwo);
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mStool.render(programRenderHospital.program);
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
@@ -1021,55 +1084,67 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
 	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
-	gl.useProgram(programForSceneTwo);
-	gl.uniformMatrix4fv(pMatUniformForSceneTwo, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(vMatUniformForSceneTwo, false, viewMatrix)
-	gl.uniformMatrix4fv(mMatUniformForSceneTwo, false, modelMatrix)
-	gl.uniform3fv(viewPosUniformForSceneTwo, cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.direction"), [-3.0,3.5,-4.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.ambient"), [0.2,0.2,0.2]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.diffuse"), [1.0,1.0,1.0]);
-	gl.uniform3fv(gl.getUniformLocation(programForSceneTwo,"light.specular"), [1.0,1.0,1.0]);
-	mDoor.render(programForSceneTwo);
-	gl.useProgram(null);
-
+	gl.useProgram(programRenderHospital.program);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.pMat, false, perspectiveMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.vMat, false, viewMatrix);
+	gl.uniformMatrix4fv(programRenderHospital.uniform.mMat, false, modelMatrix);
+	gl.uniform3fv(programRenderHospital.uniform.viewPos, cameraPosition);
+	for(var l = 0; l < Lights.length; l++)
+	{
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].direction"),Lights[l].position );
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].ambient"), Lights[l].ambient);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].diffuse"), Lights[l].diffuse);
+		gl.uniform3fv(gl.getUniformLocation(programRenderHospital.program,"light["+l+"].specular"), Lights[l].specular);
+	}
+	HospitalSceneObjects.mDoor.render(programRenderHospital.program);
+	
 	// screen texture
 	gl.disable(gl.CULL_FACE);
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-3.9,-0.35,1.75]);
+	mat4.translate(modelMatrix, modelMatrix, [-2.3,-0.35,1.75]);
 	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 1.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 0.0, 1.0]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(20), [0.0, 1.0, 0.0]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-20), [0.0, 1.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-15), [1.0, 0.0, 0.0]);
 	
 	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.75,0.48,1.0]);
-	gl.useProgram(programVideoRender);
-	gl.uniformMatrix4fv(gl.getUniformLocation(programVideoRender,"pMat"), false, perspectiveMatrix)
-	gl.uniformMatrix4fv(gl.getUniformLocation(programVideoRender,"vMat"), false, viewMatrix)
-	gl.uniformMatrix4fv(gl.getUniformLocation(programVideoRender,"mMat"), false, modelMatrix)
-	gl.uniform3fv(gl.getUniformLocation(programVideoRender,"viewPos"), cameraPosition)
-	gl.uniform3fv(gl.getUniformLocation(programVideoRender,"lights.position"), [-4.1,-0.50,2.4]);
-	gl.uniform3fv(gl.getUniformLocation(programVideoRender,"lights.color"), [1.0,1.0,1.0]);
-	gl.uniform1i(gl.getUniformLocation(programVideoRender,"flip"), 2);
-	gl.uniform1i(gl.getUniformLocation(programVideoRender,"video"), 0);
+	gl.useProgram(programRenderVideo.program);
+	gl.uniformMatrix4fv(programRenderVideo.uniform.pMat, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(programRenderVideo.uniform.vMat, false, viewMatrix)
+	gl.uniformMatrix4fv(programRenderVideo.uniform.mMat, false, modelMatrix)
+	gl.uniform3fv(programRenderVideo.uniform.viewPos, cameraPosition)
+	gl.uniform3fv(programRenderVideo.uniform.lights.position, [-2.7,-0.25,0.5]);
+	gl.uniform3fv(programRenderVideo.uniform.lights.color, [1.0,1.0,1.0]);
+	gl.uniform1i(programRenderVideo.uniform.flip, 2);
+	gl.uniform1i(programRenderVideo.uniform.video, 0);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, videoTexture);
-	mScreen.render(programVideoRender);
+	HospitalSceneObjects.mScreen.render(programRenderVideo.program);
 	gl.useProgram(null);
 
+	renderLightSourceDeep(perspectiveMatrix, viewMatrix, [-4.0,-1.5,13.0], Lights[1].diffuse);
+
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [-4.0,-3.5,13.0]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 1.0, 0.0]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(20), [0.0, 0.0, 1.0]);
+	//mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-15), [1.0, 0.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);	
+	renderForPhoneDeep(perspectiveMatrix,viewMatrix,modelMatrix,[-4.0,-1.5,13.0],textureECGWave);
+
 	gl.bindFramebuffer(gl.FRAMEBUFFER, fboECGWave);
-	gl.useProgram(programForECG);
+	gl.useProgram(programRenderSineWave.program);
 	gl.bindVertexArray(vao);
-    gl.uniform3fv(gl.getUniformLocation(programForECG, "iResolution"), [1024,1024,1.0]);
-    gl.uniform1f(gl.getUniformLocation(programForECG, "iTime"), time / 1000.0);
+    gl.uniform3fv(programRenderSineWave.uniform.iReolution, [1024,1024,1.0]);
+    gl.uniform1f(programRenderSineWave.uniform.iTime, time / 1000.0);
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
 	angle += 0.005;
-
 }
 
 function uninitForSceneTwo() {
-	deleteProgram(programForSceneTwo);
+	deleteProgram(programRenderHospital.program);
 }
