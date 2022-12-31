@@ -24,9 +24,9 @@ var debugCamera = {
 }
 
 var controlVariables = {
-	renderScene: SceneEnum.CloseScene,
+	renderScene: SceneEnum.OpenScene,
 	doRenderToHDR: true,
-	devCam: true,
+	devCam: false,
 	showCamPath: false,
 	showCam: false,
 	debugMode: true,
@@ -285,7 +285,7 @@ function init() {
 	if(controlVariables.debugMode) {
 		switch(controlVariables.renderScene) {
 		case SceneEnum.OpenScene:
-			initForOpenSceneDeep()
+			initForOpenSceneDeep(sceneCamera)
 			break
 		case SceneEnum.StudyScene:
 			initForStudySceneKdesh(sceneCamera)
@@ -341,18 +341,24 @@ function render(time) {
 	vec3.add(newfront, debugCamera.cameraFront, debugCamera.cameraPosition)
 	mat4.lookAt(cameraMatrix, debugCamera.cameraPosition, newfront, debugCamera.cameraUp) */
 	
+	var cameraMatrix
+	var cameraPosition
 	if(controlVariables.devCam) {
-		var cameraMatrix = mat4.create()
+		cameraMatrix = mat4.create()
 		var newfront = vec3.create()
 		vec3.add(newfront, debugCamera.cameraFront, debugCamera.cameraPosition)
 		mat4.lookAt(cameraMatrix, debugCamera.cameraPosition, newfront, debugCamera.cameraUp)
+		cameraPosition = debugCamera.cameraPosition
 	} else {
-		var cameraMatrix = sceneCamera.matrix(camSplinePosition)
+		var cameraDetails = sceneCamera.matrix(camSplinePosition)
+		cameraMatrix = cameraDetails.matrix
+		cameraPosition = cameraDetails.position
 	}
 
 	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
+	gl.disable(gl.BLEND)
 	if(controlVariables.showCamPath)
 		sceneCamera.renderPath(perspectiveMatrix, cameraMatrix)
 	if(controlVariables.showCam)
@@ -363,7 +369,9 @@ function render(time) {
 		// renderCubemapDeep(cameraMatrix, temptex)
 		break
 	case SceneEnum.OpenScene:
-		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition, deltaTime)
+		camSplinePosition += renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 		break
 	case SceneEnum.StudyScene:
 		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix)

@@ -324,7 +324,7 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 3, [0.0, 0.0, 1.0]);
     mat4.scale(modelMatrix, modelMatrix, [0.2, 0.2, 0.2]);
-    renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition, studySceneKdesh.texOutside);
+    renderForPhoneDeep(modelMatrix,studySceneKdesh.texOutside);
 
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [0.9, -0.9, -4.5]);

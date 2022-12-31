@@ -122,7 +122,7 @@ class kcamera {
         mat4.lookAt(viewMat, position, center, up);
         this.#orientationMat = mat4.create();
         kcamera.#targetTo(this.#orientationMat, position, center, up);
-        return viewMat;
+        return { matrix:viewMat, position:position};
     }
     renderPath(perspectiveMatrix, viewMatrix) {
         var prevProgram = gl.getParameter(gl.CURRENT_PROGRAM);

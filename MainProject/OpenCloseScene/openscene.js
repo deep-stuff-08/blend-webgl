@@ -15,7 +15,16 @@ var opensceneDeep = {
 	texBuilding2: null,
 	phoneScreenFbo: null,
 	phoneScreenTex: null,
-	carData: []
+	carData: [],
+	cameraPathLookAround: [
+		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [20.5, 10.0, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [-50.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	], 
+	isStraight: true,
+	cameraZ: 0.0
 }
 
 const opensceneDeepConsts = {
@@ -50,7 +59,7 @@ function setupProgramForOpenSceneDeep() {
 	setupProgramForAppDestroyDeep()
 }
 
-function initForOpenSceneDeep() {
+function initForOpenSceneDeep(sceneCamera) {
 	initForCubemapRendererDeep()
 	initForStreetLamp()
 	initForOceanDeep()
@@ -183,6 +192,8 @@ function initForOpenSceneDeep() {
 	opensceneDeep.carData.push({position: 70.0, direction: -1, type: 0})
 	opensceneDeep.carData.push({position: 200.0, direction: -1, type: 1})
 	opensceneDeep.carData.push({position: 400.0, direction: -1, type: 1})
+
+	sceneCamera.updatePath(opensceneDeep.cameraPathLookAround);
 }
 
 function renderToPhoneTexture() {
@@ -454,7 +465,15 @@ function renderForBuildingDeep(localModelMatrix, texScale, tex) {
 	opensceneDeep.objCube.render()
 }
 
-function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos, deltatimeinc) {
+function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatimeinc) {
+	var viewMatrix = mat4.clone(camMatrix)
+	mat4.translate(viewMatrix, viewMatrix, [0.0, 0.0, opensceneDeep.cameraZ])
+
+	updateForOpenScene(deltatimeinc)
+
+	setFlagsCompleteLight(false, false, false, false);
+	renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
+
 	var modelMatrix
 	var lightSources = []
 	var start = 5.0
@@ -470,7 +489,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos, deltatim
 	const pointAttenuation = [1.0, 0.014, 0.0007]
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, viewMatrix, 1)
+	// renderCubemapDeep(perspectiveMatrix, viewMatrix, 1)
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
@@ -499,7 +518,6 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos, deltatim
 	setFlagsCompleteLight(false, false, true, true)
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
 	for(var i = 0; i < opensceneDeep.carData.length; i++) {
-		console.log(opensceneDeep.carData[i].position)
 		renderForCarDeep(opensceneDeep.carData[i])
 		opensceneDeep.carData[i].position += deltatimeinc * 0.035 * opensceneDeep.carData[i].direction
 	}
@@ -526,6 +544,8 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos, deltatim
 	// gl.bindVertexArray(opensceneDeep.vaoCylinderPart)
 	// gl.drawElements(gl.TRIANGLES, opensceneDeep.countCylinderPart, gl.UNSIGNED_SHORT, 0)
 	// gl.bindVertexArray(null)
+
+	return deltatimeinc * opensceneDeep.isStraight ? 0.0 : 0.0005
 }
 
 function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
@@ -560,4 +580,14 @@ function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.oceanWidth, 20.0, opensceneDeepConsts.oceanDepth])
 	renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix)
+}
+
+function updateForOpenScene(deltaTime) {
+	if(opensceneDeep.isStraight) {
+		opensceneDeep.cameraZ -= deltaTime * 0.0005
+		if(opensceneDeep.cameraZ < -8.0) {
+			opensceneDeep.isStraight = false
+		}
+		console.log(opensceneDeep.cameraZ)
+	}
 }
