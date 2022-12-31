@@ -28,13 +28,24 @@ var programRenderBar = {
 	}
 };
 
+var cameraControls = {
+	theta: 0.0,
+	isLookingUpDone: false
+};
+
 var cameraBar =  null;
 var cameraPathBar = [
 	//  position            center             up             velocity      //
-	[[-5.0, -1.0, -0.3], [-5.0, -1.8, -0.3], [0.0, 1.0, 0.0], [-0.5, 0.5, 2.0]],
-	[[-6.0, -0.5, 1.0], [-5.0, -0.5, 1.5], [0.0, 1.0, 0.0], [-0.5, 0.25, -2.0]],
-	[[-4.0, 0.0, 3.0], [-7.5, -1.3, 9.5], [0.0, 1.0, 0.0], [-0.25, 0.0, 2.0]],
-	[[-6.0, -1.5, 9.5], [-6.0, -1.8, 10.4], [0.0, 1.0, 0.0], [0.0, 0.0, 2.0]],
+	[[-5.0, -0.5, -0.3], [-5.0, -1.8, -0.3], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-5.0, -0.5, 1.3], [-5.0, -0.8, -0.3], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-5.0, -0.5, 1.3], [5.0, -0.8, -0.3], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-5.0, -0.5, 1.3], [0.0, -0.8, 4.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-5.0, -0.5, 1.3], [-3.0, -0.8, 7.2], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-5.0, -0.5, 1.3], [-5.0, -0.8, 10.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-5.0, -0.5, 1.3], [-7.9, -0.8, 5.9], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-5.0, -0.5, 1.3], [-9.7, -0.8, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-5.0, -0.5, 1.3], [-8.7, -0.8, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-7.3, -0.8, 2.3], [-7.3, -1.6, -0.3], [0.0, 1.0, 0.0], [-0.1, -0.1, 0.0]],
 ];
 
 
@@ -110,9 +121,16 @@ function initForBarScene(sceneCamera) {
 	sceneCamera.updatePath(cameraPathBar);
 }
 
-function renderForBarScene(time , perspectiveMatrix, viewMatrix) {
-	var cameraPosition = debugCamera.cameraPosition;
+function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimeinc) {
+	var viewMatrix = mat4.clone(camMatrix);
+	//mat4.translate(viewMatrix, viewMatrix, [-camPosition[0], -camPosition[1], -camPosition[2]])
+	//mat4.rotate(viewMatrix, viewMatrix, glMatrix.toRadian(cameraControls.theta), [0.0, 1.0, 0.0]);
+	// mat4.translate(viewMatrix, viewMatrix, camPosition)
+	renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
+	var cameraPosition = camPosition;
 	// Draw All Opaue Objects
+
+	updateForBarScene()
 
 	var modelMatrix = mat4.create();
 
@@ -643,7 +661,7 @@ function renderForBarScene(time , perspectiveMatrix, viewMatrix) {
 	gl.useProgram(null);
 
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-2.0,-1.3,-0.5]);
+	mat4.translate(modelMatrix, modelMatrix, [-3.0,-1.3,-0.5]);
 	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[6.0,8.0,6.0]);
 	gl.useProgram(programRenderBar.program);
@@ -825,8 +843,23 @@ function renderForBarScene(time , perspectiveMatrix, viewMatrix) {
 	gl.useProgram(null);
 
 	FanAngle += 0.01;
+
+	if(camSplinePosition > 0.9999) {
+		cameraControls.isLookingUpDone = true
+	}
+
+	//return cameraControls.isLookingUpDone ? 0.0 : deltatimeinc * 0.01 
 }
 
 function uninitForBarScene() {
 	deleteProgram(programRenderBar.program);
+}
+
+function updateForBarScene() {
+	if(cameraControls.isLookingUpDone) {
+		cameraControls.theta += 0.1;
+		if(cameraControls.theta > 360.0) {
+			cameraControls.isLookingUpDone = false;
+		}
+	}
 }
