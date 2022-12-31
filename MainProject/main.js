@@ -224,7 +224,7 @@ function setupProgram() {
 			setupProgramForOpenSceneDeep()
 			break
 		case SceneEnum.StudyScene:
-			setupProgramForScene1Kdesh()
+			setupProgramForStudySceneKdesh()
 			break
 		case SceneEnum.BarScene:
 			setupprogramForBarScene()
@@ -241,7 +241,7 @@ function setupProgram() {
 		}
 	} else {
 		setupProgramForOpenSceneDeep()
-		setupProgramForScene1Kdesh()
+		setupProgramForStudySceneKdesh()
 		setupprogramForBarScene()
 		setupprogramForSceneTwo()
 		setupprogramForBedroomScene()
@@ -288,23 +288,23 @@ function init() {
 			initForOpenSceneDeep()
 			break
 		case SceneEnum.StudyScene:
-			initForScene1Kdesh(sceneCamera)
+			initForStudySceneKdesh(sceneCamera)
 			break
 		case SceneEnum.BarScene:
 			initForBarScene(sceneCamera)
 			break
 		case SceneEnum.BedroomScene:
-			initForBedroomScene()
+			initForBedroomScene(sceneCamera)
 			break
 		case SceneEnum.HospitalScene:
-			initForSceneTwo()
+			initForSceneTwo(sceneCamera)
 			break
 		case SceneEnum.CloseScene:
 			initForOpenSceneDeep()
 		}
 	} else {
 		initForOpenSceneDeep()
-		initForScene1Kdesh(sceneCamera)
+		initForStudySceneKdesh(sceneCamera)
 		initForSceneTwo()
 		initForBarScene()
 		initForBedroomScene()
@@ -367,23 +367,29 @@ function render(time) {
 		break
 	case SceneEnum.StudyScene:
 		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix)
-		camSplinePosition += 0.001
-		if(camSplinePosition > 1.0)
-		camSplinePosition = 0.0
+		camSplinePosition += 0.0003
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 		break
 	case SceneEnum.BarScene:
-		camSplinePosition += 0.001;
+		camSplinePosition += 0.0003
 		//console.log(time);
-		if(camSplinePosition > 1.0)
-		camSplinePosition = 0.0
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 		renderForBarScene(time, perspectiveMatrix, cameraMatrix)
 
 	break
 	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
+		camSplinePosition += 0.0005
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 	break
 	case SceneEnum.BedroomScene:
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
+		camSplinePosition += 0.0005
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 	break
 	case SceneEnum.CloseScene:
 		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition)

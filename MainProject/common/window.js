@@ -19,42 +19,44 @@ function initForWindowKdesh() {
     windowKdesh.texWindow = loadTexture("resources/textures/wood.png");
 }
 
-function renderForWindowKdesh(projectionMatrix, viewMatrix, modelMatrix, lightPosition, texOutside) {
-    gl.useProgram(windowKdesh.program);
-    gl.uniformMatrix4fv(windowKdesh.uniforms.pMat, false, projectionMatrix);
-    gl.uniformMatrix4fv(windowKdesh.uniforms.vMat, false, viewMatrix);
-    gl.uniform3fv(windowKdesh.uniforms.lightPos, lightPosition);
-    gl.uniform1i(windowKdesh.uniforms.isInvertNormals, 0);
-    gl.uniform1i(windowKdesh.uniforms.isLight, 0);
-    gl.uniform1i(windowKdesh.uniforms.isTexture, 1);
-    gl.uniform1i(windowKdesh.uniforms.diffuseTextureSampler, 0);
+function renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightPosition, texOutside) {
+    var cameraPosition = debugCamera.cameraPosition;
+    
+    gl.useProgram(progCompleteLight.program);
+    resetCompleteLight();
+    setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, cameraPosition);
+    setTextureMatrixCompleteLight(mat2.create());
+    addLightCompleteLight(lightPosition, [0.7, 0.7, 0.7], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]);
+    setMaterialCompleteLight([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], 128, 1.0);
+    setTextureSamplersCompleteLight(0);
     gl.activeTexture(gl.TEXTURE0);
+    setFlagsCompleteLight(0, 0, 1, 1);
 
     var localMat = mat4.create();
 
     gl.bindTexture(gl.TEXTURE_2D, texOutside);
-    gl.uniformMatrix4fv(windowKdesh.uniforms.mMat, false, modelMatrix);
+    setModelMatrixCompleteLight(modelMatrix);
     windowKdesh.quad.render();
 
+    setMaterialCompleteLight([0.5, 0.5, 0.5], [0.4, 0.1, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
     gl.bindTexture(gl.TEXTURE_2D, windowKdesh.texWindow);
     mat4.translate(localMat, modelMatrix, [-1.0, 0.0, 0.0]);
-    mat4.scale(localMat, localMat, [0.1, 1.1, 0.05]);
-    gl.uniformMatrix4fv(windowKdesh.uniforms.mMat, false, localMat);
+    mat4.scale(localMat, localMat, [0.03, 1.05, 0.05]);
+    setModelMatrixCompleteLight(localMat);
     windowKdesh.cube.render();
 
     mat4.translate(localMat, modelMatrix, [0.0,-1.0, 0.0]);
-    mat4.scale(localMat, localMat, [1.0, 0.1, 0.05]);
-    gl.uniformMatrix4fv(windowKdesh.uniforms.mMat, false, localMat);
+    mat4.scale(localMat, localMat, [1.0, 0.05, 0.05]);
+    setModelMatrixCompleteLight(localMat);
     windowKdesh.cube.render();
 
     mat4.translate(localMat, modelMatrix, [1.0, 0.0, 0.0]);
-    mat4.scale(localMat, localMat, [0.1, 1.1, 0.05]);
-    gl.uniformMatrix4fv(windowKdesh.uniforms.mMat, false, localMat);
+    mat4.scale(localMat, localMat, [0.03, 1.05, 0.05]);
+    setModelMatrixCompleteLight(localMat);
     windowKdesh.cube.render();
 
     mat4.translate(localMat, modelMatrix, [0.0, 1.0, 0.0]);
-    mat4.scale(localMat, localMat, [1.0, 0.1, 0.05]);
-    gl.uniformMatrix4fv(windowKdesh.uniforms.mMat, false, localMat);
+    mat4.scale(localMat, localMat, [1.0, 0.05, 0.05]);
+    setModelMatrixCompleteLight(localMat);
     windowKdesh.cube.render();
-    gl.bindTexture(gl.TEXTURE_2D, null);
 }

@@ -30,10 +30,11 @@ var programRenderBar = {
 
 var cameraBar =  null;
 var cameraPathBar = [
-	//      position            center               up               velocity      //
-	[ [-1.0,  0.0, -3.0], [ 0.0,  0.0, -3.0], [ 0.0,  1.0,  0.0], [ 0.0,  1.0,  1.0] ],
-	[ [ 0.0,  1.0,  3.0], [ 0.0,  0.0, -3.0], [ 0.0,  1.0,  0.0], [ 0.0,  1.0,  1.0] ],
-	[ [ 1.0,  2.0,  6.0], [ 0.0,  0.0, -3.0], [ 0.0,  1.0,  0.0], [ 0.0,  1.0,  1.0] ]
+	//  position            center             up             velocity      //
+	[[-5.0, -1.0, -0.3], [-5.0, -1.8, -0.3], [0.0, 1.0, 0.0], [-0.5, 0.5, 2.0]],
+	[[-6.0, -0.5, 1.0], [-5.0, -0.5, 1.5], [0.0, 1.0, 0.0], [-0.5, 0.25, -2.0]],
+	[[-4.0, 0.0, 3.0], [-7.5, -1.3, 9.5], [0.0, 1.0, 0.0], [-0.25, 0.0, 2.0]],
+	[[-6.0, -1.5, 9.5], [-6.0, -1.8, 10.4], [0.0, 1.0, 0.0], [0.0, 0.0, 2.0]],
 ];
 
 
@@ -110,6 +111,7 @@ function initForBarScene(sceneCamera) {
 }
 
 function renderForBarScene(time , perspectiveMatrix, viewMatrix) {
+	var cameraPosition = debugCamera.cameraPosition;
 	// Draw All Opaue Objects
 
 	var modelMatrix = mat4.create();

@@ -90,6 +90,17 @@ var videoTexture;
 
 var Lights = [];
 
+var cameraPathHospital = [
+	//  position            center             up             velocity      //
+	[[-2.5, -0.3, 0.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-3.5, 0.8, -3.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-3.5, 0.8, -3.0], [2.2, -0.3, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-3.5, 0.8, -3.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-3.5, 0.8, -3.0], [-13.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-3.5, 0.8, -3.0], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-4.0, 0.3, -0.5], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+];
+
 function setupVideo(url)
 {
 	const video = document.createElement("video");
@@ -540,7 +551,7 @@ function setupprogramForSceneTwo() {
 
 }
 
-function initForSceneTwo() {
+function initForSceneTwo(sceneCamera) {
 	vao = gl.createVertexArray();
 	gl.bindVertexArray(null);
 
@@ -641,10 +652,12 @@ function initForSceneTwo() {
 				specular : [1.0,1.0,1.0]
 			});
 
+	sceneCamera.updatePath(cameraPathHospital);
 }
 
 function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
-	
+	var cameraPosition = debugCamera.cameraPosition;
+
 	if(copyVideo)
 	{
 		//console.log("Here");
