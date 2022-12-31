@@ -24,7 +24,7 @@ var debugCamera = {
 }
 
 var controlVariables = {
-	renderScene: SceneEnum.OpenScene,
+	renderScene: SceneEnum.CloseScene,
 	doRenderToHDR: true,
 	devCam: true,
 	showCamPath: false,
@@ -37,6 +37,11 @@ var controlVariables = {
 var placementHelp = {
 	trans: [ 0.0, 0.0, 0.0 ],
 	sca: 1.0	
+}
+
+var deltaTimer = {
+	lastTime: 0,
+	currentTime: 0
 }
 
 var sceneCamera
@@ -202,6 +207,8 @@ function main() {
 
 	setupProgram()
 	init()
+	deltaTimer.lastTime = 0
+	deltaTimer.currentTime = 0
 	render()
 	window.addEventListener('close', uninit)
 }
@@ -312,6 +319,13 @@ function printMatrix(m) {
 }
 
 function render(time) {
+	deltaTimer.currentTime = time
+	var deltaTime = deltaTimer.currentTime - deltaTimer.lastTime
+	deltaTimer.lastTime = deltaTimer.currentTime
+	if(Number.isNaN(deltaTime)) {
+		deltaTime = 0.0
+	}
+
 	if(controlVariables.doRenderToHDR) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, fboForHdr)
 		gl.viewport(0, 0, 2048, 2048)
@@ -320,7 +334,7 @@ function render(time) {
 	}
 	
 	var perspectiveMatrix = mat4.create()
-	mat4.perspective(perspectiveMatrix, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 1000.0)
+	mat4.perspective(perspectiveMatrix, glMatrix.toRadian(45.0), canvas.width / canvas.height, 0.1, 200.0)
 
 	/* var cameraMatrix = mat4.create()
 	var newfront = vec3.create()
@@ -349,7 +363,7 @@ function render(time) {
 		// renderCubemapDeep(cameraMatrix, temptex)
 		break
 	case SceneEnum.OpenScene:
-		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition)
+		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition, deltaTime)
 		break
 	case SceneEnum.StudyScene:
 		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix)

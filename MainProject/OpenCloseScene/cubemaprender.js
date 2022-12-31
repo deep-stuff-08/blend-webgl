@@ -3,7 +3,8 @@ var progCubemap = {
 	uniforms: {
 		pMat: null,
 		vMat: null,
-		deltaTime: null
+		deltaTime: null,
+		isEvening: null
 	},
 	cube: null
 }
@@ -18,6 +19,7 @@ function setupProgramForCubemapRendererDeep() {
 	progCubemap.uniforms.pMat = gl.getUniformLocation(progCubemap.program, "pMat")
 	progCubemap.uniforms.vMat = gl.getUniformLocation(progCubemap.program, "vMat")
 	progCubemap.uniforms.deltaTime = gl.getUniformLocation(progCubemap.program, "time")
+	progCubemap.uniforms.isEvening = gl.getUniformLocation(progCubemap.program, "isEvening")
 
 }
 
@@ -27,7 +29,7 @@ function initForCubemapRendererDeep() {
 
 var f = 0.0
 
-function renderCubemapDeep(perspectiveMatrix, viewMatrix) {
+function renderCubemapDeep(perspectiveMatrix, viewMatrix, isEvening) {
 	var vMat = mat4.clone(viewMatrix)
 	mat4.rotate(vMat, vMat, -f, [0.0, 1.0, 0.0])
 
@@ -40,6 +42,7 @@ function renderCubemapDeep(perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(progCubemap.uniforms.pMat, false, perspectiveMatrix)
 	gl.uniformMatrix4fv(progCubemap.uniforms.vMat, false, vMat)
 	gl.uniform1f(progCubemap.uniforms.deltaTime, f)
+	gl.uniform1i(progCubemap.uniforms.isEvening, isEvening)
 	progCubemap.cube.render()
 	gl.enable(gl.DEPTH_TEST)
 
