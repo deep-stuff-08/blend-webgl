@@ -11,7 +11,8 @@ var appdestroyDeep = {
 	timeInstagram: null,
 	timeFacebook: null,
 	timeYoutube: null,
-	timeTinder: null
+	timeTinder: null,
+	isUpdate: true
 }
 
 function setupProgramForAppDestroyDeep() {
@@ -41,7 +42,7 @@ function initForAppDestroyDeep() {
 	appdestroyDeep.timeTinder = 0.0
 }
 
-function renderForAppDestroyDeep() {
+function renderForAppDestroyDeep(deltatimeinc) {
 	gl.useProgram(appdestroyDeep.progNoise)
 	gl.uniform3f(appdestroyDeep.uniforms.color, 0.1, 0.1, 0.1)
 	appdestroyDeep.objQuad.render()
@@ -50,6 +51,11 @@ function renderForAppDestroyDeep() {
 	mat4.ortho(mal, -1.0, 1.0, -(1.0 / 0.6), (1.0 / 0.6), -1.0, 1.0)
 	var modelMat
 
+	if(appdestroyDeep.isUpdate) {
+		appdestroyDeep.isUpdate = !updateTimerForAppDestoryDeep(deltatimeinc)
+	} else {
+		return true
+	}
 	modelMat = mat4.create()
 	mat4.translate(modelMat, modelMat, [ -0.7, 1.2, 0.0 ])
 	mat4.scale(modelMat, modelMat, [ 0.3, 0.3, 0.3 ])
@@ -69,4 +75,24 @@ function renderForAppDestroyDeep() {
 	mat4.translate(modelMat, modelMat, [ 0.7, 1.21, 0.0 ])
 	mat4.scale(modelMat, modelMat, [ 0.3, 0.3, 0.3 ])
 	renderForExplosionDeep(mal, modelMat, appdestroyDeep.texTinder, appdestroyDeep.timeTinder)
+
+	return false
+}
+
+function updateTimerForAppDestoryDeep(deltatimeinc) {
+	if(appdestroyDeep.timeInstagram < 3.0) {
+		appdestroyDeep.timeInstagram += deltatimeinc * 0.001
+		return false
+	} else if(appdestroyDeep.timeFacebook < 3.0) {
+		appdestroyDeep.timeFacebook += deltatimeinc * 0.001
+		return false
+	} else if(appdestroyDeep.timeYoutube < 3.0) {
+		appdestroyDeep.timeYoutube += deltatimeinc * 0.001
+		return false
+	} else if(appdestroyDeep.timeTinder < 3.0) {
+		appdestroyDeep.timeTinder += deltatimeinc * 0.001
+		return false
+	} else {
+		return true
+	}
 }

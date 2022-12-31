@@ -30,7 +30,7 @@ var controlVariables = {
 	showCamPath: false,
 	showCam: false,
 	debugMode: true,
-	isLoadModels: true,
+	isLoadModels: false,
 	currentExposure: 1.0
 }
 
@@ -386,7 +386,7 @@ function render(time) {
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
 	break
 	case SceneEnum.CloseScene:
-		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition)
+		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition, deltaTime)
 		break
 	default:
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)

@@ -15,7 +15,13 @@ var opensceneDeep = {
 	texBuilding2: null,
 	phoneScreenFbo: null,
 	phoneScreenTex: null,
-	carData: []
+	carData: [],
+	isPhoneAnimationDone: false,
+	isPhoneFallDone: false,
+	isCameraBackUpAgain: false,
+	phoneY: 0.0,
+	cameraY: 0.0,
+	cameraX: 0.0
 }
 
 const opensceneDeepConsts = {
@@ -185,16 +191,17 @@ function initForOpenSceneDeep() {
 	opensceneDeep.carData.push({position: 400.0, direction: -1, type: 1})
 }
 
-function renderToPhoneTexture() {
+function renderToPhoneTexture(deltaTimeInc) {
 	var currentFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING)
 	var currentViewport = gl.getParameter(gl.VIEWPORT)
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, opensceneDeep.phoneScreenFbo)
 	gl.clearBufferfv(gl.COLOR, 0, [0.5, 1.0, 0.25, 1.0])
 	gl.viewport(0, 0, 1024, 1024)
-	renderForAppDestroyDeep()
+	var a = renderForAppDestroyDeep(deltaTimeInc)
 	gl.bindFramebuffer(gl.FRAMEBUFFER, currentFbo)
 	gl.viewport(currentViewport[0], currentViewport[1], currentViewport[2], currentViewport[3])
+	return a
 }
 
 function renderForCitySceneStaticDeep() {
@@ -499,7 +506,6 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos, deltatim
 	setFlagsCompleteLight(false, false, true, true)
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
 	for(var i = 0; i < opensceneDeep.carData.length; i++) {
-		console.log(opensceneDeep.carData[i].position)
 		renderForCarDeep(opensceneDeep.carData[i])
 		opensceneDeep.carData[i].position += deltatimeinc * 0.035 * opensceneDeep.carData[i].direction
 	}
@@ -528,15 +534,20 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos, deltatim
 	// gl.bindVertexArray(null)
 }
 
-function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
+function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTimeInc) {
+	updateForCloseSceneDeep(deltaTimeInc)
+
 	var modelMatrix
 	var lightSource = [0.0, 1.0, 6.5]
 
+	var viewMatrix = mat4.clone(camMatrix)
+	mat4.lookAt(viewMatrix, [-13.5 + opensceneDeep.cameraX + placementHelp.trans[0], 0.0, -42.0], [-14.25 + opensceneDeep.cameraX + placementHelp.trans[0], opensceneDeep.cameraY, -42.0], [0.0, 1.0, 0.0])
+
 	//RenderToPhoneScreen
-	renderToPhoneTexture()
+	opensceneDeep.isPhoneAnimationDone = renderToPhoneTexture(deltaTimeInc)
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, viewMatrix, 0)
+	renderCubemapDeep(perspectiveMatrix, viewMatrix, 1)
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
@@ -549,7 +560,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	renderForCitySceneStaticDeep()
 	
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-13.0, 0.0, -12.0])
+	mat4.translate(modelMatrix, modelMatrix, [-14.25, opensceneDeep.phoneY, -42.0])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [ 0.27, 0.27, 0.27 ])
 	renderForPhoneDeep(modelMatrix, opensceneDeep.phoneScreenTex)
@@ -560,4 +571,25 @@ function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.oceanWidth, 20.0, opensceneDeepConsts.oceanDepth])
 	renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix)
+}
+
+function updateForCloseSceneDeep(deltaTime) {
+	if(opensceneDeep.isCameraBackUpAgain) {
+		if(opensceneDeep.cameraX < 8.0) {
+			opensceneDeep.cameraX += deltaTime * 0.0008
+		}	
+	} else if(opensceneDeep.isPhoneFallDone) {
+		if(opensceneDeep.cameraY < -1.0) {
+			opensceneDeep.cameraY += deltaTime * 0.001
+		} else {
+			opensceneDeep.isCameraBackUpAgain = true
+		}
+	} else if(opensceneDeep.isPhoneAnimationDone) {
+		if(opensceneDeep.phoneY > -7.0) {
+			opensceneDeep.phoneY -= deltaTime * 0.001
+			opensceneDeep.cameraY -= deltaTime * 0.001
+		} else {
+			opensceneDeep.isPhoneFallDone = true
+		}
+	}
 }
