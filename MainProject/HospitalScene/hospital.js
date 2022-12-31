@@ -59,7 +59,8 @@ var HospitalSceneObjects = {
 	mVentilator : null,
 	mFan : null,
 	mECGScreen : null,
-	mScreen : null
+	mScreen : null,
+	texFacebook: null
 };
 
 var mCube;
@@ -587,6 +588,8 @@ function initForSceneTwo(sceneCamera) {
 	HospitalSceneObjects.mDoor = new Model('HospitalScene/resources/door.json');
 	HospitalSceneObjects.mFan = new Model('HospitalScene/resources/fan.json');
 
+	HospitalSceneObjects.texFacebook = loadTexture('resources/textures/Facebook.png')
+
 	fboECGWave = gl.createFramebuffer();
 	gl.bindFramebuffer(gl.FRAMEBUFFER, fboECGWave);
 
@@ -659,7 +662,7 @@ function initForSceneTwo(sceneCamera) {
 
 function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	var cameraPosition = debugCamera.cameraPosition;
-	renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
+	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
 
 	if(copyVideo)
 	{
@@ -674,7 +677,7 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 
 	// light src test
 	for(var l  = 0; l < Lights.length; l++)
-		renderLightSourceDeep(perspectiveMatrix, viewMatrix, Lights[l].position, Lights[l].diffuse);
+		// renderLightSourceDeep(perspectiveMatrix, viewMatrix, Lights[l].position, Lights[l].diffuse);
 
 	// back
 	mat4.identity(modelMatrix);
@@ -1135,11 +1138,11 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	gl.uniform1i(programRenderVideo.uniform.flip, 2);
 	gl.uniform1i(programRenderVideo.uniform.video, 0);
 	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, videoTexture);
+	gl.bindTexture(gl.TEXTURE_2D, HospitalSceneObjects.texFacebook);
 	HospitalSceneObjects.mScreen.render(programRenderVideo.program);
 	gl.useProgram(null);
 
-	renderLightSourceDeep(perspectiveMatrix, viewMatrix, [-4.0,-1.5,13.0], Lights[1].diffuse);
+	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, [-4.0,-1.5,13.0], Lights[1].diffuse);
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-4.0,-3.5,13.0]);

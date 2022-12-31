@@ -77,6 +77,7 @@ function initForStudySceneKdesh(sceneCamera) {
     studySceneKdesh.texSteel = loadTexture("resources/textures/steel.jpg");
     studySceneKdesh.texWood = loadTexture("resources/textures/wood.png");
     studySceneKdesh.texSofa = loadTexture("resources/textures/sofa.jpg");
+    studySceneKdesh.texPhone = loadTexture("resources/textures/Instagram.jpg", true);
 
     studySceneKdesh.glass = new Model('BarScene/resources/glass.json');
     studySceneKdesh.dustbin = new Model('resources/models/static/Dustbin/dustbin.json');
@@ -99,9 +100,9 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     var lightPosition = [0.8, -0.05, -4.5];
     var phonePosition = [4.5, -1.75, 4.8];
     var bottlePosition = [-5.5, -1.2, -3.0];
-    renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightPosition, [1.0, 1.0, 1.0]);
-    renderLightSourceDeep(perspectiveMatrix, viewMatrix, phonePosition, [1.0, 1.0, 1.0]);
-    renderLightSourceDeep(perspectiveMatrix, viewMatrix, bottlePosition, [1.0, 1.0, 1.0]);
+    // renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightPosition, [1.0, 1.0, 1.0]);
+    // renderLightSourceDeep(perspectiveMatrix, viewMatrix, phonePosition, [1.0, 1.0, 1.0]);
+    // renderLightSourceDeep(perspectiveMatrix, viewMatrix, bottlePosition, [1.0, 1.0, 1.0]);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, studySceneKdesh.fboWindow);
     gl.clearBufferfv(gl.COLOR, 0, [0.1, 0.5, 0.1, 1.0]);
@@ -324,7 +325,7 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 3, [0.0, 0.0, 1.0]);
     mat4.scale(modelMatrix, modelMatrix, [0.2, 0.2, 0.2]);
-    renderForPhoneDeep(modelMatrix,studySceneKdesh.texOutside);
+    renderForPhoneDeep(modelMatrix,studySceneKdesh.texPhone);
 
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [0.9, -0.9, -4.5]);
