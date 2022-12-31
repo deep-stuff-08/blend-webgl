@@ -45,6 +45,14 @@ var mTV;
 
 var Lights = [];
 
+var cameraPathBedroom = [
+	//  position            center             up             velocity      //
+	[[-1.0, -2.0, -2.5], [-1.0, -3.0, -2.5], [0.0, 1.0, 0.0], [1.0, 1.0, 1.5]],
+	[[-1.0, -1.5, -3.0], [1.0, -1.51, -2.5], [0.0, 1.0, 0.0], [4.0, 0.5, -1.5]],
+	[[1.0, -1.5, -2.0], [-1.5, -1.51, -4.0], [0.0, 1.0, 0.0], [1.0, 0.0, 1.5]],
+	[[3.5, -4.0, -1.0], [3.0, -4.9, -3.0], [0.0, 1.0, 0.0], [0.0, -1.5, -1.5]]
+];
+
 function setupprogramForBedroomScene() {
 	var vertShader = createShader('BedroomScene/shaders/demo.vert', gl.VERTEX_SHADER);
 	var fragShader = createShader('BedroomScene/shaders/demo.frag', gl.FRAGMENT_SHADER);
@@ -159,10 +167,12 @@ function initForBedroomScene() {
 			});
 
 	//console.log(Light);
-
+	sceneCamera.updatePath(cameraPathBedroom);
 }
 
 function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
+	cameraPosition = debugCamera.cameraPosition;
+	renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
 	// Draw All Opaue Objects
 
 	var modelMatrix = mat4.create();
@@ -182,7 +192,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -202,7 +212,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -222,7 +232,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -242,7 +252,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -262,7 +272,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -282,7 +292,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -302,7 +312,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -315,13 +325,20 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 
 	//renderLightSourceDeep(perspectiveMatrix, viewMatrix, [-5.0,0.0,-0.3], [1.0,0.0,0.0]);
 
+	gl.useProgram(progCompleteLight.program);
+	resetCompleteLight();
+	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, debugCamera.cameraPosition);
+	setFlagsCompleteLight(false, false, true, true);
+	setTextureSamplersCompleteLight(0);
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0);
+	addPointLightCompleteLight([-5.0,0.0,-0.3], [0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0],[1.0,0.022,0.0019]);
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-1.0,-3.0,-2.5]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 1.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(00), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);	
-	renderForPhoneDeep(perspectiveMatrix,viewMatrix,modelMatrix,[0.0,0.0,0.0],null);
+	renderForPhoneDeep(modelMatrix, null);
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [6.5,-1.5,-5.5]);
@@ -331,7 +348,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -353,7 +370,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -373,7 +390,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -392,7 +409,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -411,7 +428,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -431,7 +448,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -451,7 +468,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -476,7 +493,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"material.diffuseMat"),[1.0,0.111932,0.05448]);
 	gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"material.specularMat"),[1.0,1.0,1.0]);
 	gl.uniform1f(gl.getUniformLocation(programRenderBedroom.program,"material.shininess"),1000);
@@ -596,7 +613,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
@@ -615,7 +632,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Lights.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );

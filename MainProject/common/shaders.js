@@ -117,7 +117,7 @@ function setupCommonPrograms() {
 	progCompleteLight.uniforms.material.diffuse = gl.getUniformLocation(progCompleteLight.program, "material.diffuse")
 	progCompleteLight.uniforms.material.specular = gl.getUniformLocation(progCompleteLight.program, "material.specular")
 	progCompleteLight.uniforms.material.shininess = gl.getUniformLocation(progCompleteLight.program, "material.shininess")
-	progCompleteLight.uniforms.material.opacity = gl.getUniformLocation(progCompleteLight.program, "material.opacity")
+	progCompleteLight.uniforms.material.opacity = gl.getUniformLocation(progCompleteLight.program, "material.opa")
 	
 	for(var i = 0; i < 13; i++) {
 		var light = {}

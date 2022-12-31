@@ -24,9 +24,9 @@ var debugCamera = {
 }
 
 var controlVariables = {
-	renderScene: SceneEnum.CloseScene,
+	renderScene: SceneEnum.BedroomScene,
 	doRenderToHDR: true,
-	devCam: true,
+	devCam: false,
 	showCamPath: false,
 	showCam: false,
 	debugMode: true,
@@ -224,7 +224,7 @@ function setupProgram() {
 			setupProgramForOpenSceneDeep()
 			break
 		case SceneEnum.StudyScene:
-			setupProgramForScene1Kdesh()
+			setupProgramForStudySceneKdesh()
 			break
 		case SceneEnum.BarScene:
 			setupprogramForBarScene()
@@ -241,7 +241,7 @@ function setupProgram() {
 		}
 	} else {
 		setupProgramForOpenSceneDeep()
-		setupProgramForScene1Kdesh()
+		setupProgramForStudySceneKdesh()
 		setupprogramForBarScene()
 		setupprogramForSceneTwo()
 		setupprogramForBedroomScene()
@@ -285,26 +285,26 @@ function init() {
 	if(controlVariables.debugMode) {
 		switch(controlVariables.renderScene) {
 		case SceneEnum.OpenScene:
-			initForOpenSceneDeep()
+			initForOpenSceneDeep(sceneCamera)
 			break
 		case SceneEnum.StudyScene:
-			initForScene1Kdesh(sceneCamera)
+			initForStudySceneKdesh(sceneCamera)
 			break
 		case SceneEnum.BarScene:
 			initForBarScene(sceneCamera)
 			break
 		case SceneEnum.BedroomScene:
-			initForBedroomScene()
+			initForBedroomScene(sceneCamera)
 			break
 		case SceneEnum.HospitalScene:
-			initForSceneTwo()
+			initForSceneTwo(sceneCamera)
 			break
 		case SceneEnum.CloseScene:
 			initForOpenSceneDeep()
 		}
 	} else {
 		initForOpenSceneDeep()
-		initForScene1Kdesh(sceneCamera)
+		initForStudySceneKdesh(sceneCamera)
 		initForSceneTwo()
 		initForBarScene()
 		initForBedroomScene()
@@ -341,18 +341,24 @@ function render(time) {
 	vec3.add(newfront, debugCamera.cameraFront, debugCamera.cameraPosition)
 	mat4.lookAt(cameraMatrix, debugCamera.cameraPosition, newfront, debugCamera.cameraUp) */
 	
+	var cameraMatrix
+	var cameraPosition
 	if(controlVariables.devCam) {
-		var cameraMatrix = mat4.create()
+		cameraMatrix = mat4.create()
 		var newfront = vec3.create()
 		vec3.add(newfront, debugCamera.cameraFront, debugCamera.cameraPosition)
 		mat4.lookAt(cameraMatrix, debugCamera.cameraPosition, newfront, debugCamera.cameraUp)
+		cameraPosition = debugCamera.cameraPosition
 	} else {
-		var cameraMatrix = sceneCamera.matrix(camSplinePosition)
+		var cameraDetails = sceneCamera.matrix(camSplinePosition)
+		cameraMatrix = cameraDetails.matrix
+		cameraPosition = cameraDetails.position
 	}
 
 	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
+	gl.disable(gl.BLEND)
 	if(controlVariables.showCamPath)
 		sceneCamera.renderPath(perspectiveMatrix, cameraMatrix)
 	if(controlVariables.showCam)
@@ -363,27 +369,35 @@ function render(time) {
 		// renderCubemapDeep(cameraMatrix, temptex)
 		break
 	case SceneEnum.OpenScene:
-		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition, deltaTime)
+		camSplinePosition += renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 		break
 	case SceneEnum.StudyScene:
 		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix)
-		camSplinePosition += 0.001
-		if(camSplinePosition > 1.0)
-		camSplinePosition = 0.0
+		camSplinePosition += 0.0003
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 		break
 	case SceneEnum.BarScene:
-		camSplinePosition += 0.001;
+		camSplinePosition += 0.0003
 		//console.log(time);
-		if(camSplinePosition > 1.0)
-		camSplinePosition = 0.0
-		renderForBarScene(time, perspectiveMatrix, cameraMatrix)
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
+		renderForBarScene(perspectiveMatrix, cameraMatrix, cameraPosition,  deltaTime)
 
 	break
 	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
+		camSplinePosition += 0.0002
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 	break
 	case SceneEnum.BedroomScene:
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
+		camSplinePosition += 0.0005
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 	break
 	case SceneEnum.CloseScene:
 		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition, deltaTime)
