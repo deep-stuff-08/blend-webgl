@@ -24,13 +24,13 @@ var debugCamera = {
 }
 
 var controlVariables = {
-	renderScene: SceneEnum.CloseScene,
+	renderScene: SceneEnum.OpenScene,
 	doRenderToHDR: true,
 	devCam: false,
 	showCamPath: false,
 	showCam: false,
 	debugMode: true,
-	isLoadModels: false,
+	isLoadModels: true,
 	currentExposure: 1.0
 }
 
