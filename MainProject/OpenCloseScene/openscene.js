@@ -2,7 +2,8 @@
 var opensceneDeep = {
 	objQuad: null,
 	objCube: null,
-	objBrian: null,
+	objBrianSad: null,
+	objBrianIdle: null,
 	objCars: null,
 	objSphere: null,
 	vaoCylinderPart: null,
@@ -183,7 +184,8 @@ function initForOpenSceneDeep(sceneCamera) {
 
 	gl.bindVertexArray(null)
 
-	opensceneDeep.objBrian = initalizeModel('Brian')
+	opensceneDeep.objBrianSad = initalizeModel('BrianSad')
+	opensceneDeep.objBrianIdle = initalizeModel('BrianIdle')
 	opensceneDeep.objCars = []
 	opensceneDeep.objCars.push(initalizeModel('BlueCar'))
 	opensceneDeep.objCars.push(initalizeModel('BlackCar'))
@@ -400,7 +402,7 @@ function renderForCarDeep(data) {
 	renderModel(opensceneDeep.objCars[data.type])
 }
 
-function renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, z, lightSource) {
+function renderForBrianDeep(perspectiveMatrix, viewMatrix, z, lightSource, model) {
 	var modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-8.86, -2.5, z])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI, [0.0, 1.0, 0.0])
@@ -415,12 +417,12 @@ function renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, z, lightSourc
 	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.diffuseTextureSampler, 0)
 	gl.uniform3fv(progPhongLightWithTextureForModel.uniforms.lightPos, lightSource)
 	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.mMat, false, modelMatrix)
-	updateModel(opensceneDeep.objBrian, 0, 0.01)
-	var boneMat = getBoneMatrixArray(opensceneDeep.objBrian, 0)
+	updateModel(opensceneDeep.objBrianSad, 0, 0.01)
+	var boneMat = getBoneMatrixArray(opensceneDeep.objBrianSad, 0)
 	for(var i = 0; i < boneMat.length; i++) {
 		gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.bMat[i], false, boneMat[i])
 	}
-	renderModel(opensceneDeep.objBrian)
+	renderModel(opensceneDeep.objBrianSad)
 }
 
 function renderForBuildingDeep(localModelMatrix, texScale, tex) {
@@ -529,7 +531,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 		opensceneDeep.carData[i].position += deltatimeinc * 0.035 * opensceneDeep.carData[i].direction
 	}
 
-	renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, -10.0, lightSources[0])
+	renderForBrianDeep(perspectiveMatrix, viewMatrix, -10.0, lightSources[0], opensceneDeep.objBrianSad)
 
 	for(var i = 0; i < lightSources.length; i++) {
 		// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSources[i], [1.0, 1.0, 1.0])
