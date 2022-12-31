@@ -31,7 +31,8 @@ var opensceneDeep = {
 		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	], 
 	isStraight: true,
-	cameraZ: 0.0
+	cameraZ: 0.0,
+	brianWalkZ: 0.0
 }
 
 const opensceneDeepConsts = {
@@ -404,7 +405,7 @@ function renderForCarDeep(data) {
 
 function renderForBrianDeep(perspectiveMatrix, viewMatrix, z, lightSource, model) {
 	var modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-8.86, -2.5, z])
+	mat4.translate(modelMatrix, modelMatrix, [-9.86, -2.5, z])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI, [0.0, 1.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [1.4, 1.4, 1.4])
 	gl.useProgram(progPhongLightWithTextureForModel.program)
@@ -478,10 +479,10 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	var viewMatrix = mat4.clone(camMatrix)
 	mat4.translate(viewMatrix, viewMatrix, [0.0, 0.0, opensceneDeep.cameraZ])
 
-	updateForOpenScene(deltatimeinc)
+	updateForOpenSceneDeep(deltatimeinc)
 
-	setFlagsCompleteLight(false, false, false, false);
-	renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
+	// setFlagsCompleteLight(false, false, false, false);
+	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
 
 	var modelMatrix
 	var lightSources = []
@@ -498,7 +499,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	const pointAttenuation = [1.0, 0.014, 0.0007]
 
 	//Cubemap
-	// renderCubemapDeep(perspectiveMatrix, viewMatrix, 1)
+	renderCubemapDeep(perspectiveMatrix, camMatrix, 1)
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
@@ -531,7 +532,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 		opensceneDeep.carData[i].position += deltatimeinc * 0.035 * opensceneDeep.carData[i].direction
 	}
 
-	renderForBrianDeep(perspectiveMatrix, viewMatrix, -10.0, lightSources[0], opensceneDeep.objBrianSad)
+	renderForBrianDeep(perspectiveMatrix, viewMatrix, opensceneDeep.brianWalkZ, lightSources[0], opensceneDeep.objBrianSad)
 
 	for(var i = 0; i < lightSources.length; i++) {
 		// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSources[i], [1.0, 1.0, 1.0])
@@ -624,4 +625,5 @@ function updateForOpenSceneDeep(deltaTime) {
 			opensceneDeep.isStraight = false
 		}
 	}
+	opensceneDeep.brianWalkZ -= 0.01
 }
