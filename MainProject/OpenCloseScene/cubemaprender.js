@@ -44,6 +44,7 @@ function renderCubemapDeep(perspectiveMatrix, viewMatrix, isEvening) {
 	gl.uniform1f(progCubemap.uniforms.deltaTime, f)
 	gl.uniform1i(progCubemap.uniforms.isEvening, isEvening)
 	progCubemap.cube.render()
+	gl.useProgram(null)
 	gl.enable(gl.DEPTH_TEST)
 
 	f += 0.001

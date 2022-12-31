@@ -16,6 +16,12 @@ var opensceneDeep = {
 	phoneScreenFbo: null,
 	phoneScreenTex: null,
 	carData: [],
+	isPhoneAnimationDone: false,
+	isPhoneFallDone: false,
+	isCameraBackUpAgain: false,
+	phoneY: 0.0,
+	cameraY: 0.0,
+	cameraX: 0.0,
 	cameraPathLookAround: [
 		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [20.5, 10.0, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
@@ -196,16 +202,17 @@ function initForOpenSceneDeep(sceneCamera) {
 	sceneCamera.updatePath(opensceneDeep.cameraPathLookAround);
 }
 
-function renderToPhoneTexture() {
+function renderToPhoneTexture(deltaTimeInc) {
 	var currentFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING)
 	var currentViewport = gl.getParameter(gl.VIEWPORT)
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, opensceneDeep.phoneScreenFbo)
 	gl.clearBufferfv(gl.COLOR, 0, [0.5, 1.0, 0.25, 1.0])
 	gl.viewport(0, 0, 1024, 1024)
-	renderForAppDestroyDeep()
+	var a = renderForAppDestroyDeep(deltaTimeInc)
 	gl.bindFramebuffer(gl.FRAMEBUFFER, currentFbo)
 	gl.viewport(currentViewport[0], currentViewport[1], currentViewport[2], currentViewport[3])
+	return a
 }
 
 function renderForCitySceneStaticDeep() {
@@ -548,15 +555,20 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	return deltatimeinc * opensceneDeep.isStraight ? 0.0 : 0.0005
 }
 
-function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
+function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTimeInc) {
+	updateForCloseSceneDeep(deltaTimeInc)
+
 	var modelMatrix
 	var lightSource = [0.0, 1.0, 6.5]
 
+	var viewMatrix = mat4.clone(camMatrix)
+	mat4.lookAt(viewMatrix, [-13.5 + opensceneDeep.cameraX + placementHelp.trans[0], 0.0, -42.0], [-14.25 + opensceneDeep.cameraX + placementHelp.trans[0], opensceneDeep.cameraY, -42.0], [0.0, 1.0, 0.0])
+
 	//RenderToPhoneScreen
-	renderToPhoneTexture()
+	opensceneDeep.isPhoneAnimationDone = renderToPhoneTexture(deltaTimeInc)
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, viewMatrix, 0)
+	renderCubemapDeep(perspectiveMatrix, viewMatrix, 1)
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
@@ -569,7 +581,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	renderForCitySceneStaticDeep()
 	
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-13.0, 0.0, -12.0])
+	mat4.translate(modelMatrix, modelMatrix, [-14.25, opensceneDeep.phoneY, -42.0])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [ 0.27, 0.27, 0.27 ])
 	renderForPhoneDeep(modelMatrix, opensceneDeep.phoneScreenTex)
@@ -582,12 +594,32 @@ function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix)
 }
 
-function updateForOpenScene(deltaTime) {
+function updateForCloseSceneDeep(deltaTime) {
+	if(opensceneDeep.isCameraBackUpAgain) {
+		if(opensceneDeep.cameraX < 8.0) {
+			opensceneDeep.cameraX += deltaTime * 0.0008
+		}	
+	} else if(opensceneDeep.isPhoneFallDone) {
+		if(opensceneDeep.cameraY < -1.0) {
+			opensceneDeep.cameraY += deltaTime * 0.001
+		} else {
+			opensceneDeep.isCameraBackUpAgain = true
+		}
+	} else if(opensceneDeep.isPhoneAnimationDone) {
+		if(opensceneDeep.phoneY > -7.0) {
+			opensceneDeep.phoneY -= deltaTime * 0.001
+			opensceneDeep.cameraY -= deltaTime * 0.001
+		} else {
+			opensceneDeep.isPhoneFallDone = true
+		}
+	}
+}
+
+function updateForOpenSceneDeep(deltaTime) {
 	if(opensceneDeep.isStraight) {
 		opensceneDeep.cameraZ -= deltaTime * 0.0005
 		if(opensceneDeep.cameraZ < -8.0) {
 			opensceneDeep.isStraight = false
 		}
-		console.log(opensceneDeep.cameraZ)
 	}
 }
