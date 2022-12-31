@@ -15,7 +15,8 @@ var BarSceneObjects = {
 	mChair : null,
 	mStool : null,
 	mCigar : null,
-	mGlass : null
+	mGlass : null,
+	texPhone: null
 };
 
 var programRenderBar = {
@@ -98,6 +99,8 @@ function initForBarScene(sceneCamera) {
 	BarSceneObjects.mStool = new Model('BarScene/resources/stool.json');
 	BarSceneObjects.mGlass = new Model('BarScene/resources/glass.json');
 
+	BarSceneObjects.texPhone = loadTexture('resources/textures/Youtube.jpg', true)
+
 	Light.push(
 	{	
 		position : [-8.5,-10.0,-13.0],
@@ -126,7 +129,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	//mat4.translate(viewMatrix, viewMatrix, [-camPosition[0], -camPosition[1], -camPosition[2]])
 	//mat4.rotate(viewMatrix, viewMatrix, glMatrix.toRadian(cameraControls.theta), [0.0, 1.0, 0.0]);
 	// mat4.translate(viewMatrix, viewMatrix, camPosition)
-	renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
+	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
 	var cameraPosition = camPosition;
 	// Draw All Opaue Objects
 
@@ -272,11 +275,11 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	setTextureSamplersCompleteLight(0);
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0);
 	addPointLightCompleteLight([-5.0,0.0,-0.3], [0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0],[1.0,0.022,0.0019]);
-	renderForPhoneDeep(modelMatrix,null);
+	renderForPhoneDeep(modelMatrix, BarSceneObjects.texPhone);
 
 	// light src test
 	for(var l  = 0; l < Light.length; l++)
-		renderLightSourceDeep(perspectiveMatrix, viewMatrix, Light[l].position, Light[l].diffuse);
+		// renderLightSourceDeep(perspectiveMatrix, viewMatrix, Light[l].position, Light[l].diffuse);
 
 	gl.enable(gl.CULL_FACE);
 	

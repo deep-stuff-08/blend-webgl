@@ -193,6 +193,8 @@ function renderForPhoneDeep(modelMatrix, screenTex) {
 
 	gl.activeTexture(gl.TEXTURE0)
 
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], 128.0, 1.0)
+
 	//Front
 	//Screen
 	setFlagsCompleteLight(false, false, true, false)
@@ -475,6 +477,4 @@ function renderForPhoneDeep(modelMatrix, screenTex) {
 	setModelMatrixCompleteLight(localModelMat)
 	gl.bindTexture(gl.TEXTURE_2D, phoneDeep.texSilver)
 	phoneDeep.objQuad.render()
-
-	gl.useProgram(null)
 }

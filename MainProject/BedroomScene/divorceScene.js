@@ -27,7 +27,8 @@ var BedroomSceneObjects = {
 	mGlass : null,
 	mBed : null,
 	mRing : null,
-	mTV : null
+	mTV : null,
+	texPhone: null
 };
 
 var vaoCube;
@@ -140,6 +141,7 @@ function initForBedroomScene() {
 	BedroomSceneObjects.mGlass = new Model('BedroomScene/resources/glass.json');
 	BedroomSceneObjects.mRing = new Model('BedroomScene/resources/ring.json');
 	BedroomSceneObjects.mTV = new Model('BedroomScene/resources/tv.json');
+	BedroomSceneObjects.texPhone = loadTexture('resources/textures/Phub.jpg', true)
 
 	// Light Setups
 	Lights.push(
@@ -336,9 +338,10 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	mat4.translate(modelMatrix, modelMatrix, [-1.0,-3.0,-2.5]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 1.0, 0.0]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 0.0, 1.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(00), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);	
-	renderForPhoneDeep(modelMatrix, null);
+	renderForPhoneDeep(modelMatrix, BedroomSceneObjects.texPhone);
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [6.5,-1.5,-5.5]);
