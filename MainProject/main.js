@@ -24,7 +24,7 @@ var debugCamera = {
 }
 
 var controlVariables = {
-	renderScene: SceneEnum.StudyScene,
+	renderScene: SceneEnum.BedroomScene,
 	doRenderToHDR: true,
 	devCam: true,
 	showCamPath: false,
@@ -287,10 +287,10 @@ function init() {
 			initForBarScene(sceneCamera)
 			break
 		case SceneEnum.BedroomScene:
-			initForBedroomScene()
+			initForBedroomScene(sceneCamera)
 			break
 		case SceneEnum.HospitalScene:
-			initForSceneTwo()
+			initForSceneTwo(sceneCamera)
 			break
 		case SceneEnum.CloseScene:
 			initForOpenSceneDeep()
@@ -358,18 +358,24 @@ function render(time) {
 		camSplinePosition = 0.99999
 		break
 	case SceneEnum.BarScene:
-		camSplinePosition += 0.001;
+		camSplinePosition += 0.0003
 		//console.log(time);
-		if(camSplinePosition > 1.0)
-		camSplinePosition = 0.0
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 		renderForBarScene(time, perspectiveMatrix, cameraMatrix)
 
 	break
 	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
+		camSplinePosition += 0.0005
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 	break
 	case SceneEnum.BedroomScene:
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
+		camSplinePosition += 0.0005
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 	break
 	case SceneEnum.CloseScene:
 		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition)
