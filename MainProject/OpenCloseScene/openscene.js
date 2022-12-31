@@ -15,13 +15,14 @@ var opensceneDeep = {
 	texBuilding2: null,
 	phoneScreenFbo: null,
 	phoneScreenTex: null,
+	carData: []
 }
 
 const opensceneDeepConsts = {
 	footpathWidth: 2.0, // 2.0 * 2.0
 	footpathborderWidth: 0.25, // 0.25 * 2.0
 	footpathborderHeight: 0.25, // 0.25 * 2.0
-	roadWidth: 6.0, // 2.0 * 6.0
+	roadWidth: 8.0, // 2.0 * 6.0
 	railingWidth: 0.3, // 2.0 * 0.3
 	railingHeight: 0.5, // 2.0 * 0.5
 	sceneY: -3.0,
@@ -172,6 +173,16 @@ function initForOpenSceneDeep() {
 	opensceneDeep.objCars.push(initalizeModel('BlueCar'))
 	opensceneDeep.objCars.push(initalizeModel('BlackCar'))
 	opensceneDeep.objCars.push(initalizeModel('SilverCar'))
+
+	opensceneDeep.carData.push({position: -300.0, direction: 1, type: 1})
+	opensceneDeep.carData.push({position: -500.0, direction: 1, type: 2})
+	opensceneDeep.carData.push({position: -600.0, direction: 1, type: 0})
+	opensceneDeep.carData.push({position: -900.0, direction: 1, type: 2})
+	opensceneDeep.carData.push({position: -1100.0, direction: 1, type: 0})
+	opensceneDeep.carData.push({position: 10.0, direction: -1, type: 2})
+	opensceneDeep.carData.push({position: 70.0, direction: -1, type: 0})
+	opensceneDeep.carData.push({position: 200.0, direction: -1, type: 1})
+	opensceneDeep.carData.push({position: 400.0, direction: -1, type: 1})
 }
 
 function renderToPhoneTexture() {
@@ -356,17 +367,19 @@ function renderForCitySceneStaticDeep() {
 	}
 }
 
-function renderForCarDeep(z, dir, i) {
+function renderForCarDeep(data) {
+	const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 	var modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [2.7 * dir, -1.76, z])
-	if(dir == 1) {
+	mat4.translate(modelMatrix, modelMatrix, [2.7 * data.direction, -1.76, data.position])
+	if(data.direction == 1) {
 		mat4.rotate(modelMatrix, modelMatrix, Math.PI, [0.0, 1.0, 0.0])
 	}
+	var s = clamp(data.direction, 0.0, 1.0)
 	mat4.scale(modelMatrix, modelMatrix, [0.32, 0.32, 0.32])
 	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	setTextureMatrixCompleteLight(texMatrix)
-	renderModel(opensceneDeep.objCars[i])
+	renderModel(opensceneDeep.objCars[data.type])
 }
 
 function renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, z, lightSource) {
@@ -441,7 +454,7 @@ function renderForBuildingDeep(localModelMatrix, texScale, tex) {
 	opensceneDeep.objCube.render()
 }
 
-function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
+function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos, deltatimeinc) {
 	var modelMatrix
 	var lightSources = []
 	var start = 5.0
@@ -457,7 +470,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	const pointAttenuation = [1.0, 0.014, 0.0007]
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, viewMatrix)
+	renderCubemapDeep(perspectiveMatrix, viewMatrix, 1)
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
@@ -485,9 +498,11 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	//Cars
 	setFlagsCompleteLight(false, false, true, true)
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
-	renderForCarDeep(-10.0, 1, 0)
-	renderForCarDeep(-20.0, -1, 1)
-	renderForCarDeep(-30.0, 1, 2)
+	for(var i = 0; i < opensceneDeep.carData.length; i++) {
+		console.log(opensceneDeep.carData[i].position)
+		renderForCarDeep(opensceneDeep.carData[i])
+		opensceneDeep.carData[i].position += deltatimeinc * 0.035 * opensceneDeep.carData[i].direction
+	}
 
 	renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, -10.0, lightSources[0])
 
@@ -521,7 +536,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	renderToPhoneTexture()
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, viewMatrix)
+	renderCubemapDeep(perspectiveMatrix, viewMatrix, 0)
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
@@ -534,8 +549,10 @@ function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	renderForCitySceneStaticDeep()
 	
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [ 0.0, 2.0, 2.0])
-	renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightSource, opensceneDeep.phoneScreenTex)
+	mat4.translate(modelMatrix, modelMatrix, [-13.0, 0.0, -12.0])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [ 0.27, 0.27, 0.27 ])
+	renderForPhoneDeep(modelMatrix, opensceneDeep.phoneScreenTex)
 
 	renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
 
