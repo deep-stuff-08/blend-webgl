@@ -18,10 +18,37 @@ const SceneEnum = {
 	CloseScene: 6
 }
 
-var renderScene = SceneEnum.OpenScene
-var doRenderToHdr = true
-var trans = [ 0.0, 0.0, 0.0 ]
-var sca = 1.0
+var debugCamera = {
+	lastmousex: -1,
+	lastmousey: -1,
+	cameraYaw: -90.0,
+	cameraPitch: 0.0,
+	cameraFront: vec3.set(vec3.create(), 0.0, 0.0, -1.0),
+	cameraPosition: vec3.set(vec3.create(), 0.0, 0.0, 5.0),
+	cameraUp: vec3.set(vec3.create(), 0.0, 1.0, 0.0)
+}
+
+var controlVariables = {
+	renderScene: SceneEnum.HospitalScene,
+	doRenderToHDR: true,
+	devCam: false,
+	showCamPath: false,
+	showCam: false,
+	debugMode: true,
+	isLoadModels: false,
+	currentExposure: 1.0
+}
+
+var placementHelp = {
+	trans: [ 0.0, 0.0, 0.0 ],
+	sca: 1.0	
+}
+
+var deltaTimer = {
+	lastTime: 0,
+	currentTime: 0
+}
+
 var sceneCamera
 var devCam = true
 var showCamPath = false
@@ -349,13 +376,16 @@ function render(time) {
 	case SceneEnum.BarScene:
 		camSplinePosition += 0.001;
 		//console.log(time);
-		if(camSplinePosition > 1.0)
-		camSplinePosition = 0.0
-		renderForBarScene(time, perspectiveMatrix, cameraMatrix)
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
+		renderForBarScene(perspectiveMatrix, cameraMatrix, cameraPosition,  deltaTime)
 
 	break
 	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
+		camSplinePosition += 0.0002
+		if(camSplinePosition > 0.99999)
+		camSplinePosition = 0.99999
 	break
 	case SceneEnum.BedroomScene:
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
