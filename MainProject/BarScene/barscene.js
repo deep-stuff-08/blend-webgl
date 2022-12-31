@@ -146,7 +146,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -166,7 +166,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -186,7 +186,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -206,7 +206,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -226,7 +226,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -246,7 +246,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -264,8 +264,15 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 1.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(180), [0.0, 0.0, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);	
-	renderForPhoneDeep(perspectiveMatrix,viewMatrix,modelMatrix,[-5.0,0.0,-0.3],null);
+	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
+	gl.useProgram(progCompleteLight.program);
+	resetCompleteLight();
+	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, debugCamera.cameraPosition);
+	setFlagsCompleteLight(false, false, true, true);
+	setTextureSamplersCompleteLight(0);
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0);
+	addPointLightCompleteLight([-5.0,0.0,-0.3], [0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0],[1.0,0.022,0.0019]);
+	renderForPhoneDeep(modelMatrix,null);
 
 	// light src test
 	for(var l  = 0; l < Light.length; l++)
@@ -282,7 +289,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -302,7 +309,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -326,7 +333,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 		gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 		gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 		gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-		gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+		gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 		for(var l = 0; l < Light.length; l++)
 		{
 			gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -347,7 +354,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -367,7 +374,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -386,7 +393,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -409,7 +416,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -429,7 +436,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -450,7 +457,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -471,7 +478,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -492,7 +499,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -513,7 +520,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -534,7 +541,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -555,7 +562,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -576,7 +583,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -597,7 +604,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -618,7 +625,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -642,7 +649,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -661,7 +668,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -686,7 +693,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 			gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 			gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 			gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-			gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+			gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 			for(var l = 0; l < Light.length; l++)
 			{
 				gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -709,7 +716,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -728,7 +735,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -748,7 +755,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -767,7 +774,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -786,7 +793,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -805,7 +812,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );
@@ -824,7 +831,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	gl.uniformMatrix4fv(programRenderBar.uniform.pMat, false, perspectiveMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.vMat, false, viewMatrix);
 	gl.uniformMatrix4fv(programRenderBar.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBar.uniform.viewPos, cameraPosition);
+	gl.uniform3fv(programRenderBar.uniform.viewPos, debugCamera.cameraPosition);
 	for(var l = 0; l < Light.length; l++)
 	{
 		gl.uniform3fv(gl.getUniformLocation(programRenderBar.program,"light["+l+"].direction"),Light[l].position );

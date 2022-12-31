@@ -5,12 +5,17 @@ var oceanDeep = {
 		vMat: null,
 		mMat: null,
 		oceanData: null,
-		time: null
+		time: null,
+		samplerTexture: null
 	},
 	vao: null,
 	count: null,
 	oceanSettings: null,
-	ubo: null
+	ubo: null,
+	cube: null,
+	fbo: null,
+	tex: null,
+	rbo: null
 }
 
 function setupProgramForOceanDeep() {
@@ -24,6 +29,7 @@ function setupProgramForOceanDeep() {
 	oceanDeep.uniforms.mMat = gl.getUniformLocation(oceanDeep.program, "mMat")
 	oceanDeep.uniforms.oceanData = gl.getUniformLocation(oceanDeep.program, "oceanData")
 	oceanDeep.uniforms.time = gl.getUniformLocation(oceanDeep.program, "time")
+	oceanDeep.uniforms.samplerTexture = gl.getUniformLocation(oceanDeep.program, "samplerDiffuse")
 }
 
 function initForOceanDeep() {
@@ -71,12 +77,82 @@ function initForOceanDeep() {
 	oceanDeep.oceanSettings.push([0.1, -1.0, 1.0, 0.67])
 	oceanDeep.oceanSettings.push([0.3, -1.0, 0.0, 0.45])
 	oceanDeep.oceanSettings.push([0.4, 1.0, 1.0, 0.6])
+
+	oceanDeep.cube = dshapes.initCube()
+
+	cameraPosition = [0.0, 2.0, 10.0]
+
+	oceanDeep.fbo = gl.createFramebuffer()
+	gl.bindFramebuffer(gl.FRAMEBUFFER, oceanDeep.fbo)
+
+	oceanDeep.tex = gl.createTexture()
+	gl.bindTexture(gl.TEXTURE_2D, oceanDeep.tex)
+	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, 1024, 1024)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, oceanDeep.tex, 0)
+
+	oceanDeep.rbo = gl.createRenderbuffer()
+	gl.bindRenderbuffer(gl.RENDERBUFFER, oceanDeep.rbo)
+	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT32F, 1024, 1024)
+	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, oceanDeep.rbo)
+
+	gl.drawBuffers([gl.COLOR_ATTACHMENT0])
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 }
 
 var timer = 0.0
 
 function renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix) {
-	var localModelMat = mat4.create()
+	var localModelMat
+
+	var currentFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING)
+	var currentViewport = gl.getParameter(gl.VIEWPORT)
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, oceanDeep.fbo)
+	// gl.bindFramebuffer(gl.FRAMEBUFFER, currentFbo)
+	gl.viewport(0, 0, 1024, 1024)
+
+	gl.clearBufferfv(gl.COLOR, 0, [0.0, 1.0, 0.0, 1.0])
+	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
+
+	var cameraMatrix = mat4.create()
+	var newfront = vec3.create()
+	var newCameraPosition = [cameraPosition[0], -cameraPosition[1], cameraPosition[2]]
+	vec3.add(newfront, cameraFront, newCameraPosition)
+	mat4.lookAt(cameraMatrix, newCameraPosition, newfront, cameraUp)
+
+	localModelMat = mat4.create()
+	mat4.translate(localModelMat, modelMatrix, [0.0, 2.0, 0.0])
+	gl.useProgram(progPhongLightWithTexture.program)
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.pMat, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.vMat, false, cameraMatrix)
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
+	gl.uniform1i(progPhongLightWithTexture.uniforms.isBlend, 0)
+	gl.uniform1i(progPhongLightWithTexture.uniforms.isTexture, 0)
+	gl.uniform1i(progPhongLightWithTexture.uniforms.isInvertNormals, 0)
+	gl.uniform1i(progPhongLightWithTexture.uniforms.isLight, 1)
+	gl.uniform3f(progPhongLightWithTexture.uniforms.lightPos, 0.0, 0.0, 5.0)
+	oceanDeep.cube.render()
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, currentFbo)
+	gl.viewport(currentViewport[0], currentViewport[1], currentViewport[2], currentViewport[3])
+
+	localModelMat = mat4.create()
+	mat4.translate(localModelMat, modelMatrix, [0.0, 2.0, 0.0])
+	gl.useProgram(progPhongLightWithTexture.program)
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.pMat, false, perspectiveMatrix)
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.vMat, false, viewMatrix)
+	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, localModelMat)
+	gl.uniform1i(progPhongLightWithTexture.uniforms.isBlend, 0)
+	gl.uniform1i(progPhongLightWithTexture.uniforms.isTexture, 0)
+	gl.uniform1i(progPhongLightWithTexture.uniforms.isInvertNormals, 0)
+	gl.uniform1i(progPhongLightWithTexture.uniforms.isLight, 1)
+	gl.uniform3f(progPhongLightWithTexture.uniforms.lightPos, 0.0, 0.0, 5.0)
+	oceanDeep.cube.render()
+
+	localModelMat = mat4.create()
 	mat4.scale(localModelMat, modelMatrix, [5.0, 5.0, 5.0])
 	gl.useProgram(oceanDeep.program)
 	gl.uniformMatrix4fv(oceanDeep.uniforms.pMat, false, perspectiveMatrix)
@@ -84,8 +160,12 @@ function renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix) {
 	gl.uniformMatrix4fv(oceanDeep.uniforms.mMat, false, localModelMat)
 	gl.uniform4fv(oceanDeep.uniforms.oceanData, new Float32Array(oceanDeep.oceanSettings.flat()))
 	gl.uniform1f(oceanDeep.uniforms.time, timer)
+	gl.uniform1i(oceanDeep.uniforms.samplerTexture, 0)
+	gl.activeTexture(gl.TEXTURE0)
+	gl.bindTexture(gl.TEXTURE_2D, oceanDeep.tex)
 	gl.bindVertexArray(oceanDeep.vao)
 	gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, oceanDeep.ubo)
-	gl.drawArrays(gl.LINE_STRIP, 0, oceanDeep.count / 3)
+	gl.drawArrays(gl.TRIANGLES, 0, oceanDeep.count / 3)
+	
 	timer += 0.1
 }

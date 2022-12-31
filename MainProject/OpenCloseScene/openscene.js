@@ -15,13 +15,23 @@ var opensceneDeep = {
 	texBuilding2: null,
 	phoneScreenFbo: null,
 	phoneScreenTex: null,
+	carData: [],
+	cameraPathLookAround: [
+		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [20.5, 10.0, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [-50.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	], 
+	isStraight: true,
+	cameraZ: 0.0
 }
 
 const opensceneDeepConsts = {
 	footpathWidth: 2.0, // 2.0 * 2.0
 	footpathborderWidth: 0.25, // 0.25 * 2.0
 	footpathborderHeight: 0.25, // 0.25 * 2.0
-	roadWidth: 6.0, // 2.0 * 6.0
+	roadWidth: 8.0, // 2.0 * 6.0
 	railingWidth: 0.3, // 2.0 * 0.3
 	railingHeight: 0.5, // 2.0 * 0.5
 	sceneY: -3.0,
@@ -30,11 +40,14 @@ const opensceneDeepConsts = {
 	footpathLeftDepth: 100.0,
 	groundWidth: 30.0,
 	wallHeight: 1.5,
+	wallWidth: 0.2,
 	buildingXTrans: 10.0,
 	buildingZTrans: 12.5,
 	buildingZSpace: 30.0,
 	oceanWidth: 1000.0,
 	oceanDepth: 100.0,
+	lampCount: 8,
+	lampDelta: 0
 }
 
 var testProgram;
@@ -46,11 +59,13 @@ function setupProgramForOpenSceneDeep() {
 	setupProgramForAppDestroyDeep()
 }
 
-function initForOpenSceneDeep() {
+function initForOpenSceneDeep(sceneCamera) {
 	initForCubemapRendererDeep()
 	initForStreetLamp()
 	initForOceanDeep()
 	initForAppDestroyDeep()
+
+	opensceneDeepConsts.lampDelta = (opensceneDeepConsts.footpathLeftDepth * 2.0) / (opensceneDeepConsts.lampCount - 1)
 
 	opensceneDeep.objQuad = dshapes.initQuad()
 	opensceneDeep.objCube = dshapes.initCube()
@@ -167,6 +182,18 @@ function initForOpenSceneDeep() {
 	opensceneDeep.objCars.push(initalizeModel('BlueCar'))
 	opensceneDeep.objCars.push(initalizeModel('BlackCar'))
 	opensceneDeep.objCars.push(initalizeModel('SilverCar'))
+
+	opensceneDeep.carData.push({position: -300.0, direction: 1, type: 1})
+	opensceneDeep.carData.push({position: -500.0, direction: 1, type: 2})
+	opensceneDeep.carData.push({position: -600.0, direction: 1, type: 0})
+	opensceneDeep.carData.push({position: -900.0, direction: 1, type: 2})
+	opensceneDeep.carData.push({position: -1100.0, direction: 1, type: 0})
+	opensceneDeep.carData.push({position: 10.0, direction: -1, type: 2})
+	opensceneDeep.carData.push({position: 70.0, direction: -1, type: 0})
+	opensceneDeep.carData.push({position: 200.0, direction: -1, type: 1})
+	opensceneDeep.carData.push({position: 400.0, direction: -1, type: 1})
+
+	sceneCamera.updatePath(opensceneDeep.cameraPathLookAround);
 }
 
 function renderToPhoneTexture() {
@@ -190,10 +217,10 @@ function renderForCitySceneStaticDeep() {
 	mat4.translate(modelMatrix, modelMatrix, [0.0, opensceneDeepConsts.sceneY, opensceneDeepConsts.sceneZ])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.roadWidth, opensceneDeepConsts.footpathRigthDepth, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.scale(texMatrix, texMatrix, [1.0, 10.0])
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	gl.activeTexture(gl.TEXTURE0)
 	gl.bindTexture(gl.TEXTURE_2D, opensceneDeep.texRoad)
 	opensceneDeep.objQuad.render()
@@ -205,20 +232,20 @@ function renderForCitySceneStaticDeep() {
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth) * 2.0) + opensceneDeepConsts.railingWidth), opensceneDeepConsts.sceneY + ((opensceneDeepConsts.footpathborderHeight * 2.0) + (opensceneDeepConsts.railingHeight * 2.0)), opensceneDeepConsts.sceneZ])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.railingWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.scale(texMatrix, texMatrix, [0.2, 60.0])
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth) * 2.0)), opensceneDeepConsts.sceneY + ((opensceneDeepConsts.footpathborderHeight * 2.0) + opensceneDeepConsts.railingHeight), opensceneDeepConsts.sceneZ])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathLeftDepth, opensceneDeepConsts.railingHeight, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.rotate(texMatrix, texMatrix, Math.PI / 2.0)
 	mat2.scale(texMatrix, texMatrix, [60.0, 0.3])
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 
 	//FootPath
@@ -229,20 +256,20 @@ function renderForCitySceneStaticDeep() {
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathWidth + (opensceneDeepConsts.footpathborderWidth * 2.0)), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.scale(texMatrix, texMatrix, [1.0, 50.0])
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 	//FootPathRight
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathWidth + (opensceneDeepConsts.footpathborderWidth * 2.0)), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathWidth, opensceneDeepConsts.footpathRigthDepth, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.scale(texMatrix, texMatrix, [1.0, 50.0])
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 
 	//FootPathBorder
@@ -253,66 +280,51 @@ function renderForCitySceneStaticDeep() {
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathborderWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathborderWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.scale(texMatrix, texMatrix, [0.2, 50.0])
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth), opensceneDeepConsts.sceneZ])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathLeftDepth, opensceneDeepConsts.footpathborderHeight, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.rotate(texMatrix, texMatrix, Math.PI / 2.0)
 	mat2.scale(texMatrix, texMatrix, [50.0, 1.0])
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 	//FootPathBorderRight
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathborderWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathborderWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.scale(texMatrix, texMatrix, [0.2, 50.0])
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth), opensceneDeepConsts.sceneZ])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathLeftDepth, opensceneDeepConsts.footpathborderHeight, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.rotate(texMatrix, texMatrix, 3.0 * Math.PI / 2.0)
 	mat2.scale(texMatrix, texMatrix, [50.0, 1.0])
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
-
-	//Lamps
-	const lampCount = 6
-	const lampDelta = (opensceneDeepConsts.footpathLeftDepth * 2.0) / (lampCount - 1)
-	for(var j = 0; j < 2; j++) {
-		modelMatrix = mat4.create()
-		mat4.translate(modelMatrix, modelMatrix, [0.0, opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderHeight * 2.0), opensceneDeepConsts.sceneZ])
-		mat4.rotate(modelMatrix, modelMatrix, j * Math.PI, [0.0, 1.0, 0.0])
-		for(var i = 0; i < lampCount; i++) {
-			var lmodelMatrix = mat4.clone(modelMatrix)
-			mat4.translate(lmodelMatrix, lmodelMatrix, [-(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathborderWidth + 0.1), 0.0, opensceneDeepConsts.footpathLeftDepth - (i * lampDelta)])
-			mat4.scale(lmodelMatrix, lmodelMatrix, [3.4, 3.4, 3.4])
-			renderForStreetLamp(lmodelMatrix)
-		}
-	}
 
 	//Ground
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth) * 2.0) + opensceneDeepConsts.groundWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.groundWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.scale(texMatrix, texMatrix, [30.0, 50.0])
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 
 	//Wall
@@ -322,10 +334,19 @@ function renderForCitySceneStaticDeep() {
 	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth) * 2.0)), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0) + opensceneDeepConsts.wallHeight, opensceneDeepConsts.sceneZ])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathLeftDepth, opensceneDeepConsts.wallHeight, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.scale(texMatrix, texMatrix, [50.0, 1.5])
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth) * 2.0) + opensceneDeepConsts.wallWidth), opensceneDeepConsts.sceneY + ((opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.wallHeight) * 2.0), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.wallWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, [0.1, 50.0])
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 
 	//Building
@@ -342,19 +363,34 @@ function renderForCitySceneStaticDeep() {
 		mat4.scale(modelMatrix, modelMatrix, [5.0, 6.0, 5.0])
 		renderForBuildingDeep(modelMatrix, [2.0, 3.0], opensceneDeep.texBuilding2)
 	}
+
+	//Lamps
+	for(var j = 0; j < 2; j++) {
+		modelMatrix = mat4.create()
+		mat4.translate(modelMatrix, modelMatrix, [0.0, opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderHeight * 2.0), opensceneDeepConsts.sceneZ])
+		mat4.rotate(modelMatrix, modelMatrix, j * Math.PI, [0.0, 1.0, 0.0])
+		for(var i = 0; i < opensceneDeepConsts.lampCount; i++) {
+			var lmodelMatrix = mat4.clone(modelMatrix)
+			mat4.translate(lmodelMatrix, lmodelMatrix, [-(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathborderWidth + 0.1), 0.0, opensceneDeepConsts.footpathLeftDepth - (i * opensceneDeepConsts.lampDelta)])
+			mat4.scale(lmodelMatrix, lmodelMatrix, [3.4, 3.4, 3.4])
+			renderForStreetLamp(lmodelMatrix)
+		}
+	}
 }
 
-function renderForCarDeep(z, dir, i) {
+function renderForCarDeep(data) {
+	const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 	var modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [2.7 * dir, -1.76, z])
-	if(dir == 1) {
+	mat4.translate(modelMatrix, modelMatrix, [2.7 * data.direction, -1.76, data.position])
+	if(data.direction == 1) {
 		mat4.rotate(modelMatrix, modelMatrix, Math.PI, [0.0, 1.0, 0.0])
 	}
+	var s = clamp(data.direction, 0.0, 1.0)
 	mat4.scale(modelMatrix, modelMatrix, [0.32, 0.32, 0.32])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
-	renderModel(opensceneDeep.objCars[i])
+	setTextureMatrixCompleteLight(texMatrix)
+	renderModel(opensceneDeep.objCars[data.type])
 }
 
 function renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, z, lightSource) {
@@ -382,6 +418,8 @@ function renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, z, lightSourc
 
 function renderForBuildingDeep(localModelMatrix, texScale, tex) {
 	var modelMatrix
+	var texMatrix
+
 	const buildingHeight = 3.0
 	const buildingWidth = 1.0
 	const buildingDepth = 1.0
@@ -394,76 +432,101 @@ function renderForBuildingDeep(localModelMatrix, texScale, tex) {
 	mat4.translate(modelMatrix, modelMatrix, [-buildingWidth, buildingHeight, 0.0])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [buildingDepth, buildingHeight, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.scale(texMatrix, texMatrix, texScale)
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 	modelMatrix = mat4.clone(localModelMatrix)
 	mat4.translate(modelMatrix, modelMatrix, [0.0, buildingHeight, buildingDepth])
 	mat4.scale(modelMatrix, modelMatrix, [buildingWidth, buildingHeight, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.scale(texMatrix, texMatrix, texScale)
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 	modelMatrix = mat4.clone(localModelMatrix)
 	mat4.translate(modelMatrix, modelMatrix, [0.0, buildingHeight, -buildingDepth])
 	mat4.scale(modelMatrix, modelMatrix, [buildingWidth, buildingHeight, 1.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.scale(texMatrix, texMatrix, texScale)
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
 
 	gl.bindTexture(gl.TEXTURE_2D, opensceneDeep.texCementWall)
 	modelMatrix = mat4.clone(localModelMatrix)
 	mat4.translate(modelMatrix, modelMatrix, [0.0, buildingHeight * 2.0 + roofHeight, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [buildingWidth + roofWidthDepthInc, roofHeight, buildingDepth + roofWidthDepthInc])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	texMatrix = mat2.create()
 	mat2.scale(texMatrix, texMatrix, texScale)
-	gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objCube.render()
 }
 
-function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
+function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatimeinc) {
+	var viewMatrix = mat4.clone(camMatrix)
+	mat4.translate(viewMatrix, viewMatrix, [0.0, 0.0, opensceneDeep.cameraZ])
+
+	updateForOpenScene(deltatimeinc)
+
+	setFlagsCompleteLight(false, false, false, false);
+	renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
+
 	var modelMatrix
-	var lightSource = [0.0, 1.0, 6.5]
+	var lightSources = []
+	var start = 5.0
+	for(var i = 0; i < 6; i++) {
+		lightSources.push([-4.0, 4.5, start])
+		lightSources.push([4.0, 4.5, start])
+		start -= opensceneDeepConsts.lampDelta
+	}
+
+	const spotCutoff = [50, 60]
+	const spotDirection = [ 0.0, -1.0, 0.0 ]
+	const lightOne = [1.0, 1.0, 1.0]
+	const pointAttenuation = [1.0, 0.014, 0.0007]
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, viewMatrix)
+	// renderCubemapDeep(perspectiveMatrix, viewMatrix, 1)
 
-	gl.useProgram(progPhongLightWithTexture.program)
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.pMat, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.vMat, false, viewMatrix)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isInvertNormals, 0)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isBlend, 0)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isLight, 1)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isTexture, 1)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.diffuseTextureSampler, 0)
-	gl.uniform3fv(progPhongLightWithTexture.uniforms.lightPos, lightSource)
-	
+	gl.useProgram(progCompleteLight.program)
+	resetCompleteLight()
+	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
+	setFlagsCompleteLight(false, false, true, true)
+	setTextureSamplersCompleteLight(0)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	// addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
+	// addPointLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.014, 0.0007])
+	addLightCompleteLight([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [1.0, 0.5, 0.0], [1.0, 0.0, 0.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		addSpotLightCompleteLight(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
+	}
+
 	renderForCitySceneStaticDeep()
 	
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isLight, 0)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isTexture, 0)
+	setFlagsCompleteLight(false, false, false, false)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.2, 0.6, 0.3], [0.7, 0.7, 0.7], 1.0, 1.0)
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-500.0, 40.0, -500.0])
 	mat4.scale(modelMatrix, modelMatrix, [40.0, 40.0, 40.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	setModelMatrixCompleteLight(modelMatrix)
 	opensceneDeep.objSphere.render()
 
 	//Cars
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isTexture, 1)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isLight, 1)
-	renderForCarDeep(-10.0, 1, 0)
-	renderForCarDeep(-20.0, -1, 1)
-	renderForCarDeep(-30.0, 1, 2)
+	setFlagsCompleteLight(false, false, true, true)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	for(var i = 0; i < opensceneDeep.carData.length; i++) {
+		renderForCarDeep(opensceneDeep.carData[i])
+		opensceneDeep.carData[i].position += deltatimeinc * 0.035 * opensceneDeep.carData[i].direction
+	}
 
-	renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, -10.0, lightSource)
+	renderForManSadWalkingDeep(perspectiveMatrix, viewMatrix, -10.0, lightSources[0])
 
-	renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSources[i], [1.0, 1.0, 1.0])
+	}
 
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
@@ -474,16 +537,18 @@ function renderForOpenSceneDeep(perspectiveMatrix, viewMatrix) {
 	// modelMatrix = mat4.create()
 	// mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathborderWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth), opensceneDeepConsts.sceneZ - (opensceneDeepConsts.footpathRigthDepth + opensceneDeepConsts.footpathborderWidth)])
 	// mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathborderWidth, opensceneDeepConsts.footpathborderHeight, opensceneDeepConsts.footpathborderWidth])
-	// gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
+	// setModelMatrixCompleteLight(modelMatrix)
 	// texMatrix = mat2.create()
 	// mat2.scale(texMatrix, texMatrix, [1.0, 1.0])
-	// gl.uniformMatrix2fv(progPhongLightWithTexture.uniforms.texMat, false, texMatrix)
+	// setTextureMatrixCompleteLight(texMatrix)
 	// gl.bindVertexArray(opensceneDeep.vaoCylinderPart)
 	// gl.drawElements(gl.TRIANGLES, opensceneDeep.countCylinderPart, gl.UNSIGNED_SHORT, 0)
 	// gl.bindVertexArray(null)
+
+	return deltatimeinc * opensceneDeep.isStraight ? 0.0 : 0.0005
 }
 
-function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix) {
+function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	var modelMatrix
 	var lightSource = [0.0, 1.0, 6.5]
 
@@ -491,31 +556,23 @@ function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix) {
 	renderToPhoneTexture()
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, viewMatrix)
+	renderCubemapDeep(perspectiveMatrix, viewMatrix, 0)
 
-	gl.useProgram(progPhongLightWithTexture.program)
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.pMat, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.vMat, false, viewMatrix)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isInvertNormals, 0)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isBlend, 0)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isLight, 1)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isTexture, 1)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.diffuseTextureSampler, 0)
-	gl.uniform3fv(progPhongLightWithTexture.uniforms.lightPos, lightSource)
+	gl.useProgram(progCompleteLight.program)
+	resetCompleteLight()
+	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
+	setFlagsCompleteLight(false, false, true, true)
+	setTextureSamplersCompleteLight(0)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.7, 0.7, 0.7], 100.0, 1.0)
+	addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
 	
 	renderForCitySceneStaticDeep()
 	
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isLight, 0)
-	gl.uniform1i(progPhongLightWithTexture.uniforms.isTexture, 0)
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-500.0, 40.0, -500.0])
-	mat4.scale(modelMatrix, modelMatrix, [40.0, 40.0, 40.0])
-	gl.uniformMatrix4fv(progPhongLightWithTexture.uniforms.mMat, false, modelMatrix)
-	opensceneDeep.objSphere.render()
-
-	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [ 0.0, 2.0, 2.0])
-	renderForPhoneDeep(perspectiveMatrix, viewMatrix, modelMatrix, lightSource, opensceneDeep.phoneScreenTex)
+	mat4.translate(modelMatrix, modelMatrix, [-13.0, 0.0, -12.0])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [ 0.27, 0.27, 0.27 ])
+	renderForPhoneDeep(modelMatrix, opensceneDeep.phoneScreenTex)
 
 	renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
 
@@ -523,4 +580,14 @@ function renderForCloseSceneDeep(perspectiveMatrix, viewMatrix) {
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.oceanWidth, 20.0, opensceneDeepConsts.oceanDepth])
 	renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix)
+}
+
+function updateForOpenScene(deltaTime) {
+	if(opensceneDeep.isStraight) {
+		opensceneDeep.cameraZ -= deltaTime * 0.0005
+		if(opensceneDeep.cameraZ < -8.0) {
+			opensceneDeep.isStraight = false
+		}
+		console.log(opensceneDeep.cameraZ)
+	}
 }

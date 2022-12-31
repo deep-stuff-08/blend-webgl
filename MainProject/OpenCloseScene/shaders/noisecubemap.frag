@@ -6,6 +6,7 @@ in vec3 tex;
 layout(location = 0) out vec4 FragColor;
 
 uniform float time;
+uniform bool isEvening;
 
 vec3 mod289(vec3 x) {
 	return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -93,6 +94,12 @@ float fbm (vec3 st) {
 }
 
 void main(void) {
-	float noiseval = fbm(vec3(tex * 4.0));
-	FragColor = vec4(mix(vec3(0.4, 0.6, 0.9), vec3(1.0, 1.0, 1.0), clamp(noiseval, 0.0, 1.0)), 1.0);
+	if(isEvening) {
+		float noiseval = fbm(vec3(tex * 4.0));
+		vec3 skyColor = mix(vec3(0.9, 0.4, 0.2), vec3(0.1, 0.3, 0.6), tex.y);
+		// FragColor = vec4(mix(skyColor, vec3(1.0, 1.0, 1.0), clamp(noiseval, 0.0, 1.0) * tex.y), 1.0);
+		FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+	} else {
+		FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	}
 }
