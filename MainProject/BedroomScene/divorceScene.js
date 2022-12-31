@@ -325,13 +325,20 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 
 	//renderLightSourceDeep(perspectiveMatrix, viewMatrix, [-5.0,0.0,-0.3], [1.0,0.0,0.0]);
 
+	gl.useProgram(progCompleteLight.program);
+	resetCompleteLight();
+	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, debugCamera.cameraPosition);
+	setFlagsCompleteLight(false, false, true, true);
+	setTextureSamplersCompleteLight(0);
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0);
+	addPointLightCompleteLight([-5.0,0.0,-0.3], [0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0],[1.0,0.022,0.0019]);
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-1.0,-3.0,-2.5]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 1.0, 0.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(00), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);	
-	renderForPhoneDeep(perspectiveMatrix,viewMatrix,modelMatrix,[0.0,0.0,0.0],null);
+	renderForPhoneDeep(modelMatrix, null);
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [6.5,-1.5,-5.5]);
