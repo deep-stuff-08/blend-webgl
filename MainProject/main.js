@@ -24,7 +24,7 @@ var debugCamera = {
 }
 
 var controlVariables = {
-	renderScene: SceneEnum.OpenScene,
+	renderScene: SceneEnum.CloseScene,
 	doRenderToHDR: true,
 	devCam: false,
 	showCamPath: false,
@@ -51,7 +51,7 @@ var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
 	// { name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
-	{ name: "BrianSad", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
+	// { name: "BrianSad", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
 	// { name: "BrianIdle", files:[ 'resources/models/dynamic/Brian/Idle.dae' ], flipTex:true },
 	// { name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
 	// { name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },

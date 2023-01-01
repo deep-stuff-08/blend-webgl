@@ -257,6 +257,16 @@ function renderForCitySceneStaticDeep() {
 	mat2.scale(texMatrix, texMatrix, [60.0, 0.3])
 	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth) * 2.0)), opensceneDeepConsts.sceneY + ((opensceneDeepConsts.footpathborderHeight * 2.0) + (-opensceneDeepConsts.railingHeight * 14.0)), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathLeftDepth, opensceneDeepConsts.railingHeight * 16.0, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.rotate(texMatrix, texMatrix, Math.PI / 2.0)
+	mat2.scale(texMatrix, texMatrix, [60.0, 0.3 * 16.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
 
 	//FootPath
 	gl.activeTexture(gl.TEXTURE0)
@@ -621,7 +631,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	const pointAttenuation = [1.0, 0.014, 0.0007]
 
 	var viewMatrix = mat4.clone(camMatrix)
-	// mat4.lookAt(viewMatrix, [-13.5 + opensceneDeep.cameraX + placementHelp.trans[0], 0.0, -42.0], [-14.25 + opensceneDeep.cameraX + placementHelp.trans[0], opensceneDeep.cameraY, -42.0], [0.0, 1.0, 0.0])
+	mat4.lookAt(viewMatrix, [-13.5 + opensceneDeep.cameraX + placementHelp.trans[0], 0.0, -42.0], [-14.25 + opensceneDeep.cameraX + placementHelp.trans[0], opensceneDeep.cameraY, -42.0], [0.0, 1.0, 0.0])
 
 	//RenderToPhoneScreen
 	opensceneDeep.isPhoneAnimationDone = renderToPhoneTexture(deltaTimeInc)
