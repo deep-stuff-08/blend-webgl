@@ -169,7 +169,7 @@ function initForBedroomScene() {
 			});
 
 	//console.log(Light);
-	sceneCamera.updatePath(cameraPathBedroom);
+	// sceneCamera.updatePath(cameraPathBedroom);
 }
 
 function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
@@ -645,6 +645,8 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	}
 	BedroomSceneObjects.mGlass.render(programRenderBedroom.program);
 	gl.useProgram(null);
+
+	gl.disable(gl.CULL_FACE)
 
 	angle += 0.01;
 }

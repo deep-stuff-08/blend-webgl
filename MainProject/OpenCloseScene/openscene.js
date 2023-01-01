@@ -67,7 +67,7 @@ function setupProgramForOpenSceneDeep() {
 	setupProgramForAppDestroyDeep()
 }
 
-function initForOpenSceneDeep(sceneCamera) {
+function initForOpenSceneDeep() {
 	initForCubemapRendererDeep()
 	initForStreetLamp()
 	initForOceanDeep()
@@ -201,8 +201,6 @@ function initForOpenSceneDeep(sceneCamera) {
 	opensceneDeep.carData.push({position: 70.0, direction: -1, type: 0})
 	opensceneDeep.carData.push({position: 200.0, direction: -1, type: 1})
 	opensceneDeep.carData.push({position: 400.0, direction: -1, type: 1})
-
-	sceneCamera.updatePath(opensceneDeep.cameraPathLookAround);
 }
 
 function renderToPhoneTexture(deltaTimeInc) {

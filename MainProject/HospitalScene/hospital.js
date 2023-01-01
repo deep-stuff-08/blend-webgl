@@ -93,15 +93,24 @@ var Lights = [];
 
 var cameraPathHospital = [
 	//  position            center             up             velocity      //
-	[[-2.5, -0.3, 0.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-	[[-3.5, 1.3, -3.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-	[[-3.5, 1.3, -3.0], [2.2, -0.3, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-	[[-3.5, 1.3, -3.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-	[[-3.5, 0.8, -3.0], [-7.2, -2.0, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-	[[-7.01, -0.9, -3.6], [-7.2, -3.0, 1.7], [0.0, 1.0, 0.0], [0.0,0.0,0.0]],
+	// [[-2.5, -0.3, 0.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	// [[-3.5, 1.3, -3.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	// [[-3.5, 1.3, -3.0], [2.2, -0.3, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	// [[-3.5, 1.3, -3.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	// [[-3.5, 0.8, -3.0], [-7.2, -2.0, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	// [[-7.01, -0.9, -3.6], [-7.2, -3.0, 1.7], [0.0, 1.0, 0.0], [0.0,0.0,0.0]],
 	//[[-3.5, 0.8, -3.0], [-13.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	//[[-3.5, 1.3, -3.0], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	//[[-3.0, 0.3, -0.5], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+
+	//  position            center             up             velocity      //
+	[[-2.5, -0.3, 0.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-3.5, 0.8, -3.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-3.5, 0.8, -3.0], [2.2, -0.3, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-3.5, 0.8, -3.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	// [[-3.5, 0.8, -3.0], [-13.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-3.5, 0.8, -3.0], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-4.0, 0.3, -0.5], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 ];
 
 function setupVideo(url)
@@ -554,7 +563,7 @@ function setupprogramForSceneTwo() {
 
 }
 
-function initForSceneTwo(sceneCamera) {
+function initForSceneTwo() {
 	vao = gl.createVertexArray();
 	gl.bindVertexArray(null);
 
@@ -605,9 +614,9 @@ function initForSceneTwo(sceneCamera) {
 
 	// load video
 
-	video = setupVideo("HospitalScene/resources/video/trial1.mp4");
+	// video = setupVideo("HospitalScene/resources/video/trial1.mp4");
 
-	console.log(video);
+	// console.log(video);
 
 	videoTexture = gl.createTexture();
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -627,7 +636,7 @@ function initForSceneTwo(sceneCamera) {
 	
 	HospitalSceneObjects.mECGScreen = new mesh(HospitalSceneObjects.mVentilator.meshes[0].vertices,HospitalSceneObjects.mVentilator.meshes[0].indices,0);
 	HospitalSceneObjects.mECGScreen.setMaterial(testMat);
-	console.log(mECGScreen);
+	// console.log(mECGScreen);
 
 	textureForm = loadTexture("resources/textures/form.png");
 	gl.bindTexture(gl.TEXTURE_2D,textureForm);
@@ -638,7 +647,7 @@ function initForSceneTwo(sceneCamera) {
 	testMat.texID.push(textureForm);
 	testMat.texType.push(1);
 	HospitalSceneObjects.mPad.meshes[2].setMaterial(testMat);
-	console.log(mPad);
+	// console.log(mPad);
 
 	// Light Setups
 	Lights.push(
@@ -657,7 +666,7 @@ function initForSceneTwo(sceneCamera) {
 				specular : [1.0,1.0,1.0]
 			});
 
-	sceneCamera.updatePath(cameraPathHospital);
+	// sceneCamera.updatePath(cameraPathHospital);
 }
 
 function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
@@ -667,7 +676,7 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {
 	if(copyVideo)
 	{
 		//console.log("Here");
-		updateTexture(gl,videoTexture,video);
+		// updateTexture(gl,videoTexture,video);
 	}
 	
 	var modelMatrix = mat4.create();

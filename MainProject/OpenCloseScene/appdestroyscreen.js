@@ -1,9 +1,6 @@
 var appdestroyDeep = {
 	objQuad: null,
 	progNoise: null,
-	uniforms: {
-		color: null
-	},
 	texInstagram: null,
 	texFacebook: null,
 	texYoutube: null,
@@ -23,8 +20,6 @@ function setupProgramForAppDestroyDeep() {
 	appdestroyDeep.progNoise = createProgram([vertShader, fragShader])
 	deleteShader(vertShader)
 	deleteShader(fragShader)
-
-	appdestroyDeep.uniforms.color = gl.getUniformLocation(appdestroyDeep.progNoise, "color")
 }
 
 function initForAppDestroyDeep() {
@@ -44,7 +39,6 @@ function initForAppDestroyDeep() {
 
 function renderForAppDestroyDeep(deltatimeinc) {
 	gl.useProgram(appdestroyDeep.progNoise)
-	gl.uniform3f(appdestroyDeep.uniforms.color, 0.1, 0.1, 0.1)
 	appdestroyDeep.objQuad.render()
 
 	var mal = mat4.create()
