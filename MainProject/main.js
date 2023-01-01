@@ -1,6 +1,7 @@
 "use strict"
 var canvas
 var gl
+var musicPlayer
 
 const SceneEnum = {
 	Tester: -1,
@@ -117,6 +118,7 @@ function main() {
 	canvas.height = window.innerHeight
 	document.body.style.margin = "0"
 	document.body.appendChild(canvas)
+	musicPlayer = document.getElementById("musicid")
 	window.addEventListener('resize', function () {
 		canvas.width = window.innerWidth
 		canvas.height = window.innerHeight
@@ -388,32 +390,37 @@ function render(time) {
 		break
 	case SceneEnum.OpenScene:
 		camSplinePosition += renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
-		if(camSplinePosition > 0.99999)
-		camSplinePosition = 0.99999
+		if(camSplinePosition > 0.99999) {
+			controlVariables.renderScene++
+		}
 		break
 	case SceneEnum.StudyScene:
 		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix)
 		camSplinePosition += 0.0003
-		if(camSplinePosition > 0.99999)
-		camSplinePosition = 0.99999
+		if(camSplinePosition > 0.99999) {
+			controlVariables.renderScene++
+		}
 		break
 	case SceneEnum.BarScene:
 		camSplinePosition += 0.0003
-		if(camSplinePosition > 0.99999)
-		camSplinePosition = 0.99999
+		if(camSplinePosition > 0.99999) {
+			controlVariables.renderScene++
+		}
 		renderForBarScene(perspectiveMatrix, cameraMatrix, cameraPosition,  deltaTime)
 	break
 	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
 		camSplinePosition += 0.0002
-		if(camSplinePosition > 0.99999)
-		camSplinePosition = 0.99999
+		if(camSplinePosition > 0.99999) {
+			controlVariables.renderScene++
+		}
 	break
 	case SceneEnum.BedroomScene:
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
 		camSplinePosition += 0.0005
-		if(camSplinePosition > 0.99999)
-		camSplinePosition = 0.99999
+		if(camSplinePosition > 0.99999) {
+			controlVariables.renderScene++
+		}
 	break
 	case SceneEnum.CloseScene:
 		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition, deltaTime)
