@@ -45,7 +45,7 @@ function setupProgramForStudySceneKdesh() {
     setupProgramForWindowKdesh();
 }
 
-function initForStudySceneKdesh(sceneCamera) {
+function initForStudySceneKdesh() {
     initForTableKdesh();
     initForLampKdesh();
     initForBottleKdesh();
@@ -90,7 +90,7 @@ function initForStudySceneKdesh(sceneCamera) {
     studySceneKdesh.hennessy = new Model('resources/models/static/LiquorBottles/hennessy.json');
     studySceneKdesh.jackDaniels = new Model('resources/models/static/LiquorBottles/jackdaniels.json');
 
-    sceneCamera.updatePath(studySceneKdesh.cameraPath);
+    // sceneCamera.updatePath(studySceneKdesh.cameraPath);
 }
 
 function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {

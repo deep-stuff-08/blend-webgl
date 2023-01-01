@@ -70,7 +70,7 @@ function setupprogramForBarScene() {
 
 }
 
-function initForBarScene(sceneCamera) {
+function initForBarScene() {
 
 	vao = gl.createVertexArray();
 	console.log(programRenderBar);
@@ -121,7 +121,7 @@ function initForBarScene(sceneCamera) {
 
 	// camera setup
 
-	sceneCamera.updatePath(cameraPathBar);
+	// sceneCamera.updatePath(cameraPathBar);
 }
 
 function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimeinc) {
@@ -850,6 +850,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, camPosition, deltatimei
 	if(camSplinePosition > 0.9999) {
 		cameraControls.isLookingUpDone = true
 	}
+	gl.disable(gl.CULL_FACE);
 
 	//return cameraControls.isLookingUpDone ? 0.0 : deltatimeinc * 0.01 
 }

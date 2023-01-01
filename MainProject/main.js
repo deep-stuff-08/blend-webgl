@@ -9,8 +9,7 @@ const SceneEnum = {
 	BarScene: 2,
 	HospitalScene: 3,
 	BedroomScene: 4,
-	UninstallScene: 5,
-	CloseScene: 6
+	CloseScene: 5
 }
 
 var debugCamera = {
@@ -24,12 +23,12 @@ var debugCamera = {
 }
 
 var controlVariables = {
-	renderScene: SceneEnum.CloseScene,
+	renderScene: SceneEnum.OpenScene,
 	doRenderToHDR: true,
 	devCam: false,
 	showCamPath: false,
 	showCam: false,
-	debugMode: true,
+	debugMode: false,
 	isLoadModels: true,
 	currentExposure: 1.0
 }
@@ -44,6 +43,16 @@ var deltaTimer = {
 	currentTime: 0
 }
 
+var isCameraSet = [ false, false, false, false, false, false ]
+var cameras = [
+	opensceneDeep.cameraPathLookAround,
+	studySceneKdesh.cameraPath,
+	cameraPathBar,
+	cameraPathHospital,
+	cameraPathBedroom,
+	null
+]
+
 var sceneCamera
 var camSplinePosition = 0.0
 
@@ -51,11 +60,11 @@ var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
 	// { name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
-	// { name: "BrianSad", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
-	// { name: "BrianIdle", files:[ 'resources/models/dynamic/Brian/Idle.dae' ], flipTex:true },
-	// { name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
-	// { name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },
-	// { name: "SilverCar", files:[ 'resources/models/static/Car/silvercar.obj', 'resources/models/static/Car/silvercar.mtl' ], flipTex:true },
+	{ name: "BrianSad", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
+	{ name: "BrianIdle", files:[ 'resources/models/dynamic/Brian/Idle.dae' ], flipTex:true },
+	{ name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
+	{ name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },
+	{ name: "SilverCar", files:[ 'resources/models/static/Car/silvercar.obj', 'resources/models/static/Car/silvercar.mtl' ], flipTex:true },
 ]
 
 var loadedTextures = {}
@@ -192,8 +201,8 @@ function main() {
 				controlVariables.showCam = false;
 			}
 		} else if(event.code == 'Space') {
-			if(controlVariables.debugMode) {
-				controlVariables.renderScene = (controlVariables.renderScene + 1) % 7
+			if(!controlVariables.debugMode) {
+				controlVariables.renderScene = (controlVariables.renderScene + 1) % (SceneEnum.CloseScene + 1)
 			}
 		} else if(event.code == 'KeyO') {
 			placementHelp.sca += 0.01
@@ -220,26 +229,26 @@ function setupProgram() {
 	// setupProgramForTestModelLoadByDeep()
 
 	if(controlVariables.debugMode) {
-		switch(controlVariables.renderScene) {
-		case SceneEnum.OpenScene:
-			setupProgramForOpenSceneDeep()
-			break
-		case SceneEnum.StudyScene:
-			setupProgramForStudySceneKdesh()
-			break
-		case SceneEnum.BarScene:
-			setupprogramForBarScene()
-			break
-		case SceneEnum.BedroomScene:
-			setupprogramForBedroomScene()
-			break
-		case SceneEnum.HospitalScene:
-			setupprogramForSceneTwo()
-			break
-		case SceneEnum.CloseScene:
-			setupProgramForOpenSceneDeep()
-			break
-		}
+		// switch(controlVariables.renderScene) {
+		// case SceneEnum.OpenScene:
+		// 	setupProgramForOpenSceneDeep()
+		// 	break
+		// case SceneEnum.StudyScene:
+		// 	setupProgramForStudySceneKdesh()
+		// 	break
+		// case SceneEnum.BarScene:
+		// 	setupprogramForBarScene()
+		// 	break
+		// case SceneEnum.BedroomScene:
+		// 	setupprogramForBedroomScene()
+		// 	break
+		// case SceneEnum.HospitalScene:
+		// 	setupprogramForSceneTwo()
+		// 	break
+		// case SceneEnum.CloseScene:
+		// 	setupProgramForOpenSceneDeep()
+		// 	break
+		// }
 	} else {
 		setupProgramForOpenSceneDeep()
 		setupProgramForStudySceneKdesh()
@@ -284,28 +293,28 @@ function init() {
 	sceneCamera = new kcamera()
 
 	if(controlVariables.debugMode) {
-		switch(controlVariables.renderScene) {
-		case SceneEnum.OpenScene:
-			initForOpenSceneDeep(sceneCamera)
-			break
-		case SceneEnum.StudyScene:
-			initForStudySceneKdesh(sceneCamera)
-			break
-		case SceneEnum.BarScene:
-			initForBarScene(sceneCamera)
-			break
-		case SceneEnum.BedroomScene:
-			initForBedroomScene(sceneCamera)
-			break
-		case SceneEnum.HospitalScene:
-			initForSceneTwo(sceneCamera)
-			break
-		case SceneEnum.CloseScene:
-			initForOpenSceneDeep(sceneCamera)
-		}
+		// switch(controlVariables.renderScene) {
+		// case SceneEnum.OpenScene:
+		// 	initForOpenSceneDeep(sceneCamera)
+		// 	break
+		// case SceneEnum.StudyScene:
+		// 	initForStudySceneKdesh(sceneCamera)
+		// 	break
+		// case SceneEnum.BarScene:
+		// 	initForBarScene(sceneCamera)
+		// 	break
+		// case SceneEnum.BedroomScene:
+		// 	initForBedroomScene(sceneCamera)
+		// 	break
+		// case SceneEnum.HospitalScene:
+		// 	initForSceneTwo(sceneCamera)
+		// 	break
+		// case SceneEnum.CloseScene:
+		// 	initForOpenSceneDeep(sceneCamera)
+		// }
 	} else {
 		initForOpenSceneDeep()
-		initForStudySceneKdesh(sceneCamera)
+		initForStudySceneKdesh()
 		initForSceneTwo()
 		initForBarScene()
 		initForBedroomScene()
@@ -342,6 +351,14 @@ function render(time) {
 	vec3.add(newfront, debugCamera.cameraFront, debugCamera.cameraPosition)
 	mat4.lookAt(cameraMatrix, debugCamera.cameraPosition, newfront, debugCamera.cameraUp) */
 	
+	if(!isCameraSet[controlVariables.renderScene]) {
+		if(cameras[controlVariables.renderScene] != null) {
+			sceneCamera.updatePath(cameras[controlVariables.renderScene])
+		}
+		isCameraSet[controlVariables.renderScene] = true
+		camSplinePosition = 0.0
+	}
+
 	var cameraMatrix
 	var cameraPosition
 	if(controlVariables.devCam) {
@@ -382,11 +399,9 @@ function render(time) {
 		break
 	case SceneEnum.BarScene:
 		camSplinePosition += 0.0003
-		//console.log(time);
 		if(camSplinePosition > 0.99999)
 		camSplinePosition = 0.99999
 		renderForBarScene(perspectiveMatrix, cameraMatrix, cameraPosition,  deltaTime)
-
 	break
 	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)

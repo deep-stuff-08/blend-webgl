@@ -5,7 +5,6 @@ in vec3 tex;
 
 layout(location = 0) out vec4 FragColor;
 
-uniform float time;
 uniform bool isEvening;
 
 vec3 mod289(vec3 x) {
