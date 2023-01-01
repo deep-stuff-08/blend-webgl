@@ -24,13 +24,13 @@ var debugCamera = {
 }
 
 var controlVariables = {
-	renderScene: SceneEnum.OpenScene,
+	renderScene: SceneEnum.HospitalScene,
 	doRenderToHDR: true,
 	devCam: false,
 	showCamPath: false,
 	showCam: false,
 	debugMode: false,
-	isLoadModels: true,
+	isLoadModels: false,
 	currentExposure: 1.0
 }
 
@@ -409,7 +409,7 @@ function render(time) {
 		renderForBarScene(perspectiveMatrix, cameraMatrix, cameraPosition,  deltaTime)
 	break
 	case SceneEnum.HospitalScene:
-		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
+		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix, cameraPosition)
 		camSplinePosition += 0.0002
 		if(camSplinePosition > 0.99999) {
 			controlVariables.renderScene++
