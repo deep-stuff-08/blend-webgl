@@ -8,13 +8,15 @@ var cameraUp = vec3.set(vec3.create(), 0.0, 1.0, 0.0)
 var program
 
 var vampire
+var brian
 var backpack
 
 var isStatic = true
 
 var modelList = [
-	{ name: "Vampire", files:[ 'Joe/Jog.dae' ], flipTex:true },
-	{ name: "Backpack", files:[ 'backpack/backpack.obj', 'backpack/backpack.mtl'], flipTex:false },
+	// { name: "Vampire", files:[ 'vampire/dancing_vampire.dae' ], flipTex:true },
+	{ name: "Brian", files:[ 'Brian/SadWalk.dae' ], flipTex:true },
+	// { name: "Backpack", files:[ 'backpack/backpack.obj', 'backpack/backpack.mtl'], flipTex:false },
 ]
 
 assimpjs().then (function (ajs) {
@@ -155,6 +157,7 @@ function setupProgram() {
 function init() {
 	gl.enable(gl.DEPTH_TEST)
 	vampire = initalizeModel("Vampire")
+	brian = initalizeModel("Brian")
 	backpack = initalizeModel("Backpack")
 }
 
@@ -186,16 +189,19 @@ function render() {
 	gl.uniformMatrix4fv(mMatUnifromForDeepCube, false, modelMatrix)
 	gl.uniform3fv(viewPosUnifromForDeepCube, cameraPosition)
 	if(!isStatic) {
-		updateModel(vampire, 0, 0.01)
-		var boneMat = getBoneMatrixArray(vampire, 0)
+		// updateModel(vampire, 0, 0.01)
+		updateModel(brian, 0, 0.01)
+		var boneMat = getBoneMatrixArray(brian, 0)
 		for(var i = 0; i < boneMat.length; i++) {
 			gl.uniformMatrix4fv(bMatUnifromForDeepCube[i], false, boneMat[i])
 		}
 		gl.uniform1i(isStaticUniformForDeepCube, 1)
-		renderModel(vampire)
+		renderModel(brian)
+		// renderModel(vampire)
 	} else {
 		gl.uniform1i(isStaticUniformForDeepCube, 0)
-		renderModel(vampire)
+		renderModel(brian)
+		// renderModel(vampire)
 		// renderModel(backpack)
 	}
 	

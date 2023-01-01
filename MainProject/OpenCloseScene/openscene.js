@@ -1,0 +1,701 @@
+"use strict"
+var opensceneDeep = {
+	objQuad: null,
+	objCube: null,
+	objBrianSad: null,
+	objBrianIdle: null,
+	objCars: null,
+	objSphere: null,
+	vaoCylinderPart: null,
+	countCylinderPart: null,
+	texFootpath: null,
+	texRoad: null,
+	texFootpathBorder: null,
+	texCementWall: null,
+	texBuilding1: null,
+	texBuilding2: null,
+	phoneScreenFbo: null,
+	phoneScreenTex: null,
+	carData: [],
+	isPhoneAnimationDone: false,
+	isPhoneFallDone: false,
+	isCameraBackUpAgain: false,
+	phoneY: 0.0,
+	cameraY: 0.0,
+	cameraX: 0.0,
+	cameraPathLookAround: [
+		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [20.5, 10.0, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [-50.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	], 
+	isStraight: true,
+	cameraZ: 0.0,
+	brianWalkZ: 0.0
+}
+
+const opensceneDeepConsts = {
+	footpathWidth: 2.0, // 2.0 * 2.0
+	footpathborderWidth: 0.25, // 0.25 * 2.0
+	footpathborderHeight: 0.25, // 0.25 * 2.0
+	roadWidth: 8.0, // 2.0 * 6.0
+	railingWidth: 0.3, // 2.0 * 0.3
+	railingHeight: 0.5, // 2.0 * 0.5
+	sceneY: -3.0,
+	sceneZ: -95.0,
+	footpathRigthDepth: 100.0,
+	footpathLeftDepth: 100.0,
+	groundWidth: 30.0,
+	wallHeight: 1.5,
+	wallWidth: 0.2,
+	buildingXTrans: 10.0,
+	buildingZTrans: 12.5,
+	buildingZSpace: 30.0,
+	oceanWidth: 1000.0,
+	oceanDepth: 100.0,
+	lampCount: 8,
+	lampDelta: 0
+}
+
+var testProgram;
+
+function setupProgramForOpenSceneDeep() {
+	setupProgramForCubemapRendererDeep()
+	setupProgramForStreetLamp()
+	setupProgramForOceanDeep()
+	setupProgramForAppDestroyDeep()
+}
+
+function initForOpenSceneDeep() {
+	initForCubemapRendererDeep()
+	initForStreetLamp()
+	initForOceanDeep()
+	initForAppDestroyDeep()
+
+	opensceneDeepConsts.lampDelta = (opensceneDeepConsts.footpathLeftDepth * 2.0) / (opensceneDeepConsts.lampCount - 1)
+
+	opensceneDeep.objQuad = dshapes.initQuad()
+	opensceneDeep.objCube = dshapes.initCube()
+	opensceneDeep.objSphere = dshapes.initSphere(30, 30)
+	
+	opensceneDeep.texFootpath = loadTexture("resources/textures/footpath.jpg", false)
+	opensceneDeep.texRoad = loadTexture("resources/textures/road.jpg", false)
+	opensceneDeep.texFootpathBorder = loadTexture("resources/textures/footpathborder.jpg", false)
+	opensceneDeep.texCementWall = loadTexture("resources/textures/concretestone.jpg", false)
+	opensceneDeep.texCity = loadTextureCubemap("resources/textures/sky.jpg", false)
+	opensceneDeep.texBuilding1 = loadTexture("resources/textures/building1.png", true)
+	opensceneDeep.texBuilding2 = loadTexture("resources/textures/building2.png", true)
+
+	opensceneDeep.phoneScreenFbo = gl.createFramebuffer()
+	gl.bindFramebuffer(gl.FRAMEBUFFER, opensceneDeep.phoneScreenFbo)
+	opensceneDeep.phoneScreenTex = gl.createTexture()
+	gl.bindTexture(gl.TEXTURE_2D, opensceneDeep.phoneScreenTex)
+	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, 1024, 1024)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, opensceneDeep.phoneScreenTex, 0)
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+
+	const slices = 10
+	var vertexData = []
+	for(var j = 0; j <= slices; j++) {
+		var theta = ((Math.PI / 2.0) * j / slices) + Math.PI
+		vertexData.push(Math.sin(theta) * 2.0 + 1.0)
+		vertexData.push(1.0)
+		vertexData.push(Math.cos(theta) * 2.0 + 1.0)
+		
+		vertexData.push(Math.sin(theta))
+		vertexData.push(0.0)
+		vertexData.push(Math.cos(theta))
+
+		vertexData.push(j / slices)
+		vertexData.push(1.0)
+	
+		vertexData.push(Math.sin(theta) * 2.0 + 1.0)
+		vertexData.push(-1.0)
+		vertexData.push(Math.cos(theta) * 2.0 + 1.0)
+		
+		vertexData.push(Math.sin(theta))
+		vertexData.push(0.0)
+		vertexData.push(Math.cos(theta))
+
+		vertexData.push(j / slices)
+		vertexData.push(0.0)
+	}
+	vertexData.push(1.0)
+	vertexData.push(1.0)
+	vertexData.push(1.0)
+	
+	vertexData.push(0.0)
+	vertexData.push(1.0)
+	vertexData.push(0.0)
+
+	vertexData.push(1.0)
+	vertexData.push(0.0)
+
+	for(var j = 0; j <= slices; j++) {
+		var theta = ((Math.PI / 2.0) * j / slices) + Math.PI
+		vertexData.push(Math.sin(theta) * 2.0 + 1.0)
+		vertexData.push(1.0)
+		vertexData.push(Math.cos(theta) * 2.0 + 1.0)
+		
+		vertexData.push(0.0)
+		vertexData.push(1.0)
+		vertexData.push(0.0)
+
+		vertexData.push(Math.cos(theta) + 1.0)
+		vertexData.push(-Math.sin(theta))
+	}
+	var elements = []
+	for(var j = 0; j < slices; j++) {
+		elements.push(j * 2)
+		elements.push(j * 2 + 1)
+		elements.push((j + 1) * 2)
+
+		elements.push(j * 2 + 1)
+		elements.push((j + 1) * 2)
+		elements.push((j + 1) * 2 + 1)
+	}
+	for(var firstCircle = slices * 2 + 3, j = 0; j < slices; j++) {
+		elements.push(firstCircle - 1)
+		elements.push(firstCircle + j)
+		elements.push(firstCircle + j + 1)
+	}
+	var elementIndices = Uint16Array.from(elements)
+	var vertexArray = Float32Array.from(vertexData)
+
+	opensceneDeep.vaoCylinderPart = gl.createVertexArray()
+	opensceneDeep.countCylinderPart = elementIndices.length
+	gl.bindVertexArray(opensceneDeep.vaoCylinderPart)
+
+	var vbo = gl.createBuffer()
+	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.bufferData(gl.ARRAY_BUFFER, vertexArray, gl.STATIC_DRAW)
+	gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 8 * 4, 0)
+	gl.enableVertexAttribArray(0)
+	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 8 * 4, 3 * 4)
+	gl.enableVertexAttribArray(1)
+	gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 8 * 4, 6 * 4)
+	gl.enableVertexAttribArray(2)
+	
+	var eabo = gl.createBuffer()
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, eabo)
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, elementIndices, gl.STATIC_DRAW)
+
+	gl.bindVertexArray(null)
+
+	opensceneDeep.objBrianSad = initalizeModel('BrianSad')
+	opensceneDeep.objBrianIdle = initalizeModel('BrianIdle')
+	opensceneDeep.objCars = []
+	opensceneDeep.objCars.push(initalizeModel('BlueCar'))
+	opensceneDeep.objCars.push(initalizeModel('BlackCar'))
+	opensceneDeep.objCars.push(initalizeModel('SilverCar'))
+
+	opensceneDeep.carData.push({position: -300.0, direction: 1, type: 1})
+	opensceneDeep.carData.push({position: -500.0, direction: 1, type: 2})
+	opensceneDeep.carData.push({position: -600.0, direction: 1, type: 0})
+	opensceneDeep.carData.push({position: -900.0, direction: 1, type: 2})
+	opensceneDeep.carData.push({position: -1100.0, direction: 1, type: 0})
+	opensceneDeep.carData.push({position: 10.0, direction: -1, type: 2})
+	opensceneDeep.carData.push({position: 70.0, direction: -1, type: 0})
+	opensceneDeep.carData.push({position: 200.0, direction: -1, type: 1})
+	opensceneDeep.carData.push({position: 400.0, direction: -1, type: 1})
+}
+
+function renderToPhoneTexture(deltaTimeInc) {
+	var currentFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING)
+	var currentViewport = gl.getParameter(gl.VIEWPORT)
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, opensceneDeep.phoneScreenFbo)
+	gl.clearBufferfv(gl.COLOR, 0, [0.5, 1.0, 0.25, 1.0])
+	gl.viewport(0, 0, 1024, 1024)
+	var a = renderForAppDestroyDeep(deltaTimeInc)
+	gl.bindFramebuffer(gl.FRAMEBUFFER, currentFbo)
+	gl.viewport(currentViewport[0], currentViewport[1], currentViewport[2], currentViewport[3])
+	return a
+}
+
+function renderForCitySceneStaticDeep() {
+	//Road
+	var texMatrix
+	var modelMatrix
+
+	modelMatrix= mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [0.0, opensceneDeepConsts.sceneY, opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.roadWidth, opensceneDeepConsts.footpathRigthDepth, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, [1.0, 10.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	gl.activeTexture(gl.TEXTURE0)
+	gl.bindTexture(gl.TEXTURE_2D, opensceneDeep.texRoad)
+	opensceneDeep.objQuad.render()
+
+	//Railing
+	gl.activeTexture(gl.TEXTURE0)
+	gl.bindTexture(gl.TEXTURE_2D, opensceneDeep.texCementWall)
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth) * 2.0) + opensceneDeepConsts.railingWidth), opensceneDeepConsts.sceneY + ((opensceneDeepConsts.footpathborderHeight * 2.0) + (opensceneDeepConsts.railingHeight * 2.0)), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.railingWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, [0.2, 60.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth) * 2.0)), opensceneDeepConsts.sceneY + ((opensceneDeepConsts.footpathborderHeight * 2.0) + opensceneDeepConsts.railingHeight), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathLeftDepth, opensceneDeepConsts.railingHeight, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.rotate(texMatrix, texMatrix, Math.PI / 2.0)
+	mat2.scale(texMatrix, texMatrix, [60.0, 0.3])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth) * 2.0)), opensceneDeepConsts.sceneY + ((opensceneDeepConsts.footpathborderHeight * 2.0) + (-opensceneDeepConsts.railingHeight * 14.0)), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathLeftDepth, opensceneDeepConsts.railingHeight * 16.0, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.rotate(texMatrix, texMatrix, Math.PI / 2.0)
+	mat2.scale(texMatrix, texMatrix, [60.0, 0.3 * 16.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+
+	//FootPath
+	gl.activeTexture(gl.TEXTURE0)
+	gl.bindTexture(gl.TEXTURE_2D, opensceneDeep.texFootpath)
+	//FootPathLeft
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathWidth + (opensceneDeepConsts.footpathborderWidth * 2.0)), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, [1.0, 50.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+	//FootPathRight
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathWidth + (opensceneDeepConsts.footpathborderWidth * 2.0)), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathWidth, opensceneDeepConsts.footpathRigthDepth, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, [1.0, 50.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+
+	//FootPathBorder
+	gl.activeTexture(gl.TEXTURE0)
+	gl.bindTexture(gl.TEXTURE_2D, opensceneDeep.texFootpathBorder)
+	//FootPathBorderLeft
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathborderWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathborderWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, [0.2, 50.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathLeftDepth, opensceneDeepConsts.footpathborderHeight, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.rotate(texMatrix, texMatrix, Math.PI / 2.0)
+	mat2.scale(texMatrix, texMatrix, [50.0, 1.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+	//FootPathBorderRight
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathborderWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathborderWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, [0.2, 50.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathLeftDepth, opensceneDeepConsts.footpathborderHeight, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.rotate(texMatrix, texMatrix, 3.0 * Math.PI / 2.0)
+	mat2.scale(texMatrix, texMatrix, [50.0, 1.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+
+	//Ground
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth) * 2.0) + opensceneDeepConsts.groundWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.groundWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, [30.0, 50.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+
+	//Wall
+	gl.activeTexture(gl.TEXTURE0)
+	gl.bindTexture(gl.TEXTURE_2D, opensceneDeep.texFootpath)
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth) * 2.0)), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0) + opensceneDeepConsts.wallHeight, opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathLeftDepth, opensceneDeepConsts.wallHeight, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, [50.0, 1.5])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth) * 2.0) + opensceneDeepConsts.wallWidth), opensceneDeepConsts.sceneY + ((opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.wallHeight) * 2.0), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [-1.0, 0.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.wallWidth, opensceneDeepConsts.footpathLeftDepth, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, [0.1, 50.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+
+	//Building
+	for(var i = 0; i < 6; i++) {
+	modelMatrix = mat4.create()
+		mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth) * 2.0)) + opensceneDeepConsts.buildingXTrans, opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ + opensceneDeepConsts.footpathLeftDepth - ((opensceneDeepConsts.buildingZSpace * i) + opensceneDeepConsts.buildingZTrans)])
+		mat4.scale(modelMatrix, modelMatrix, [5.0, 5.0, 5.0])
+		renderForBuildingDeep(modelMatrix, [2.0, 3.0], opensceneDeep.texBuilding1)
+	}
+
+	for(var i = 0; i < 6; i++) {
+	modelMatrix = mat4.create()
+		mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth) * 2.0)) + opensceneDeepConsts.buildingXTrans, opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth * 2.0), opensceneDeepConsts.sceneZ + opensceneDeepConsts.footpathLeftDepth - ((opensceneDeepConsts.buildingZSpace * i) + opensceneDeepConsts.buildingZTrans + (opensceneDeepConsts.buildingZSpace / 2.0))])
+		mat4.scale(modelMatrix, modelMatrix, [5.0, 6.0, 5.0])
+		renderForBuildingDeep(modelMatrix, [2.0, 3.0], opensceneDeep.texBuilding2)
+	}
+
+	//Lamps
+	for(var j = 0; j < 2; j++) {
+		modelMatrix = mat4.create()
+		mat4.translate(modelMatrix, modelMatrix, [0.0, opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderHeight * 2.0), opensceneDeepConsts.sceneZ])
+		mat4.rotate(modelMatrix, modelMatrix, j * Math.PI, [0.0, 1.0, 0.0])
+		for(var i = 0; i < opensceneDeepConsts.lampCount; i++) {
+			var lmodelMatrix = mat4.clone(modelMatrix)
+			mat4.translate(lmodelMatrix, lmodelMatrix, [-(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathborderWidth + 0.1), 0.0, opensceneDeepConsts.footpathLeftDepth - (i * opensceneDeepConsts.lampDelta)])
+			mat4.scale(lmodelMatrix, lmodelMatrix, [3.4, 3.4, 3.4])
+			renderForStreetLamp(lmodelMatrix)
+		}
+	}
+}
+
+function renderForCarDeep(data) {
+	const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+	var modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [2.7 * data.direction, -1.76, data.position])
+	if(data.direction == 1) {
+		mat4.rotate(modelMatrix, modelMatrix, Math.PI, [0.0, 1.0, 0.0])
+	}
+	var s = clamp(data.direction, 0.0, 1.0)
+	mat4.scale(modelMatrix, modelMatrix, [0.32, 0.32, 0.32])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	setTextureMatrixCompleteLight(texMatrix)
+	renderModel(opensceneDeep.objCars[data.type])
+}
+
+function renderForBrianSadDeep(perspectiveMatrix, viewMatrix, z, viewPos) {
+	const spotCutoff = [50, 60]
+	const spotDirection = [ 0.0, -1.0, 0.0 ]
+	const lightOne = [1.0, 1.0, 1.0]
+	const pointAttenuation = [1.0, 0.014, 0.0007]
+	var lightSources = []
+	var start = 5.0
+	for(var i = 0; i < 6; i++) {
+		lightSources.push([-4.0, 4.5, start])
+		lightSources.push([4.0, 4.5, start])
+		start -= opensceneDeepConsts.lampDelta
+	}
+	var modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-9.86, -2.5, z])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI, [0.0, 1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [1.4, 1.4, 1.4])
+	gl.useProgram(progCompleteLight.programModel)
+	resetCompleteLightModel()
+	setProjectionAndViewCompleteLightModel(perspectiveMatrix, viewMatrix, viewPos)
+	setFlagsCompleteLightModel(false, false, true, true)
+	setTextureSamplersCompleteLightModel(0)
+	setMaterialCompleteLightModel([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	addLightCompleteLightModel([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [1.0, 0.5, 0.0], [1.0, 0.0, 0.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		addSpotLightCompleteLightModel(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
+	}
+
+	setModelMatrixCompleteLightModel(modelMatrix)
+	updateModel(opensceneDeep.objBrianSad, 0, 0.01)
+	var boneMat = getBoneMatrixArray(opensceneDeep.objBrianSad, 0)
+	setBoneMatrixCompleteLightModel(boneMat)
+	renderModel(opensceneDeep.objBrianSad)
+}
+
+function renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, viewPos) {
+	const spotCutoff = [50, 60]
+	const spotDirection = [ 0.0, -1.0, 0.0 ]
+	const lightOne = [1.0, 1.0, 1.0]
+	const pointAttenuation = [1.0, 0.014, 0.0007]
+	var lightSources = []
+	var start = 5.0
+	for(var i = 0; i < 6; i++) {
+		lightSources.push([-4.0, 4.5, start])
+		lightSources.push([4.0, 4.5, start])
+		start -= opensceneDeepConsts.lampDelta
+	}
+	var modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-12.7, -1.5, -42.0])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [1.4, 1.4, 1.4])
+	gl.useProgram(progCompleteLight.programModel)
+	resetCompleteLightModel()
+	setProjectionAndViewCompleteLightModel(perspectiveMatrix, viewMatrix, viewPos)
+	setFlagsCompleteLightModel(false, false, true, true)
+	setTextureSamplersCompleteLightModel(0)
+	setMaterialCompleteLightModel([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	addLightCompleteLightModel([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [0.05, 0.1, 0.3], [1.0, 0.0, 0.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		addSpotLightCompleteLightModel(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
+	}
+
+	setModelMatrixCompleteLightModel(modelMatrix)
+	updateModel(opensceneDeep.objBrianIdle, 0, 0.01)
+	var boneMat = getBoneMatrixArray(opensceneDeep.objBrianIdle, 0)
+	setBoneMatrixCompleteLightModel(boneMat)
+	renderModel(opensceneDeep.objBrianIdle)
+}
+
+function renderForBuildingDeep(localModelMatrix, texScale, tex) {
+	var modelMatrix
+	var texMatrix
+
+	const buildingHeight = 3.0
+	const buildingWidth = 1.0
+	const buildingDepth = 1.0
+	const roofHeight = 0.1
+	const roofWidthDepthInc = 0.05
+	
+	gl.activeTexture(gl.TEXTURE0)
+	gl.bindTexture(gl.TEXTURE_2D, tex)
+	modelMatrix = mat4.clone(localModelMatrix)
+	mat4.translate(modelMatrix, modelMatrix, [-buildingWidth, buildingHeight, 0.0])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [buildingDepth, buildingHeight, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, texScale)
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+	modelMatrix = mat4.clone(localModelMatrix)
+	mat4.translate(modelMatrix, modelMatrix, [0.0, buildingHeight, buildingDepth])
+	mat4.scale(modelMatrix, modelMatrix, [buildingWidth, buildingHeight, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, texScale)
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+	modelMatrix = mat4.clone(localModelMatrix)
+	mat4.translate(modelMatrix, modelMatrix, [0.0, buildingHeight, -buildingDepth])
+	mat4.scale(modelMatrix, modelMatrix, [buildingWidth, buildingHeight, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, texScale)
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
+
+	gl.bindTexture(gl.TEXTURE_2D, opensceneDeep.texCementWall)
+	modelMatrix = mat4.clone(localModelMatrix)
+	mat4.translate(modelMatrix, modelMatrix, [0.0, buildingHeight * 2.0 + roofHeight, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [buildingWidth + roofWidthDepthInc, roofHeight, buildingDepth + roofWidthDepthInc])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.scale(texMatrix, texMatrix, texScale)
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objCube.render()
+}
+
+function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatimeinc) {
+	var viewMatrix = mat4.clone(camMatrix)
+	mat4.translate(viewMatrix, viewMatrix, [0.0, 0.0, opensceneDeep.cameraZ])
+
+	updateForOpenSceneDeep(deltatimeinc)
+
+	// setFlagsCompleteLight(false, false, false, false);
+	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
+
+	var modelMatrix
+	var lightSources = []
+	var start = 5.0
+	for(var i = 0; i < 6; i++) {
+		lightSources.push([-4.0, 4.5, start])
+		lightSources.push([4.0, 4.5, start])
+		start -= opensceneDeepConsts.lampDelta
+	}
+
+	const spotCutoff = [50, 60]
+	const spotDirection = [ 0.0, -1.0, 0.0 ]
+	const lightOne = [1.0, 1.0, 1.0]
+	const pointAttenuation = [1.0, 0.014, 0.0007]
+
+	//Cubemap
+	renderCubemapDeep(perspectiveMatrix, camMatrix, 1)
+
+	gl.useProgram(progCompleteLight.program)
+	resetCompleteLight()
+	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
+	setFlagsCompleteLight(false, false, true, true)
+	setTextureSamplersCompleteLight(0)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	// addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
+	// addPointLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.014, 0.0007])
+	addLightCompleteLight([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [1.0, 0.5, 0.0], [1.0, 0.0, 0.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		addSpotLightCompleteLight(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
+	}
+
+	renderForCitySceneStaticDeep()
+	
+	setFlagsCompleteLight(false, false, false, false)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.2, 0.6, 0.3], [0.7, 0.7, 0.7], 1.0, 1.0)
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-500.0, 40.0, -500.0])
+	mat4.scale(modelMatrix, modelMatrix, [40.0, 40.0, 40.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	opensceneDeep.objSphere.render()
+
+	//Cars
+	setFlagsCompleteLight(false, false, true, true)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	for(var i = 0; i < opensceneDeep.carData.length; i++) {
+		renderForCarDeep(opensceneDeep.carData[i])
+		opensceneDeep.carData[i].position += deltatimeinc * 0.035 * opensceneDeep.carData[i].direction
+	}
+
+	renderForBrianSadDeep(perspectiveMatrix, viewMatrix, opensceneDeep.brianWalkZ, lightSources[0])
+
+	// for(var i = 0; i < lightSources.length; i++) {
+		// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSources[i], [1.0, 1.0, 1.0])
+	// }
+
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.oceanWidth, 20.0, opensceneDeepConsts.oceanDepth])
+	renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix)
+
+	// // FootPathBorderTurn
+	// modelMatrix = mat4.create()
+	// mat4.translate(modelMatrix, modelMatrix, [(opensceneDeepConsts.roadWidth + opensceneDeepConsts.footpathborderWidth), opensceneDeepConsts.sceneY + (opensceneDeepConsts.footpathborderWidth), opensceneDeepConsts.sceneZ - (opensceneDeepConsts.footpathRigthDepth + opensceneDeepConsts.footpathborderWidth)])
+	// mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathborderWidth, opensceneDeepConsts.footpathborderHeight, opensceneDeepConsts.footpathborderWidth])
+	// setModelMatrixCompleteLight(modelMatrix)
+	// texMatrix = mat2.create()
+	// mat2.scale(texMatrix, texMatrix, [1.0, 1.0])
+	// setTextureMatrixCompleteLight(texMatrix)
+	// gl.bindVertexArray(opensceneDeep.vaoCylinderPart)
+	// gl.drawElements(gl.TRIANGLES, opensceneDeep.countCylinderPart, gl.UNSIGNED_SHORT, 0)
+	// gl.bindVertexArray(null)
+
+	return deltatimeinc * opensceneDeep.isStraight ? 0.0 : 0.0005
+}
+
+function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTimeInc) {
+	updateForCloseSceneDeep(deltaTimeInc)
+
+	var modelMatrix
+	var lightSources = []
+	var start = 5.0
+	for(var i = 0; i < 6; i++) {
+		lightSources.push([-4.0, 4.5, start])
+		lightSources.push([4.0, 4.5, start])
+		start -= opensceneDeepConsts.lampDelta
+	}
+
+	const spotCutoff = [50, 60]
+	const spotDirection = [ 0.0, -1.0, 0.0 ]
+	const lightOne = [1.0, 1.0, 1.0]
+	const pointAttenuation = [1.0, 0.014, 0.0007]
+
+	var viewMatrix = mat4.clone(camMatrix)
+	mat4.lookAt(viewMatrix, [-13.5 + opensceneDeep.cameraX + placementHelp.trans[0], 0.0, -42.0], [-14.25 + opensceneDeep.cameraX + placementHelp.trans[0], opensceneDeep.cameraY, -42.0], [0.0, 1.0, 0.0])
+
+	//RenderToPhoneScreen
+	opensceneDeep.isPhoneAnimationDone = renderToPhoneTexture(deltaTimeInc)
+
+	//Cubemap
+	renderCubemapDeep(perspectiveMatrix, viewMatrix, 0)
+
+	gl.useProgram(progCompleteLight.program)
+	resetCompleteLight()
+	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
+	setFlagsCompleteLight(false, false, true, true)
+	setTextureSamplersCompleteLight(0)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	// addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
+	// addPointLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.014, 0.0007])
+	addLightCompleteLight([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [0.05, 0.1, 0.3], [1.0, 0.0, 0.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		addSpotLightCompleteLight(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
+	}
+
+	renderForCitySceneStaticDeep()
+	
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-14.25, opensceneDeep.phoneY, -42.0])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [ 0.27, 0.27, 0.27 ])
+	renderForPhoneDeep(modelMatrix, opensceneDeep.phoneScreenTex)
+
+	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
+
+	renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, viewPos)
+	// renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, lightSources[0])
+
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.oceanWidth, 20.0, opensceneDeepConsts.oceanDepth])
+	renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix)
+}
+
+function updateForCloseSceneDeep(deltaTime) {
+	if(opensceneDeep.isCameraBackUpAgain) {
+		if(opensceneDeep.cameraX < 8.0) {
+			opensceneDeep.cameraX += deltaTime * 0.0008
+		}	
+	} else if(opensceneDeep.isPhoneFallDone) {
+		if(opensceneDeep.cameraY < 0.0) {
+			opensceneDeep.cameraY += deltaTime * 0.001
+		} else {
+			opensceneDeep.isCameraBackUpAgain = true
+		}
+	} else if(opensceneDeep.isPhoneAnimationDone) {
+		if(opensceneDeep.phoneY > -7.0) {
+			opensceneDeep.phoneY -= deltaTime * 0.001
+			opensceneDeep.cameraY -= deltaTime * 0.001
+		} else {
+			opensceneDeep.isPhoneFallDone = true
+		}
+	}
+}
+
+function updateForOpenSceneDeep(deltaTime) {
+	if(opensceneDeep.isStraight) {
+		opensceneDeep.cameraZ -= deltaTime * 0.0005
+		if(opensceneDeep.cameraZ < -5.0) {
+			opensceneDeep.isStraight = false
+		}
+	}
+	opensceneDeep.brianWalkZ -= 0.01
+}
