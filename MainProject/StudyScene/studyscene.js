@@ -15,10 +15,10 @@ var studySceneKdesh = {
     glass: null,
     crumbledPaper: null,
     texBill1: null,
-    texBill1: null,
-    texBill1: null,
-    texBill1: null,
-    texBill1: null,
+    texBill2: null,
+    texBill3: null,
+    texBill4: null,
+    texBill5: null,
     texSteel: null,
     texWall: null,
     texWood: null,
@@ -27,10 +27,10 @@ var studySceneKdesh = {
     fboWindow: null,
     cameraPath: [
         //  position            center             up             velocity      //
-        [[4.5, -1.0, 4.8], [4.5, -1.8, 4.8], [0.0, 1.0, 0.0], [-0.5, 0.5, 0.4]],
-        [[2.0, -0.5, 5.0], [2.5, -0.45, 5.0], [0.0, 1.0, 0.0], [-0.34, 0.5, -0.4]],
-        [[3.0, 0.0, 5.0], [1.5, 0.15, 5.0], [0.0, 1.0, 0.0], [-0.17, 0.5, 0.4]],
-        [[0.0, 0.5, 4.0], [0.0, 0.0, 2.0], [0.0, 1.0, 0.0], [0.0, 0.5, -0.4]],
+        [[4.5, -1.0, 3.8], [4.5, -1.8, 3.8], [0.0, 1.0, 0.0], [-0.5, 0.5, 0.4]],
+        [[2.0, -0.5, 4.0], [3.5, -0.55, 5.0], [0.0, 1.0, 0.0], [-0.34, -0.5, -0.4]],
+        [[3.0, 0.0, 4.0], [1.5, 0.15, 5.0], [0.0, 1.0, 0.0], [-0.17, 0.5, 0.4]],
+        [[0.0, 0.5, 3.0], [0.0, 0.0, -2.0], [0.0, 1.0, 0.0], [0.0, 0.5, -0.4]],
         [[0.0, 1.0, -1.0], [0.0, -2.0, -4.0], [0.0, 1.0, 0.0], [0.0, -0.5, -0.4]]
     ]
 };
@@ -93,12 +93,26 @@ function initForStudySceneKdesh() {
     // sceneCamera.updatePath(studySceneKdesh.cameraPath);
 }
 
+function updateCamPosForStudySceneKdesh(camera, currentSplinePosition) {
+    var splineInfo = camera.getSplineAndPos(currentSplinePosition);
+    var spline = splineInfo.spline;
+    var position = splineInfo.position;
+    switch(spline) {
+        case 2:
+            if(position > 0.7)
+                return 0.0003;
+            return 0.00025;
+        default:
+            return 0.0005;
+    }
+}
+
 function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     var lastBoundFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING);
     var lastViewport = gl.getParameter(gl.VIEWPORT);
 
     var lightPosition = [0.8, -0.05, -4.5];
-    var phonePosition = [4.5, -1.75, 4.8];
+    var phonePosition = [4.5, -1.75, 3.8];
     var bottlePosition = [-5.5, -1.2, -3.0];
     // renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightPosition, [1.0, 1.0, 1.0]);
     // renderLightSourceDeep(perspectiveMatrix, viewMatrix, phonePosition, [1.0, 1.0, 1.0]);
@@ -323,7 +337,7 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, phonePosition);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 3, [0.0, 0.0, 1.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, -1.0]);
     mat4.scale(modelMatrix, modelMatrix, [0.2, 0.2, 0.2]);
     renderForPhoneDeep(modelMatrix,studySceneKdesh.texPhone);
 

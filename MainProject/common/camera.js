@@ -89,9 +89,9 @@ class kcamera {
         }
     }
     matrix(t) {
-        var tspline = kcamera.#lerp(0.0, this.#nsplines, t);
-        var startIdx = Math.floor(tspline);
-        var tcurve = tspline - Math.floor(tspline);
+        var splineInfo = this.getSplineAndPos(t);
+        var startIdx = splineInfo.spline;
+        var tcurve = splineInfo.position;
 
         // safeguard against memory access issues due to float values
         if(startIdx > this.#nsplines)
@@ -156,8 +156,21 @@ class kcamera {
         gl.useProgram(prevProgram);
         gl.bindVertexArray(prevVertexArray);
     }
-    static #lerp(a, b, t) {
-        return ((1 - t) * a) + (t * b);
+    getSplineAndPos(t) {
+        var tspline = t * this.#nsplines;  // equivalent to lerp(0.0, this.#nsplines, t)
+
+        var splineNum = Math.floor(tspline);
+        if(splineNum > this.#nsplines)
+            splineNum = this.#nsplines;
+        
+        var splinePos = tspline - splineNum;
+        if(splinePos > 1.0)
+            splinePos = 1.0;
+        
+        return {
+            spline: splineNum,
+            position: splinePos
+        };
     }
     /**
      * Generates a matrix that makes something look at something else.

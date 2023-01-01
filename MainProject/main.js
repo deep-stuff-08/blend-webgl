@@ -31,7 +31,9 @@ var controlVariables = {
 	showCam: false,
 	debugMode: false,
 	isLoadModels: true,
-	currentExposure: 1.0
+	currentExposure: 1.0,
+	timeElapsedSinceSceneStarted: 0.0,
+	timeElapsedSinceSceneEnded: 0.0
 }
 
 var placementHelp = {
@@ -358,7 +360,9 @@ function render(time) {
 			sceneCamera.updatePath(cameras[controlVariables.renderScene])
 		}
 		isCameraSet[controlVariables.renderScene] = true
-		camSplinePosition = 0.0
+		camSplinePosition = 0.00001
+		controlVariables.timeElapsedSinceSceneStarted = 0.0;
+		controlVariables.timeElapsedSinceSceneEnded = 0.0;
 	}
 
 	var cameraMatrix
@@ -390,40 +394,92 @@ function render(time) {
 		break
 	case SceneEnum.OpenScene:
 		camSplinePosition += renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
-		if(camSplinePosition > 0.99999) {
-			controlVariables.renderScene++
+		if(controlVariables.timeElapsedSinceSceneStarted < 3.0) {
+			camSplinePosition = 0.00001;
 		}
+		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	case SceneEnum.StudyScene:
 		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix)
-		camSplinePosition += 0.0003
-		if(camSplinePosition > 0.99999) {
-			controlVariables.renderScene++
+		camSplinePosition += updateCamPosForStudySceneKdesh(sceneCamera, camSplinePosition);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
 		}
+		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	case SceneEnum.BarScene:
-		camSplinePosition += 0.0003
-		if(camSplinePosition > 0.99999) {
-			controlVariables.renderScene++
-		}
 		renderForBarScene(perspectiveMatrix, cameraMatrix, cameraPosition,  deltaTime)
+		camSplinePosition += 0.0003
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
-		camSplinePosition += 0.0002
-		if(camSplinePosition > 0.99999) {
-			controlVariables.renderScene++
+		camSplinePosition += 0.0003
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
 		}
+		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.BedroomScene:
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
-		camSplinePosition += 0.0005
-		if(camSplinePosition > 0.99999) {
-			controlVariables.renderScene++
+		camSplinePosition += 0.0003
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
 		}
+		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.CloseScene:
 		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition, deltaTime)
+		camSplinePosition += 0.0003
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	default:
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)
