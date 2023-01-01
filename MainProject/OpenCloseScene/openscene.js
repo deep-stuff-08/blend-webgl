@@ -403,49 +403,71 @@ function renderForCarDeep(data) {
 	renderModel(opensceneDeep.objCars[data.type])
 }
 
-function renderForBrianSadDeep(perspectiveMatrix, viewMatrix, z, lightSource) {
+function renderForBrianSadDeep(perspectiveMatrix, viewMatrix, z, viewPos) {
+	const spotCutoff = [50, 60]
+	const spotDirection = [ 0.0, -1.0, 0.0 ]
+	const lightOne = [1.0, 1.0, 1.0]
+	const pointAttenuation = [1.0, 0.014, 0.0007]
+	var lightSources = []
+	var start = 5.0
+	for(var i = 0; i < 6; i++) {
+		lightSources.push([-4.0, 4.5, start])
+		lightSources.push([4.0, 4.5, start])
+		start -= opensceneDeepConsts.lampDelta
+	}
 	var modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-9.86, -2.5, z])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI, [0.0, 1.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [1.4, 1.4, 1.4])
-	gl.useProgram(progPhongLightWithTextureForModel.program)
-	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.pMat, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.vMat, false, viewMatrix)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isInvertNormals, 0)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isBlend, 0)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isLight, 1)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isTexture, 1)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.diffuseTextureSampler, 0)
-	gl.uniform3fv(progPhongLightWithTextureForModel.uniforms.lightPos, lightSource)
-	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.mMat, false, modelMatrix)
+	gl.useProgram(progCompleteLight.programModel)
+	resetCompleteLightModel()
+	setProjectionAndViewCompleteLightModel(perspectiveMatrix, viewMatrix, viewPos)
+	setFlagsCompleteLightModel(false, false, true, true)
+	setTextureSamplersCompleteLightModel(0)
+	setMaterialCompleteLightModel([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	addLightCompleteLightModel([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [1.0, 0.5, 0.0], [1.0, 0.0, 0.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		addSpotLightCompleteLightModel(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
+	}
+
+	setModelMatrixCompleteLightModel(modelMatrix)
 	updateModel(opensceneDeep.objBrianSad, 0, 0.01)
 	var boneMat = getBoneMatrixArray(opensceneDeep.objBrianSad, 0)
-	for(var i = 0; i < boneMat.length; i++) {
-		gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.bMat[i], false, boneMat[i])
-	}
+	setBoneMatrixCompleteLightModel(boneMat)
 	renderModel(opensceneDeep.objBrianSad)
 }
 
-function renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, lightSource) {
+function renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, viewPos) {
+	const spotCutoff = [50, 60]
+	const spotDirection = [ 0.0, -1.0, 0.0 ]
+	const lightOne = [1.0, 1.0, 1.0]
+	const pointAttenuation = [1.0, 0.014, 0.0007]
+	var lightSources = []
+	var start = 5.0
+	for(var i = 0; i < 6; i++) {
+		lightSources.push([-4.0, 4.5, start])
+		lightSources.push([4.0, 4.5, start])
+		start -= opensceneDeepConsts.lampDelta
+	}
 	var modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-12.7, -1.5, -42.0])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [1.4, 1.4, 1.4])
-	gl.useProgram(progPhongLightWithTextureForModel.program)
-	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.pMat, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.vMat, false, viewMatrix)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isInvertNormals, 0)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isBlend, 0)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isLight, 1)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isTexture, 1)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.diffuseTextureSampler, 0)
-	gl.uniform3fv(progPhongLightWithTextureForModel.uniforms.lightPos, lightSource)
-	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.mMat, false, modelMatrix)
+	gl.useProgram(progCompleteLight.programModel)
+	resetCompleteLightModel()
+	setProjectionAndViewCompleteLightModel(perspectiveMatrix, viewMatrix, viewPos)
+	setFlagsCompleteLightModel(false, false, true, true)
+	setTextureSamplersCompleteLightModel(0)
+	setMaterialCompleteLightModel([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	addLightCompleteLightModel([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [0.05, 0.1, 0.3], [1.0, 0.0, 0.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		addSpotLightCompleteLightModel(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
+	}
+
+	setModelMatrixCompleteLightModel(modelMatrix)
 	updateModel(opensceneDeep.objBrianIdle, 0, 0.01)
 	var boneMat = getBoneMatrixArray(opensceneDeep.objBrianIdle, 0)
-	for(var i = 0; i < boneMat.length; i++) {
-		gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.bMat[i], false, boneMat[i])
-	}
+	setBoneMatrixCompleteLightModel(boneMat)
 	renderModel(opensceneDeep.objBrianIdle)
 }
 
@@ -557,9 +579,9 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 
 	renderForBrianSadDeep(perspectiveMatrix, viewMatrix, opensceneDeep.brianWalkZ, lightSources[0])
 
-	for(var i = 0; i < lightSources.length; i++) {
+	// for(var i = 0; i < lightSources.length; i++) {
 		// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSources[i], [1.0, 1.0, 1.0])
-	}
+	// }
 
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
@@ -630,7 +652,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 
 	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
 
-	renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, lightSources[0])
+	renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, viewPos)
 	// renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, lightSources[0])
 
 	modelMatrix = mat4.create()
@@ -663,7 +685,7 @@ function updateForCloseSceneDeep(deltaTime) {
 function updateForOpenSceneDeep(deltaTime) {
 	if(opensceneDeep.isStraight) {
 		opensceneDeep.cameraZ -= deltaTime * 0.0005
-		if(opensceneDeep.cameraZ < -8.0) {
+		if(opensceneDeep.cameraZ < -5.0) {
 			opensceneDeep.isStraight = false
 		}
 	}
