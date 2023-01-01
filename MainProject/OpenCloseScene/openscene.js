@@ -257,6 +257,16 @@ function renderForCitySceneStaticDeep() {
 	mat2.scale(texMatrix, texMatrix, [60.0, 0.3])
 	setTextureMatrixCompleteLight(texMatrix)
 	opensceneDeep.objQuad.render()
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.roadWidth + ((opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth) * 2.0)), opensceneDeepConsts.sceneY + ((opensceneDeepConsts.footpathborderHeight * 2.0) + (-opensceneDeepConsts.railingHeight * 14.0)), opensceneDeepConsts.sceneZ])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.footpathLeftDepth, opensceneDeepConsts.railingHeight * 16.0, 1.0])
+	setModelMatrixCompleteLight(modelMatrix)
+	texMatrix = mat2.create()
+	mat2.rotate(texMatrix, texMatrix, Math.PI / 2.0)
+	mat2.scale(texMatrix, texMatrix, [60.0, 0.3 * 16.0])
+	setTextureMatrixCompleteLight(texMatrix)
+	opensceneDeep.objQuad.render()
 
 	//FootPath
 	gl.activeTexture(gl.TEXTURE0)
@@ -403,27 +413,72 @@ function renderForCarDeep(data) {
 	renderModel(opensceneDeep.objCars[data.type])
 }
 
-function renderForBrianDeep(perspectiveMatrix, viewMatrix, z, lightSource, model) {
+function renderForBrianSadDeep(perspectiveMatrix, viewMatrix, z, viewPos) {
+	const spotCutoff = [50, 60]
+	const spotDirection = [ 0.0, -1.0, 0.0 ]
+	const lightOne = [1.0, 1.0, 1.0]
+	const pointAttenuation = [1.0, 0.014, 0.0007]
+	var lightSources = []
+	var start = 5.0
+	for(var i = 0; i < 6; i++) {
+		lightSources.push([-4.0, 4.5, start])
+		lightSources.push([4.0, 4.5, start])
+		start -= opensceneDeepConsts.lampDelta
+	}
 	var modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-9.86, -2.5, z])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI, [0.0, 1.0, 0.0])
 	mat4.scale(modelMatrix, modelMatrix, [1.4, 1.4, 1.4])
-	gl.useProgram(progPhongLightWithTextureForModel.program)
-	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.pMat, false, perspectiveMatrix)
-	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.vMat, false, viewMatrix)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isInvertNormals, 0)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isBlend, 0)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isLight, 1)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.isTexture, 1)
-	gl.uniform1i(progPhongLightWithTextureForModel.uniforms.diffuseTextureSampler, 0)
-	gl.uniform3fv(progPhongLightWithTextureForModel.uniforms.lightPos, lightSource)
-	gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.mMat, false, modelMatrix)
+	gl.useProgram(progCompleteLight.programModel)
+	resetCompleteLightModel()
+	setProjectionAndViewCompleteLightModel(perspectiveMatrix, viewMatrix, viewPos)
+	setFlagsCompleteLightModel(false, false, true, true)
+	setTextureSamplersCompleteLightModel(0)
+	setMaterialCompleteLightModel([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	addLightCompleteLightModel([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [1.0, 0.5, 0.0], [1.0, 0.0, 0.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		addSpotLightCompleteLightModel(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
+	}
+
+	setModelMatrixCompleteLightModel(modelMatrix)
 	updateModel(opensceneDeep.objBrianSad, 0, 0.01)
 	var boneMat = getBoneMatrixArray(opensceneDeep.objBrianSad, 0)
-	for(var i = 0; i < boneMat.length; i++) {
-		gl.uniformMatrix4fv(progPhongLightWithTextureForModel.uniforms.bMat[i], false, boneMat[i])
-	}
+	setBoneMatrixCompleteLightModel(boneMat)
 	renderModel(opensceneDeep.objBrianSad)
+}
+
+function renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, viewPos) {
+	const spotCutoff = [50, 60]
+	const spotDirection = [ 0.0, -1.0, 0.0 ]
+	const lightOne = [1.0, 1.0, 1.0]
+	const pointAttenuation = [1.0, 0.014, 0.0007]
+	var lightSources = []
+	var start = 5.0
+	for(var i = 0; i < 6; i++) {
+		lightSources.push([-4.0, 4.5, start])
+		lightSources.push([4.0, 4.5, start])
+		start -= opensceneDeepConsts.lampDelta
+	}
+	var modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-12.7, -1.5, -42.0])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, -1.0, 0.0])
+	mat4.scale(modelMatrix, modelMatrix, [1.4, 1.4, 1.4])
+	gl.useProgram(progCompleteLight.programModel)
+	resetCompleteLightModel()
+	setProjectionAndViewCompleteLightModel(perspectiveMatrix, viewMatrix, viewPos)
+	setFlagsCompleteLightModel(false, false, true, true)
+	setTextureSamplersCompleteLightModel(0)
+	setMaterialCompleteLightModel([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	addLightCompleteLightModel([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [0.05, 0.1, 0.3], [1.0, 0.0, 0.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		addSpotLightCompleteLightModel(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
+	}
+
+	setModelMatrixCompleteLightModel(modelMatrix)
+	updateModel(opensceneDeep.objBrianIdle, 0, 0.01)
+	var boneMat = getBoneMatrixArray(opensceneDeep.objBrianIdle, 0)
+	setBoneMatrixCompleteLightModel(boneMat)
+	renderModel(opensceneDeep.objBrianIdle)
 }
 
 function renderForBuildingDeep(localModelMatrix, texScale, tex) {
@@ -532,11 +587,11 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 		opensceneDeep.carData[i].position += deltatimeinc * 0.035 * opensceneDeep.carData[i].direction
 	}
 
-	renderForBrianDeep(perspectiveMatrix, viewMatrix, opensceneDeep.brianWalkZ, lightSources[0], opensceneDeep.objBrianSad)
+	renderForBrianSadDeep(perspectiveMatrix, viewMatrix, opensceneDeep.brianWalkZ, lightSources[0])
 
-	for(var i = 0; i < lightSources.length; i++) {
+	// for(var i = 0; i < lightSources.length; i++) {
 		// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSources[i], [1.0, 1.0, 1.0])
-	}
+	// }
 
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
@@ -562,7 +617,18 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	updateForCloseSceneDeep(deltaTimeInc)
 
 	var modelMatrix
-	var lightSource = [0.0, 1.0, 6.5]
+	var lightSources = []
+	var start = 5.0
+	for(var i = 0; i < 6; i++) {
+		lightSources.push([-4.0, 4.5, start])
+		lightSources.push([4.0, 4.5, start])
+		start -= opensceneDeepConsts.lampDelta
+	}
+
+	const spotCutoff = [50, 60]
+	const spotDirection = [ 0.0, -1.0, 0.0 ]
+	const lightOne = [1.0, 1.0, 1.0]
+	const pointAttenuation = [1.0, 0.014, 0.0007]
 
 	var viewMatrix = mat4.clone(camMatrix)
 	mat4.lookAt(viewMatrix, [-13.5 + opensceneDeep.cameraX + placementHelp.trans[0], 0.0, -42.0], [-14.25 + opensceneDeep.cameraX + placementHelp.trans[0], opensceneDeep.cameraY, -42.0], [0.0, 1.0, 0.0])
@@ -571,16 +637,21 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	opensceneDeep.isPhoneAnimationDone = renderToPhoneTexture(deltaTimeInc)
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, viewMatrix, 1)
+	renderCubemapDeep(perspectiveMatrix, viewMatrix, 0)
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
 	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
 	setFlagsCompleteLight(false, false, true, true)
 	setTextureSamplersCompleteLight(0)
-	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.7, 0.7, 0.7], 100.0, 1.0)
-	addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
-	
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
+	// addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
+	// addPointLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.014, 0.0007])
+	addLightCompleteLight([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [0.05, 0.1, 0.3], [1.0, 0.0, 0.0])
+	for(var i = 0; i < lightSources.length; i++) {
+		addSpotLightCompleteLight(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
+	}
+
 	renderForCitySceneStaticDeep()
 	
 	modelMatrix = mat4.create()
@@ -589,7 +660,10 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	mat4.scale(modelMatrix, modelMatrix, [ 0.27, 0.27, 0.27 ])
 	renderForPhoneDeep(modelMatrix, opensceneDeep.phoneScreenTex)
 
-	renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
+	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
+
+	renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, viewPos)
+	// renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, lightSources[0])
 
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
@@ -603,7 +677,7 @@ function updateForCloseSceneDeep(deltaTime) {
 			opensceneDeep.cameraX += deltaTime * 0.0008
 		}	
 	} else if(opensceneDeep.isPhoneFallDone) {
-		if(opensceneDeep.cameraY < -1.0) {
+		if(opensceneDeep.cameraY < 0.0) {
 			opensceneDeep.cameraY += deltaTime * 0.001
 		} else {
 			opensceneDeep.isCameraBackUpAgain = true
@@ -621,7 +695,7 @@ function updateForCloseSceneDeep(deltaTime) {
 function updateForOpenSceneDeep(deltaTime) {
 	if(opensceneDeep.isStraight) {
 		opensceneDeep.cameraZ -= deltaTime * 0.0005
-		if(opensceneDeep.cameraZ < -8.0) {
+		if(opensceneDeep.cameraZ < -5.0) {
 			opensceneDeep.isStraight = false
 		}
 	}
