@@ -478,7 +478,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	var viewMatrix = mat4.clone(camMatrix)
 	mat4.translate(viewMatrix, viewMatrix, [0.0, 0.0, opensceneDeep.cameraZ])
 
-	updateForOpenScene(deltatimeinc)
+	updateForOpenSceneDeep(deltatimeinc)
 
 	setFlagsCompleteLight(false, false, false, false);
 	renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
