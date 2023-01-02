@@ -1,10 +1,12 @@
+#version 300 es
+
 precision highp float;
 
 const float PI = 3.14159265359;
 const float G = 9.81;
 const float KM = 370.0;
 
-varying vec2 v_coordinates;
+in vec2 v_coordinates;
 
 uniform float u_size;
 uniform float u_resolution;
@@ -13,6 +15,8 @@ uniform sampler2D u_phases;
 uniform sampler2D u_initialSpectrum;
 
 uniform float u_choppiness;
+
+out vec4 FragColor;
 
 vec2 multiplyComplex (vec2 a, vec2 b) {
 	return vec2(a[0] * b[0] - a[1] * b[1], a[1] * b[0] + a[0] * b[1]);
@@ -32,11 +36,11 @@ void main (void) {
 	float m = (coordinates.y < u_resolution * 0.5) ? coordinates.y : coordinates.y - u_resolution;
 	vec2 waveVector = (2.0 * PI * vec2(n, m)) / u_size;
 
-	float phase = texture2D(u_phases, v_coordinates).r;
+	float phase = texture(u_phases, v_coordinates).r;
 	vec2 phaseVector = vec2(cos(phase), sin(phase));
 
-	vec2 h0 = texture2D(u_initialSpectrum, v_coordinates).rg;
-	vec2 h0Star = texture2D(u_initialSpectrum, vec2(1.0 - v_coordinates + 1.0 / u_resolution)).rg;
+	vec2 h0 = texture(u_initialSpectrum, v_coordinates).rg;
+	vec2 h0Star = texture(u_initialSpectrum, vec2(1.0 - v_coordinates + 1.0 / u_resolution)).rg;
 	h0Star.y *= -1.0;
 
 	vec2 h = multiplyComplex(h0, phaseVector) + multiplyComplex(h0Star, vec2(phaseVector.x, -phaseVector.y));
@@ -51,5 +55,5 @@ void main (void) {
 		hZ = vec2(0.0);
 	}
 
-	gl_FragColor = vec4(hX + multiplyByI(h), hZ);
+	FragColor = vec4(hX + multiplyByI(h), hZ);
 }

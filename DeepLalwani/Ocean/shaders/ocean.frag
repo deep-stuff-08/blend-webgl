@@ -1,7 +1,9 @@
+#version 300 es
+
 precision highp float;
 
-varying vec2 v_coordinates;
-varying vec3 v_position;
+in vec2 v_coordinates;
+in vec3 v_position;
 
 uniform sampler2D u_displacementMap;
 uniform sampler2D u_normalMap;
@@ -14,12 +16,14 @@ uniform float u_exposure;
 
 uniform vec3 u_sunDirection;
 
+out vec4 FragColor;
+
 vec3 hdr (vec3 color, float exposure) {
 	return 1.0 - exp(-color * exposure);
 }
 
 void main (void) {
-	vec3 normal = texture2D(u_normalMap, v_coordinates).rgb;
+	vec3 normal = texture(u_normalMap, v_coordinates).rgb;
 
 	vec3 view = normalize(u_cameraPosition - v_position);
 	float fresnel = 0.02 + 0.98 * pow(1.0 - dot(normal, view), 5.0);
@@ -30,5 +34,5 @@ void main (void) {
 
 	vec3 color = sky + water;
 
-	gl_FragColor = vec4(hdr(color, u_exposure), 1.0);
+	FragColor = vec4(hdr(color, u_exposure), 1.0);
 }

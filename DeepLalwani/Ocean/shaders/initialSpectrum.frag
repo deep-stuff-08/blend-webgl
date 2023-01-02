@@ -1,3 +1,5 @@
+#version 300 es
+
 precision highp float;
 
 const float PI = 3.14159265359;
@@ -9,6 +11,8 @@ uniform vec2 u_wind;
 uniform float u_resolution;
 uniform float u_size;
 
+out vec4 FragColor;
+
 float square (float x) {
 	return x * x;
 }
@@ -17,9 +21,9 @@ float omega (float k) {
 	return sqrt(G * k * (1.0 + square(k / KM)));
 }
 
-float tanh (float x) {
-	return (1.0 - exp(-2.0 * x)) / (1.0 + exp(-2.0 * x));
-}
+// float tanh (float x) {
+// 	return (1.0 - exp(-2.0 * x)) / (1.0 + exp(-2.0 * x));
+// }
 
 void main (void) {
 	vec2 coordinates = gl_FragCoord.xy - 0.5;
@@ -66,5 +70,5 @@ void main (void) {
 		h = 0.0; //no DC term
 	}
 
-	gl_FragColor = vec4(h, 0.0, 0.0, 0.0);
+	FragColor = vec4(h, 0.0, 0.0, 0.0);
 }

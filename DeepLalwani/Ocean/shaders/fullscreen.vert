@@ -1,5 +1,8 @@
-attribute vec2 a_position;
-varying vec2 v_coordinates;
+#version 300 es
+
+in vec2 a_position;
+
+out vec2 v_coordinates;
 
 void main (void) {
 	v_coordinates = a_position * 0.5 + 0.5;
