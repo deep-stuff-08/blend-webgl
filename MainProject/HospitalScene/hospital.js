@@ -578,15 +578,20 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, lastBoundFbo);
 	gl.viewport(lastViewport[0], lastViewport[1], lastViewport[2], lastViewport[3])
 
+	renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0])
+
 	var modelMatrix = mat4.create();
 	mat4.rotate(modelMatrix, modelMatrix, angle, [1.0, 1.0, 1.0])
 
 	gl.useProgram(progCompleteLight.program);
 	resetCompleteLight()
 	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
-	setFlagsCompleteLight(false, false, true, false)
+	setFlagsCompleteLight(false, false, true, true)
 	setTextureSamplersCompleteLight(0)
 	gl.activeTexture(gl.TEXTURE0)
+	
+	addPointLightCompleteLight([-2.6, 1.8, -2.0], [0.1, 0.7, 1.0], [0.2, 0.3, 0.3], [0.0, 0.0, 0.0], [1.0, 0.01, 0.0001])
+	addSpotLightCompleteLight([-5.3, 0.3, 0.0], [0.1, 0.1, 0.1], [1.0, 0.7, 0.2], [1.0, 1.0, 1.0], [1.0, 0.001, 0.00001], [20.0, 21.0], [0.8, -1.0, 0.5])
 	
 	// back
 	mat4.identity(modelMatrix);
