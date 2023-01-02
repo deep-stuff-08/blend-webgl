@@ -89,7 +89,7 @@ function initForBarScene() {
 	BarSceneObjects.mcab2 = new Model('BarScene/resources/cab2.json');
 	BarSceneObjects.mLight = new Model('BarScene/resources/light.json');
 	BarSceneObjects.mDoor = new Model('BarScene/resources/door.json');
-	BarSceneObjects.mFan = new Model('BarScene/resources/fan.json');
+	// BarSceneObjects.mFan = new Model('BarScene/resources/fan.json');
 	BarSceneObjects.mBottle = new Model('BarScene/resources/bottle.json');
 	BarSceneObjects.mBottle2 = new Model('BarScene/resources/bottle2.json');
 	BarSceneObjects.mCoke = new Model('BarScene/resources/coke.json');
@@ -136,13 +136,20 @@ function renderForBarScene(perspectiveMatrix, camMatrix, viewPos, deltatimeinc) 
 
 	updateForBarScene()
 	
+	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0])
+
 	gl.useProgram(progCompleteLight.program);
 	resetCompleteLight()
 	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
-	setFlagsCompleteLight(false, false, true, false)
+	setFlagsCompleteLight(false, false, true, true)
 	setTextureSamplersCompleteLight(0)
 	gl.activeTexture(gl.TEXTURE0)
-	
+
+	addLightCompleteLight([0.0, 0.0, 4.2], [0.4, 0.1, 0.1], [0.6, 0.2, 0.1], [0.0, 0.0, 0.0])
+	addSpotLightCompleteLight([-6.0, 6.5, -4.1], [0.01, 0.01, 0.01], [0.9, 0.7, 0.1], [0.7, 0.7, 0.7], [1.0, 0.0001, 0.0001], [20.0, 23.0], [0.0, -1.0, 0.01])
+	addPointLightCompleteLight([0.2, 5.4, 6.5], [0.01, 0.01, 0.01], [0.6, 0.3, 0.0], [0.7, 0.7, 0.7], [1.0, 0.1, 0.01])
+	addPointLightCompleteLight([-10.2, 5.4, 9.5], [0.01, 0.01, 0.01], [0.6, 0.3, 0.0], [0.7, 0.7, 0.7], [1.0, 0.1, 0.01])
+
 	var modelMatrix = mat4.create();
 
 	// back

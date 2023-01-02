@@ -417,7 +417,7 @@ function render(time) {
 	break
 	case SceneEnum.BedroomScene:
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix, cameraPosition)
-		// camSplinePosition += 0.0005
+		camSplinePosition += 0.0005
 		if(camSplinePosition > 0.99999) {
 			controlVariables.renderScene++
 		}
