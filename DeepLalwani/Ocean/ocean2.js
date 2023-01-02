@@ -4,9 +4,9 @@ function setupProgramForOceanDeep() {
 }
 
 function initForOceanDeep() {
-	simulator = new Simulator(canvas, window.innerWidth, window.innerHeight);
+	initMyOcean()
 }
 
 function renderForOceanDeep(perspectiveMatrix, viewMatrix, viewPos) {
-	simulator.render(0.01, perspectiveMatrix, viewMatrix, viewPos)
+	renderMyOcean(0.01, perspectiveMatrix, viewMatrix, viewPos)
 }
