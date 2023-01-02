@@ -33,7 +33,8 @@ var controlVariables = {
 	isLoadModels: true,
 	currentExposure: 1.0,
 	timeElapsedSinceSceneStarted: 0.0,
-	timeElapsedSinceSceneEnded: 0.0
+	timeElapsedSinceSceneEnded: 0.0,
+	fade: 1.0
 }
 
 var placementHelp = {
@@ -63,11 +64,11 @@ var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
 	// { name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
-	{ name: "BrianSad", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
-	{ name: "BrianIdle", files:[ 'resources/models/dynamic/Brian/Idle.dae' ], flipTex:true },
-	{ name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
-	{ name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },
-	{ name: "SilverCar", files:[ 'resources/models/static/Car/silvercar.obj', 'resources/models/static/Car/silvercar.mtl' ], flipTex:true },
+	// { name: "BrianSad", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
+	// { name: "BrianIdle", files:[ 'resources/models/dynamic/Brian/Idle.dae' ], flipTex:true },
+	// { name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
+	// { name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },
+	// { name: "SilverCar", files:[ 'resources/models/static/Car/silvercar.obj', 'resources/models/static/Car/silvercar.mtl' ], flipTex:true },
 ]
 
 var loadedTextures = {}
@@ -77,6 +78,7 @@ var texForHdr
 var progForHdr
 var vaoForHdr
 var uniformExposureForHdr
+var uniformFadeForHdr
 
 assimpjs().then (function (ajs) {
 	if(controlVariables.isLoadModels) {
@@ -269,6 +271,7 @@ function setupProgram() {
 	gl.useProgram(progForHdr)
 	gl.uniform1i(gl.getUniformLocation(progForHdr, "hdrTex"), 0)
 	uniformExposureForHdr = gl.getUniformLocation(progForHdr, "exposure")
+	uniformFadeForHdr = gl.getUniformLocation(progForHdr, "fade")
 	gl.useProgram(null)
 }
 
@@ -363,6 +366,7 @@ function render(time) {
 		camSplinePosition = 0.00001
 		controlVariables.timeElapsedSinceSceneStarted = 0.0;
 		controlVariables.timeElapsedSinceSceneEnded = 0.0;
+		controlVariables.fade = 1.0;
 	}
 
 	var cameraMatrix
@@ -494,6 +498,20 @@ function render(time) {
 		gl.viewport(0, 0, canvas.width, canvas.height)
 		gl.useProgram(progForHdr)
 		gl.uniform1f(uniformExposureForHdr, controlVariables.currentExposure)
+
+		if(camSplinePosition <= 0.00001 && controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			controlVariables.fade -= deltaTime * 0.0005;
+			if(controlVariables.fade < 0.0)
+				controlVariables.fade = 0.0;
+			gl.uniform1f(uniformFadeForHdr, controlVariables.fade);
+		}
+		if(camSplinePosition >= 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.fade += deltaTime * 0.0005;
+			if(controlVariables.fade > 1.0)
+				controlVariables.fade = 1.0;
+			gl.uniform1f(uniformFadeForHdr, controlVariables.fade);
+		}
+		
 		gl.activeTexture(gl.TEXTURE0)
 		gl.bindTexture(gl.TEXTURE_2D, texForHdr)
 		gl.bindVertexArray(vaoForHdr)
