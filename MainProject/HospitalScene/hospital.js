@@ -348,7 +348,7 @@ class mesh
 			}
 			else
 			{
-				setFlagsCompleteLight(false, false, false, false)
+				setFlagsCompleteLight(undefined, undefined, false, undefined)
 			}
 		}
 		else {
@@ -565,9 +565,6 @@ function initForSceneTwo() {
 }
 
 function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
-	var cameraPosition = debugCamera.cameraPosition;
-	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
-
 	var lastBoundFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING);
     var lastViewport = gl.getParameter(gl.VIEWPORT);
 
@@ -584,9 +581,8 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	var modelMatrix = mat4.create();
 	mat4.rotate(modelMatrix, modelMatrix, angle, [1.0, 1.0, 1.0])
 
-	gl.disable(gl.CULL_FACE);
-
 	gl.useProgram(progCompleteLight.program);
+	resetCompleteLight()
 	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
 	setFlagsCompleteLight(false, false, true, false)
 	setTextureSamplersCompleteLight(0)
@@ -743,6 +739,7 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
 	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
+	setModelMatrixCompleteLight(modelMatrix)
 	HospitalSceneObjects.mDoor.render();
 	
 	setTextureSamplersCompleteLightModel(0)

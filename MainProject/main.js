@@ -24,7 +24,7 @@ var debugCamera = {
 }
 
 var controlVariables = {
-	renderScene: SceneEnum.HospitalScene,
+	renderScene: SceneEnum.BarScene,
 	doRenderToHDR: true,
 	devCam: false,
 	showCamPath: false,
@@ -416,8 +416,8 @@ function render(time) {
 		}
 	break
 	case SceneEnum.BedroomScene:
-		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
-		camSplinePosition += 0.0005
+		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix, cameraPosition)
+		// camSplinePosition += 0.0005
 		if(camSplinePosition > 0.99999) {
 			controlVariables.renderScene++
 		}
