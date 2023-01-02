@@ -427,7 +427,8 @@ function render(time) {
 		break
 	case SceneEnum.BarScene:
 		renderForBarScene(perspectiveMatrix, cameraMatrix, cameraPosition,  deltaTime)
-		camSplinePosition += 0.0003
+		camSplinePosition += updateCamPosForBarScene(sceneCamera, camSplinePosition);
+		console.log(camSplinePosition);
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
 		}
