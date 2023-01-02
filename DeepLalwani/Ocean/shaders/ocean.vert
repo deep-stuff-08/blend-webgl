@@ -10,6 +10,7 @@ out vec2 v_coordinates;
 
 uniform mat4 u_projectionMatrix;
 uniform mat4 u_viewMatrix;
+uniform mat4 u_modelMatrix;
 
 uniform float u_size;
 uniform float u_geometrySize;
@@ -22,5 +23,5 @@ void main (void) {
 	v_position = position;
 	v_coordinates = a_coordinates;
 
-	gl_Position = u_projectionMatrix * u_viewMatrix * vec4(position, 1.0);
+	gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(position, 1.0);
 }

@@ -240,7 +240,7 @@ function render() {
 
 	if(renderScene === 0) {
 		// renderForDeepCube(perspectiveMatrix, cameraMatrix)
-		renderForOceanDeep(perspectiveMatrix, cameraMatrix, cameraPosition)
+		renderForOceanDeep(perspectiveMatrix, cameraMatrix, cameraPosition, mat4.create())
 	} else if(renderScene === 1) {
 		renderForScene1Kdesh(perspectiveMatrix, cameraMatrix);
 	} else if(renderScene === 2) {
