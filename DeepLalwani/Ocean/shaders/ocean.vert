@@ -1,36 +1,24 @@
-#version 300 es
+precision highp float;
 
-layout(location = 0)in vec4 vPos;
-layout(location = 1)in vec3 vNor;
-layout(location = 2)in vec2 vTex;
+attribute vec3 a_position;
+attribute vec2 a_coordinates;
 
-uniform mat4 pMat;
-uniform mat4 vMat;
-uniform mat4 mMat;
-//amplitude-x
-//direction-yz
-//wavelenght-w
-uniform float time;
-uniform vec4 oceanData[10];
+varying vec3 v_position;
+varying vec2 v_coordinates;
 
-out vec2 Tex;
-out vec3 N;
-out vec3 P;
-out vec3 viewPos;
-out vec4 C;
+uniform mat4 u_projectionMatrix;
+uniform mat4 u_viewMatrix;
 
-void main(void) {
-	vec4 newPos = vPos;
-	for(int i = 0; i < 10; i++) {
-		float amplitude = oceanData[i].x / 10.0;
-		vec2 direction = oceanData[i].yz;
-		float frequency = 3.14 / oceanData[i].w;
-		newPos.y += amplitude * sin(dot(normalize(direction), vPos.xz) * frequency + time);
-		newPos.y /= 2.0;
-	}
-	C = pMat * vMat * mMat * vPos;
-	gl_Position = pMat * vMat * mMat * newPos;
-	Tex = vTex;
-	N = mat3(mMat) * vec3(0.0, -1.0, 0.0);
-	P = vec3(mMat * newPos);
+uniform float u_size;
+uniform float u_geometrySize;
+
+uniform sampler2D u_displacementMap;
+
+void main (void) {
+	vec3 position = a_position + texture2D(u_displacementMap, a_coordinates).rgb * (u_geometrySize / u_size);
+
+	v_position = position;
+	v_coordinates = a_coordinates;
+
+	gl_Position = u_projectionMatrix * u_viewMatrix * vec4(position, 1.0);
 }
