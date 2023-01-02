@@ -43,9 +43,13 @@ var placementHelp = {
 }
 
 var deltaTimer = {
+	loadTime: undefined,
+	elapsedSeconds: 0.0,
 	lastTime: 0,
 	currentTime: 0
 }
+
+var isLoadingComplete = false
 
 var isCameraSet = [ false, false, false, false, false, false ]
 var cameras = [
@@ -214,6 +218,10 @@ function main() {
 			placementHelp.sca += 0.01
 		} else if(event.code == 'KeyU') {
 			placementHelp.sca -= 0.01
+		} else if(event.code == 'Enter') {
+			if(isLoadingComplete) {
+				window.requestAnimationFrame(render)
+			}
 		}
 	})
 	
@@ -223,9 +231,9 @@ function main() {
 
 	setupProgram()
 	init()
-	deltaTimer.lastTime = 0
-	deltaTimer.currentTime = 0
-	render()
+	// canvas.requestFullscreen()
+	alert("Press Enter To Start")
+	isLoadingComplete = true
 	window.addEventListener('close', uninit)
 }
 
@@ -336,9 +344,17 @@ function printMatrix(m) {
 }
 
 function render(time) {
-	deltaTimer.currentTime = time
+	if(deltaTimer.loadTime == undefined) {
+		deltaTimer.loadTime = time
+		deltaTimer.lastTime = 0
+		deltaTimer.currentTime = 0
+	}
+	console.log(deltaTimer.lastTime)
+	deltaTimer.elapsedSeconds = time - deltaTimer.loadTime
+	deltaTimer.currentTime = deltaTimer.elapsedSeconds
 	var deltaTime = deltaTimer.currentTime - deltaTimer.lastTime
 	deltaTimer.lastTime = deltaTimer.currentTime
+	console.log(deltaTimer.lastTime)
 	if(Number.isNaN(deltaTime)) {
 		deltaTime = 0.0
 	}
@@ -397,8 +413,12 @@ function render(time) {
 		// renderCubemapDeep(cameraMatrix, temptex)
 		break
 	case SceneEnum.OpenScene:
-		camSplinePosition += renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
-		if(controlVariables.timeElapsedSinceSceneStarted < 3.0) {
+		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
+		camSplinePosition += updateCamPosForOpenSceneDeep(sceneCamera, camSplinePosition);
+		// if(camSplinePosition > 0.5) {
+		// 	musicPlayer.play()
+		// }
+		if(controlVariables.timeElapsedSinceSceneStarted < 0.5) {
 			camSplinePosition = 0.00001;
 		}
 		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
@@ -500,11 +520,13 @@ function render(time) {
 		gl.useProgram(progForHdr)
 		gl.uniform1f(uniformExposureForHdr, controlVariables.currentExposure)
 
+		console.log(controlVariables.timeElapsedSinceSceneStarted + ' ' + camSplinePosition);
 		if(camSplinePosition <= 0.00001 && controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			controlVariables.fade -= deltaTime * 0.0005;
 			if(controlVariables.fade < 0.0)
 				controlVariables.fade = 0.0;
 			gl.uniform1f(uniformFadeForHdr, controlVariables.fade);
+			console.log(controlVariables.fade);
 		}
 		if(camSplinePosition >= 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
 			controlVariables.fade += deltaTime * 0.0005;

@@ -24,6 +24,7 @@ var opensceneDeep = {
 	cameraY: 0.0,
 	cameraX: 0.0,
 	cameraPathLookAround: [
+		[[-10.5, -0.5, -10.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [20.5, 10.0, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
@@ -214,6 +215,18 @@ function renderToPhoneTexture(deltaTimeInc) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, currentFbo)
 	gl.viewport(currentViewport[0], currentViewport[1], currentViewport[2], currentViewport[3])
 	return a
+}
+
+function updateCamPosForOpenSceneDeep(camera, splinePosition) {
+	var splineInfo = camera.getSplineAndPos(splinePosition);
+	var spline = splineInfo.spline;
+	var position = splineInfo.position;
+
+	switch(spline) {
+		case 0: return 0.0003
+		case 1: case 2: return 0.0005
+		default: return 0.0003
+	}
 }
 
 function renderForCitySceneStaticDeep() {
@@ -532,7 +545,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	var viewMatrix = mat4.clone(camMatrix)
 	mat4.translate(viewMatrix, viewMatrix, [0.0, 0.0, opensceneDeep.cameraZ])
 
-	updateForOpenSceneDeep(deltatimeinc)
+	// updateForOpenSceneDeep(deltatimeinc)
 
 	// setFlagsCompleteLight(false, false, false, false);
 	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
@@ -690,12 +703,12 @@ function updateForCloseSceneDeep(deltaTime) {
 	}
 }
 
-function updateForOpenSceneDeep(deltaTime) {
-	if(opensceneDeep.isStraight) {
-		opensceneDeep.cameraZ -= deltaTime * 0.0005
-		if(opensceneDeep.cameraZ < -5.0) {
-			opensceneDeep.isStraight = false
-		}
-	}
-	opensceneDeep.brianWalkZ -= 0.01
-}
+// function updateForOpenSceneDeep(deltaTime) {
+// 	if(opensceneDeep.isStraight) {
+// 		opensceneDeep.cameraZ -= deltaTime * 0.0005
+// 		if(opensceneDeep.cameraZ < -5.0) {
+// 			opensceneDeep.isStraight = false
+// 		}
+// 	}
+// 	opensceneDeep.brianWalkZ -= 0.01
+// }
