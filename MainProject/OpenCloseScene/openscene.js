@@ -2,8 +2,8 @@
 var opensceneDeep = {
 	objQuad: null,
 	objCube: null,
-	objBrianSad: null,
-	objBrianIdle: null,
+	objKaiWalk: null,
+	objKaiIdle: null,
 	objCars: null,
 	objSphere: null,
 	vaoCylinderPart: null,
@@ -21,18 +21,24 @@ var opensceneDeep = {
 	isPhoneFallDone: false,
 	isCameraBackUpAgain: false,
 	phoneY: 0.0,
-	cameraY: 0.0,
-	cameraX: 0.0,
 	cameraPathLookAround: [
+		[[-10.5, -0.5, -10.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [20.5, 10.0, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [-50.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-	], 
+	],
+	cameraPathCloseScene: [
+		[[-13.5, 0.0, -42.0], [-14.5, 0.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-13.5, 0.0, -42.0], [-14.5, -7.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-13.5, 4.0, -42.0], [-14.5, 2.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-7.5, 4.0, -42.0], [-8.5, 3.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-7.5, 0.0, -42.0], [-8.5, 0.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	],
 	isStraight: true,
 	cameraZ: 0.0,
-	brianWalkZ: 0.0
+	kaiWalkZ: 0.0
 }
 
 const opensceneDeepConsts = {
@@ -185,8 +191,8 @@ function initForOpenSceneDeep() {
 
 	gl.bindVertexArray(null)
 
-	opensceneDeep.objBrianSad = initalizeModel('BrianSad')
-	opensceneDeep.objBrianIdle = initalizeModel('BrianIdle')
+	opensceneDeep.objKaiWalk = initalizeModel('KaiWalk')
+	opensceneDeep.objKaiIdle = initalizeModel('KaiIdle')
 	opensceneDeep.objCars = []
 	opensceneDeep.objCars.push(initalizeModel('BlueCar'))
 	opensceneDeep.objCars.push(initalizeModel('BlackCar'))
@@ -214,6 +220,31 @@ function renderToPhoneTexture(deltaTimeInc) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, currentFbo)
 	gl.viewport(currentViewport[0], currentViewport[1], currentViewport[2], currentViewport[3])
 	return a
+}
+
+function updateCamPosForOpenSceneDeep(camera, splinePosition) {
+	var splineInfo = camera.getSplineAndPos(splinePosition);
+	var spline = splineInfo.spline;
+	var position = splineInfo.position;
+
+	switch(spline) {
+		case 0: return 0.0003
+		case 1: case 2: return 0.0005
+		default: return 0.0003
+	}
+}
+
+function updateCamPosForCloseSceneDeep(camera, splinePosition) {
+	var splineInfo = camera.getSplineAndPos(splinePosition);
+	var spline = splineInfo.spline;
+	var position = splineInfo.position;
+
+	switch(spline) {
+		case 0:
+			opensceneDeep.phoneY = position * -9.0
+			return 0.0009
+		default: return 0.0009
+	}
 }
 
 function renderForCitySceneStaticDeep() {
@@ -411,7 +442,7 @@ function renderForCarDeep(data) {
 	renderModel(opensceneDeep.objCars[data.type])
 }
 
-function renderForBrianSadDeep(perspectiveMatrix, viewMatrix, z, viewPos) {
+function renderForKaiWalkDeep(perspectiveMatrix, viewMatrix, z, viewPos) {
 	const spotCutoff = [50, 60]
 	const spotDirection = [ 0.0, -1.0, 0.0 ]
 	const lightOne = [1.0, 1.0, 1.0]
@@ -439,13 +470,13 @@ function renderForBrianSadDeep(perspectiveMatrix, viewMatrix, z, viewPos) {
 	}
 
 	setModelMatrixCompleteLightModel(modelMatrix)
-	updateModel(opensceneDeep.objBrianSad, 0, 0.01)
-	var boneMat = getBoneMatrixArray(opensceneDeep.objBrianSad, 0)
+	updateModel(opensceneDeep.objKaiWalk, 0, 0.01)
+	var boneMat = getBoneMatrixArray(opensceneDeep.objKaiWalk, 0)
 	setBoneMatrixCompleteLightModel(boneMat)
-	renderModel(opensceneDeep.objBrianSad)
+	renderModel(opensceneDeep.objKaiWalk)
 }
 
-function renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, viewPos) {
+function renderForKaiIdleDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	const spotCutoff = [50, 60]
 	const spotDirection = [ 0.0, -1.0, 0.0 ]
 	const lightOne = [1.0, 1.0, 1.0]
@@ -473,10 +504,10 @@ function renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	}
 
 	setModelMatrixCompleteLightModel(modelMatrix)
-	updateModel(opensceneDeep.objBrianIdle, 0, 0.01)
-	var boneMat = getBoneMatrixArray(opensceneDeep.objBrianIdle, 0)
+	updateModel(opensceneDeep.objKaiIdle, 0, 0.01)
+	var boneMat = getBoneMatrixArray(opensceneDeep.objKaiIdle, 0)
 	setBoneMatrixCompleteLightModel(boneMat)
-	renderModel(opensceneDeep.objBrianIdle)
+	renderModel(opensceneDeep.objKaiIdle)
 }
 
 function renderForBuildingDeep(localModelMatrix, texScale, tex) {
@@ -532,7 +563,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	var viewMatrix = mat4.clone(camMatrix)
 	mat4.translate(viewMatrix, viewMatrix, [0.0, 0.0, opensceneDeep.cameraZ])
 
-	updateForOpenSceneDeep(deltatimeinc)
+	// updateForOpenSceneDeep(deltatimeinc)
 
 	// setFlagsCompleteLight(false, false, false, false);
 	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
@@ -585,8 +616,8 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 		opensceneDeep.carData[i].position += deltatimeinc * 0.035 * opensceneDeep.carData[i].direction
 	}
 
-	renderForBrianSadDeep(perspectiveMatrix, viewMatrix, opensceneDeep.brianWalkZ, lightSources[0])
-
+	opensceneDeep.kaiWalkZ -= 0.007
+	renderForKaiWalkDeep(perspectiveMatrix, viewMatrix, opensceneDeep.kaiWalkZ, lightSources[0])
 	// for(var i = 0; i < lightSources.length; i++) {
 		// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSources[i], [1.0, 1.0, 1.0])
 	// }
@@ -612,7 +643,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 }
 
 function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTimeInc) {
-	updateForCloseSceneDeep(deltaTimeInc)
+	// updateForCloseSceneDeep(deltaTimeInc)
 
 	var modelMatrix
 	var lightSources = []
@@ -628,18 +659,18 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	const lightOne = [1.0, 1.0, 1.0]
 	const pointAttenuation = [1.0, 0.014, 0.0007]
 
-	var viewMatrix = mat4.clone(camMatrix)
-	mat4.lookAt(viewMatrix, [-13.5 + opensceneDeep.cameraX + placementHelp.trans[0], 0.0, -42.0], [-14.25 + opensceneDeep.cameraX + placementHelp.trans[0], opensceneDeep.cameraY, -42.0], [0.0, 1.0, 0.0])
+	// var viewMatrix = mat4.clone(camMatrix)
+	// mat4.lookAt(viewMatrix, [-13.5 + opensceneDeep.cameraX + placementHelp.trans[0], 0.0, -42.0], [-14.25 + opensceneDeep.cameraX + placementHelp.trans[0], opensceneDeep.cameraY, -42.0], [0.0, 1.0, 0.0])
 
 	//RenderToPhoneScreen
 	opensceneDeep.isPhoneAnimationDone = renderToPhoneTexture(deltaTimeInc)
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, viewMatrix, 0)
+	renderCubemapDeep(perspectiveMatrix, camMatrix, 0)
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
-	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
+	setProjectionAndViewCompleteLight(perspectiveMatrix, camMatrix, viewPos)
 	setFlagsCompleteLight(false, false, true, true)
 	setTextureSamplersCompleteLight(0)
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
@@ -660,42 +691,11 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 
 	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
 
-	renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, viewPos)
-	// renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, lightSources[0])
+	renderForKaiIdleDeep(perspectiveMatrix, camMatrix, viewPos)
+	// renderForKaiIdleDeep(perspectiveMatrix, viewMatrix, lightSources[0])
 
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
 	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.oceanWidth, 20.0, opensceneDeepConsts.oceanDepth])
-	renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix)
-}
-
-function updateForCloseSceneDeep(deltaTime) {
-	if(opensceneDeep.isCameraBackUpAgain) {
-		if(opensceneDeep.cameraX < 8.0) {
-			opensceneDeep.cameraX += deltaTime * 0.0008
-		}	
-	} else if(opensceneDeep.isPhoneFallDone) {
-		if(opensceneDeep.cameraY < 0.0) {
-			opensceneDeep.cameraY += deltaTime * 0.001
-		} else {
-			opensceneDeep.isCameraBackUpAgain = true
-		}
-	} else if(opensceneDeep.isPhoneAnimationDone) {
-		if(opensceneDeep.phoneY > -7.0) {
-			opensceneDeep.phoneY -= deltaTime * 0.001
-			opensceneDeep.cameraY -= deltaTime * 0.001
-		} else {
-			opensceneDeep.isPhoneFallDone = true
-		}
-	}
-}
-
-function updateForOpenSceneDeep(deltaTime) {
-	if(opensceneDeep.isStraight) {
-		opensceneDeep.cameraZ -= deltaTime * 0.0005
-		if(opensceneDeep.cameraZ < -5.0) {
-			opensceneDeep.isStraight = false
-		}
-	}
-	opensceneDeep.brianWalkZ -= 0.01
+	renderForOceanDeep(perspectiveMatrix, camMatrix, modelMatrix)
 }
