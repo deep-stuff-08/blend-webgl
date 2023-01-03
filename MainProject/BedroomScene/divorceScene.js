@@ -29,7 +29,8 @@ var BedroomSceneObjects = {
 	mRing : null,
 	mTV : null,
 	texPhone: null,
-	texWall: null
+	texWall: null,
+	objCube: null
 };
 
 var vaoCube;
@@ -71,62 +72,6 @@ function setupprogramForBedroomScene() {
 }
 
 function initForBedroomScene() {
-
-	    // data
-		const cubeVerts = new Float32Array([
-			// top
-		   -1.0,  1.0, -1.0,   0.0,  1.0,  0.0,   0.0, 1.0,
-		   -1.0,  1.0,  1.0,   0.0,  1.0,  0.0,   0.0, 0.0,
-			1.0,  1.0,  1.0,   0.0,  1.0,  0.0,   1.0, 0.0,
-			1.0,  1.0, -1.0,   0.0,  1.0,  0.0,   1.0, 1.0,
-		
-			// front
-		   -1.0,  1.0,  1.0,   0.0,  0.0,  1.0,   0.0, 0.0,  
-		   -1.0, -1.0,  1.0,   0.0,  0.0,  1.0,   1.0, 0.0,
-			1.0, -1.0,  1.0,   0.0,  0.0,  1.0,   1.0, 1.0,
-			1.0,  1.0,  1.0,   0.0,  0.0,  1.0,   0.0, 1.0,
-		
-			// right
-			1.0,  1.0,  1.0,   1.0,  0.0,  0.0,   0.0, 0.0,  
-			1.0, -1.0,  1.0,   1.0,  0.0,  0.0,   1.0, 0.0,
-			1.0, -1.0, -1.0,   1.0,  0.0,  0.0,   1.0, 1.0,
-			1.0,  1.0, -1.0,   1.0,  0.0,  0.0,   0.0, 1.0,
-		
-			// rear
-			1.0,  1.0, -1.0,   0.0,  0.0, -1.0,   0.0, 0.0,  
-			1.0, -1.0, -1.0,   0.0,  0.0, -1.0,   1.0, 0.0,
-		   -1.0, -1.0, -1.0,   0.0,  0.0, -1.0,   1.0, 1.0,
-		   -1.0,  1.0, -1.0,   0.0,  0.0, -1.0,   0.0, 1.0,
-		
-			// left
-		   -1.0,  1.0, -1.0,  -1.0,  0.0,  0.0,   0.0, 0.0,  
-		   -1.0, -1.0, -1.0,  -1.0,  0.0,  0.0,   1.0, 0.0,
-		   -1.0, -1.0,  1.0,  -1.0,  0.0,  0.0,   1.0, 1.0,
-		   -1.0,  1.0,  1.0,  -1.0,  0.0,  0.0,   0.0, 1.0,
-		
-			// bottom
-		   -1.0, -1.0, -1.0,   0.0, -1.0,  0.0,   0.0, 0.0,  
-			1.0, -1.0, -1.0,   0.0, -1.0,  0.0,   1.0, 0.0,
-			1.0, -1.0,  1.0,   0.0, -1.0,  0.0,   1.0, 1.0,
-		   -1.0, -1.0,  1.0,   0.0, -1.0,  0.0,   0.0, 1.0
-		]);
-
-	vaoCube =  gl.createVertexArray();
-    gl.bindVertexArray(vaoCube);
-	var vbo = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-	{
-		gl.bufferData(gl.ARRAY_BUFFER, cubeVerts, gl.STATIC_DRAW);
-		gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 8 * cubeVerts.BYTES_PER_ELEMENT, 0);
-		gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 8 * cubeVerts.BYTES_PER_ELEMENT, 3 * cubeVerts.BYTES_PER_ELEMENT);
-		gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 8 * cubeVerts.BYTES_PER_ELEMENT, 5 * cubeVerts.BYTES_PER_ELEMENT);
-		gl.enableVertexAttribArray(0);
-		gl.enableVertexAttribArray(1);
-		gl.enableVertexAttribArray(2);
-	}
-	gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    gl.bindVertexArray(null);
-
 	var v = [[1.0, 1.0, 0.0,-1.0, 1.0, 0.0,-1.0, -1.0, 0.0,-1.0,-1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0],[0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0],[1.0, 1.0, 0.0, 1.0,0.0, 0.0, 0.0, 0.0,	1.0, 0.0,1.0, 1.0,]];
 	BedroomSceneObjects.mPlane = new mesh(v,null,null);
 
@@ -142,6 +87,7 @@ function initForBedroomScene() {
 	BedroomSceneObjects.mTV = new Model('BedroomScene/resources/tv.json');
 	BedroomSceneObjects.texPhone = loadTexture('resources/textures/Phub.jpg', true)
 	BedroomSceneObjects.texWall = loadTexture('resources/textures/whitewall.jpg', true)
+	BedroomSceneObjects.objCube = dshapes.initCube()
 
 	// Light Setups
 	Lights.push(
@@ -168,7 +114,7 @@ function initForBedroomScene() {
 				specular : [1.0,1.0,1.0]
 			});
 
-	//console.log(Light);
+	// console.log(Light);
 	// sceneCamera.updatePath(cameraPathBedroom);
 }
 
@@ -178,10 +124,17 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix, viewPos) {
 	// gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
 	// gl.disable(gl.CULL_FACE);
 
+	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0])
+
 	gl.useProgram(progCompleteLight.program);
 	resetCompleteLight()
 	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
-	setFlagsCompleteLight(false, false, true, false)
+	setFlagsCompleteLight(false, false, true, true)
+
+	addLightCompleteLight([0.0, 0.0, 0.0], [0.5, 0.3, 0.2], [0.9, 0.8, 0.6], [0.0, 0.0, 0.0])
+	addPointLightCompleteLight([-4.9, 1.9, 0.0], [0.1, 0.1, 0.1], [1.0, 0.8, 0.4], [0.0, 0.0, 0.0], [1.0, 0.2, 0.01])
+	addPointLightCompleteLight([4.9, 1.9, 0.0], [0.1, 0.1, 0.1], [1.0, 0.8, 0.4], [0.0, 0.0, 0.0], [1.0, 0.2, 0.01])
+
 	setTextureSamplersCompleteLight(0)
 	gl.activeTexture(gl.TEXTURE0)
 
@@ -306,6 +259,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix, viewPos) {
 	
 	// Draw Amols Cupboard
 	{
+	setFlagsCompleteLight(undefined, undefined, false, undefined)
 	ctm = mat4.create();
 	mat4.translate(ctm,ctm,[-2.0,-3.8,8.0]);
 	mat4.scale(ctm, ctm, [1.5, 1.5, 1.0]);
@@ -314,104 +268,51 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix, viewPos) {
 	mat4.translate(modelMatrix, modelMatrix, [0.0, 1.0, -1.0]);
 	mat4.scale(modelMatrix, modelMatrix, [2.0, 2.0, 0.1]);
 	setModelMatrixCompleteLight(modelMatrix)
-
-	// gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"material.diffuseMat"),[1.0,0.111932,0.05448]);
-	// gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"material.specularMat"),[1.0,1.0,1.0]);
-	// gl.uniform1f(gl.getUniformLocation(programRenderBedroom.program,"material.shininess"),1000);
-	// gl.uniform1f(gl.getUniformLocation(programRenderBedroom.program,"material.opacity"),1.0);
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 20, 4);
-	gl.bindVertexArray(null);
+	BedroomSceneObjects.objCube.render()
 
 	// cupboard top
 	mat4.copy(modelMatrix, ctm);
 	mat4.translate(modelMatrix, modelMatrix, [0.0, 3.0, -2.0]);
 	mat4.scale(modelMatrix, modelMatrix, [2.0, 0.05, 1.0]);
 	setModelMatrixCompleteLight(modelMatrix)
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 20, 4);
-	gl.bindVertexArray(null);
+	BedroomSceneObjects.objCube.render()
 
 	// cupboard bottom
 	mat4.copy(modelMatrix, ctm);
 	mat4.translate(modelMatrix, modelMatrix, [0.0, -1.0, -2.0]);
 	mat4.scale(modelMatrix, modelMatrix, [2.0, 0.05, 1.0]);
 	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.objCube.render()
 
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 20, 4);
-	gl.bindVertexArray(null);
-	
 	// transformations cupboard left
 	mat4.copy(modelMatrix, ctm);
 	mat4.translate(modelMatrix, modelMatrix, [-1.9, 1.0, -2.0]);
 	mat4.scale(modelMatrix, modelMatrix, [0.05, 2.0, 1.0]);
 	setModelMatrixCompleteLight(modelMatrix)
 	// draw front-left table leg
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-	gl.bindVertexArray(null);
-	
+	BedroomSceneObjects.objCube.render()
+
 	// transformations cupboard right
 	mat4.copy(modelMatrix, ctm);
 	mat4.translate(modelMatrix, modelMatrix, [1.9, 1.0, -2.0]);
 	mat4.scale(modelMatrix, modelMatrix, [0.05, 2.0, 1.0]);
 	setModelMatrixCompleteLight(modelMatrix)
 	// draw front-left table leg
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-	gl.bindVertexArray(null);
+	BedroomSceneObjects.objCube.render()
 
 	 // cupboard middle
 	mat4.copy(modelMatrix, ctm);
 	mat4.translate(modelMatrix, modelMatrix, [0.0, 0.5, -2.0]);
 	mat4.scale(modelMatrix, modelMatrix, [1.9, 0.05, 1.0]);
 	setModelMatrixCompleteLight(modelMatrix)
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 20, 4);
-	gl.bindVertexArray(null);
+	BedroomSceneObjects.objCube.render()
 
 	// cupboard middle
 	mat4.copy(modelMatrix, ctm);
 	mat4.translate(modelMatrix, modelMatrix, [0.0, -0.5, -2.0]);
 	mat4.scale(modelMatrix, modelMatrix, [1.9, 0.05, 1.0]);
 	setModelMatrixCompleteLight(modelMatrix)
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 20, 4);
-	gl.bindVertexArray(null);
+	BedroomSceneObjects.objCube.render()
 
 	}
 
