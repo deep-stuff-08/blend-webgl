@@ -6,11 +6,18 @@ var musicPlayer
 const SceneEnum = {
 	Tester: -1,
 	OpenScene: 0,
-	StudyScene: 1,
-	BarScene: 2,
-	HospitalScene: 3,
-	BedroomScene: 4,
-	CloseScene: 5
+	AMCPresents: 1,
+	StudyScene: 2,
+	BarScene: 3,
+	HospitalScene: 4,
+	BedroomScene: 5,
+	CloseScene: 6,
+	Title: 7,
+	Credits: 8,
+	TechnicalSpecs: 9,
+	SpecialEffects: 10,
+	References: 11,
+	SpecialThanks: 12
 }
 
 var debugCamera = {
@@ -31,7 +38,17 @@ var controlVariables = {
 	showCam: false,
 	debugMode: false,
 	isLoadModels: true,
-	currentExposure: 1.0
+	currentExposure: 1.0,
+	timeElapsedSinceSceneStarted: 0.0,
+	timeElapsedSinceSceneEnded: 0.0,
+	fade: 1.0
+}
+
+var textual = {
+	cameraPath: [
+		[[0.0, 0.0, 5.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]], 
+		[[0.0, 0.0, 5.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]] 
+	]
 }
 
 var placementHelp = {
@@ -40,17 +57,28 @@ var placementHelp = {
 }
 
 var deltaTimer = {
+	loadTime: undefined,
+	elapsedSeconds: 0.0,
 	lastTime: 0,
 	currentTime: 0
 }
 
+var isLoadingComplete = false
+
 var isCameraSet = [ false, false, false, false, false, false ]
 var cameras = [
 	opensceneDeep.cameraPathLookAround,
+	textual.cameraPath,
 	studySceneKdesh.cameraPath,
 	cameraPathBar,
 	cameraPathHospital,
 	cameraPathBedroom,
+	textual.cameraPath,
+	textual.cameraPath,
+	textual.cameraPath,
+	textual.cameraPath,
+	textual.cameraPath,
+	textual.cameraPath,
 	null
 ]
 
@@ -75,6 +103,7 @@ var texForHdr
 var progForHdr
 var vaoForHdr
 var uniformExposureForHdr
+var uniformFadeForHdr
 
 assimpjs().then (function (ajs) {
 	if(controlVariables.isLoadModels) {
@@ -204,12 +233,16 @@ function main() {
 			}
 		} else if(event.code == 'Space') {
 			if(!controlVariables.debugMode) {
-				controlVariables.renderScene = (controlVariables.renderScene + 1) % (SceneEnum.CloseScene + 1)
+				controlVariables.renderScene = (controlVariables.renderScene + 1) % (SceneEnum.SpecialThanks + 1)
 			}
 		} else if(event.code == 'KeyO') {
 			placementHelp.sca += 0.01
 		} else if(event.code == 'KeyU') {
 			placementHelp.sca -= 0.01
+		} else if(event.code == 'Enter') {
+			if(isLoadingComplete) {
+				window.requestAnimationFrame(render)
+			}
 		}
 	})
 	
@@ -219,9 +252,9 @@ function main() {
 
 	setupProgram()
 	init()
-	deltaTimer.lastTime = 0
-	deltaTimer.currentTime = 0
-	render()
+	// canvas.requestFullscreen()
+	alert("Press Enter To Start")
+	isLoadingComplete = true
 	window.addEventListener('close', uninit)
 }
 
@@ -267,6 +300,7 @@ function setupProgram() {
 	gl.useProgram(progForHdr)
 	gl.uniform1i(gl.getUniformLocation(progForHdr, "hdrTex"), 0)
 	uniformExposureForHdr = gl.getUniformLocation(progForHdr, "exposure")
+	uniformFadeForHdr = gl.getUniformLocation(progForHdr, "fade")
 	gl.useProgram(null)
 }
 
@@ -315,6 +349,7 @@ function init() {
 		// 	initForOpenSceneDeep(sceneCamera)
 		// }
 	} else {
+		initForTextKdesh()
 		initForOpenSceneDeep()
 		initForStudySceneKdesh()
 		initForSceneTwo()
@@ -331,9 +366,17 @@ function printMatrix(m) {
 }
 
 function render(time) {
-	deltaTimer.currentTime = time
+	if(deltaTimer.loadTime == undefined) {
+		deltaTimer.loadTime = time
+		deltaTimer.lastTime = 0
+		deltaTimer.currentTime = 0
+	}
+	// console.log(deltaTimer.lastTime)
+	deltaTimer.elapsedSeconds = time - deltaTimer.loadTime
+	deltaTimer.currentTime = deltaTimer.elapsedSeconds
 	var deltaTime = deltaTimer.currentTime - deltaTimer.lastTime
 	deltaTimer.lastTime = deltaTimer.currentTime
+	// console.log(deltaTimer.lastTime)
 	if(Number.isNaN(deltaTime)) {
 		deltaTime = 0.0
 	}
@@ -358,7 +401,10 @@ function render(time) {
 			sceneCamera.updatePath(cameras[controlVariables.renderScene])
 		}
 		isCameraSet[controlVariables.renderScene] = true
-		camSplinePosition = 0.0
+		camSplinePosition = 0.00001
+		controlVariables.timeElapsedSinceSceneStarted = 0.0;
+		controlVariables.timeElapsedSinceSceneEnded = 0.0;
+		controlVariables.fade = 1.0;
 	}
 
 	var cameraMatrix
@@ -389,41 +435,195 @@ function render(time) {
 		// renderCubemapDeep(cameraMatrix, temptex)
 		break
 	case SceneEnum.OpenScene:
-		camSplinePosition += renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
-		if(camSplinePosition > 0.99999) {
-			controlVariables.renderScene++
+		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
+		camSplinePosition += updateCamPosForOpenSceneDeep(sceneCamera, camSplinePosition);
+		// if(camSplinePosition > 0.5) {
+		// 	musicPlayer.play()
+		// }
+		if(controlVariables.timeElapsedSinceSceneStarted < 0.5) {
+			camSplinePosition = 0.00001;
 		}
+		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+		break
+	case SceneEnum.AMCPresents:
+		renderForTextKdeshAMCPresents(perspectiveMatrix, cameraMatrix);
+		camSplinePosition += 0.0001;
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	case SceneEnum.StudyScene:
 		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix)
-		camSplinePosition += 0.0003
-		if(camSplinePosition > 0.99999) {
-			controlVariables.renderScene++
+		camSplinePosition += updateCamPosForStudySceneKdesh(sceneCamera, camSplinePosition);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
 		}
+		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	case SceneEnum.BarScene:
-		camSplinePosition += 0.0003
-		if(camSplinePosition > 0.99999) {
-			controlVariables.renderScene++
-		}
 		renderForBarScene(perspectiveMatrix, cameraMatrix, cameraPosition,  deltaTime)
+		camSplinePosition += updateCamPosForBarScene(sceneCamera, camSplinePosition);
+		console.log(camSplinePosition);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
-		camSplinePosition += 0.0002
-		if(camSplinePosition > 0.99999) {
-			controlVariables.renderScene++
+		camSplinePosition += 0.0003
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
 		}
+		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.BedroomScene:
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
-		camSplinePosition += 0.0005
-		if(camSplinePosition > 0.99999) {
-			controlVariables.renderScene++
+		camSplinePosition += 0.0003
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
 		}
+		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.CloseScene:
 		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition, deltaTime)
+		camSplinePosition += 0.0003
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+		break
+	case SceneEnum.Title:
+		renderForTextKdeshTitle(perspectiveMatrix, cameraMatrix);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+	case SceneEnum.Credits:
+		renderForTextKdeshCredits(perspectiveMatrix, cameraMatrix);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+	case SceneEnum.TechnicalSpecs:
+		renderForTextKdeshTechnicalSpecs(perspectiveMatrix, cameraMatrix);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+		break
+	case SceneEnum.SpecialEffects:
+		renderForTextKdeshSpecialEffects(perspectiveMatrix, cameraMatrix);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+		break
+	case SceneEnum.References:
+		renderForTextKdeshReferences(perspectiveMatrix, cameraMatrix);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+		break
+	case SceneEnum.SpecialThanks:
+		renderForTextKdeshSpecialThanks(perspectiveMatrix, cameraMatrix);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	default:
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)
@@ -438,6 +638,20 @@ function render(time) {
 		gl.viewport(0, 0, canvas.width, canvas.height)
 		gl.useProgram(progForHdr)
 		gl.uniform1f(uniformExposureForHdr, controlVariables.currentExposure)
+
+		if(camSplinePosition <= 0.00001 && controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			controlVariables.fade -= deltaTime * 0.0005;
+			if(controlVariables.fade < 0.0)
+				controlVariables.fade = 0.0;
+			gl.uniform1f(uniformFadeForHdr, controlVariables.fade);
+		}
+		if(camSplinePosition >= 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.fade += deltaTime * 0.0005;
+			if(controlVariables.fade > 1.0)
+				controlVariables.fade = 1.0;
+			gl.uniform1f(uniformFadeForHdr, controlVariables.fade);
+		}
+		
 		gl.activeTexture(gl.TEXTURE0)
 		gl.bindTexture(gl.TEXTURE_2D, texForHdr)
 		gl.bindVertexArray(vaoForHdr)
