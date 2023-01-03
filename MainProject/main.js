@@ -511,7 +511,7 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.HospitalScene:
-		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
+		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix, cameraPosition)
 		camSplinePosition += updateCamPosForHospitalScene(sceneCamera, camSplinePosition);
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.1) {
 			camSplinePosition = 0.00001;
@@ -532,7 +532,7 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.BedroomScene:
-		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
+		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix, cameraPosition)
 		camSplinePosition += updateCamPosForBedroomScene(sceneCamera, camSplinePosition)
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;

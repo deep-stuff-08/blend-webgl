@@ -327,7 +327,7 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix, cameraPosition)
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
     mat4.scale(modelMatrix, modelMatrix, [0.15, 0.15, 0.15]);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.liquorCabinet.render(progCompleteLight.program);
+    studySceneKdesh.liquorCabinet.render();
 
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [0.0, 1.0, -4.8]);
@@ -364,7 +364,7 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix, cameraPosition)
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 6, [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix, [5.0, 5.0, 5.0]);
 	setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.glass.render(progCompleteLight.program);
+    studySceneKdesh.glass.render();
     gl.useProgram(null);
     gl.disable(gl.BLEND);
 }

@@ -62,7 +62,7 @@ void main(void) {
 			float intensity = 1.0;
 			if(light[i].attenuation.x != 0.0) {
 				float dist = length(light[i].position - P);
-				attenuation = 1.0 / (light[i].attenuation.x + light[i].attenuation.y * dist + light[i].attenuation.y * (dist * dist));
+				attenuation = 1.0 / (light[i].attenuation.x + light[i].attenuation.y * dist + light[i].attenuation.z * (dist * dist));
 			}
 			if(light[i].cutoff.x != 0.0) {
 				float theta = dot(L, normalize(-light[i].direction));

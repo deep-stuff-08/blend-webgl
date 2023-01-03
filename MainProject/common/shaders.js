@@ -143,7 +143,7 @@ function setupCommonPrograms() {
 	progCompleteLight.uniforms.material.diffuse = gl.getUniformLocation(progCompleteLight.program, "material.diffuse")
 	progCompleteLight.uniforms.material.specular = gl.getUniformLocation(progCompleteLight.program, "material.specular")
 	progCompleteLight.uniforms.material.shininess = gl.getUniformLocation(progCompleteLight.program, "material.shininess")
-	progCompleteLight.uniforms.material.opacity = gl.getUniformLocation(progCompleteLight.program, "material.opa")
+	progCompleteLight.uniforms.material.opacity = gl.getUniformLocation(progCompleteLight.program, "material.opacity")
 	
 	for(var i = 0; i < 13; i++) {
 		var light = {}
@@ -188,7 +188,7 @@ function setupCommonPrograms() {
 	progCompleteLight.uniformsModel.material.diffuse = gl.getUniformLocation(progCompleteLight.programModel, "material.diffuse")
 	progCompleteLight.uniformsModel.material.specular = gl.getUniformLocation(progCompleteLight.programModel, "material.specular")
 	progCompleteLight.uniformsModel.material.shininess = gl.getUniformLocation(progCompleteLight.programModel, "material.shininess")
-	progCompleteLight.uniformsModel.material.opacity = gl.getUniformLocation(progCompleteLight.programModel, "material.opa")
+	progCompleteLight.uniformsModel.material.opacity = gl.getUniformLocation(progCompleteLight.programModel, "material.opacity")
 	
 	for(var i = 0; i < 13; i++) {
 		var light = {}
@@ -319,11 +319,19 @@ function setTextureSamplersCompleteLightModel(diffuseTexture) {
 }
 
 function setFlagsCompleteLight(isInvertNormals, isBlend, isTexture, isLight) {
-	gl.uniform1i(progCompleteLight.uniforms.isBlend, isBlend ? 1 : 0)
-	gl.uniform1i(progCompleteLight.uniforms.isInvertNormals, isInvertNormals ? 1 : 0)
-	gl.uniform1i(progCompleteLight.uniforms.numLights, isLight ? progCompleteLight.currentLight : 0)
-	gl.uniform1i(progCompleteLight.uniforms.isTexture, isTexture ? 1 : 0)
-	progCompleteLight.isLight = isLight
+	if(isInvertNormals != undefined) {
+		gl.uniform1i(progCompleteLight.uniforms.isInvertNormals, isInvertNormals ? 1 : 0)
+	}
+	if(isBlend != undefined) {
+		gl.uniform1i(progCompleteLight.uniforms.isBlend, isBlend ? 1 : 0)
+	}
+	if(isTexture != undefined) {
+		gl.uniform1i(progCompleteLight.uniforms.isTexture, isTexture ? 1 : 0)
+	}
+	if(isLight != undefined) {
+		gl.uniform1i(progCompleteLight.uniforms.numLights, isLight ? progCompleteLight.currentLight : 0)
+		progCompleteLight.isLight = isLight
+	}
 }
 
 function setFlagsCompleteLightModel(isInvertNormals, isBlend, isTexture, isLight) {

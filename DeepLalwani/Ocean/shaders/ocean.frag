@@ -2,29 +2,37 @@
 
 precision highp float;
 
-in vec2 Tex;
-in vec4 C;
-in vec3 N;
-in vec3 P;
-in vec3 viewPos;
+in vec2 v_coordinates;
+in vec3 v_position;
 
-uniform vec3 lightPos;
+uniform sampler2D u_displacementMap;
+uniform sampler2D u_normalMap;
 
-uniform sampler2D samplerDiffuse;
+uniform vec3 u_cameraPosition;
 
-out vec4 color;
+uniform vec3 u_oceanColor;
+uniform vec3 u_skyColor;
+uniform float u_exposure;
 
-void main(void) {
-	vec3 matColor = vec3(0.0);
-	float alpha;
-	vec2 uv = (C.xy / C.w) * 0.5 + 0.5;
-	vec4 t = texture(samplerDiffuse, vec2(uv.x, -uv.y));
-	matColor = t.rgb;
-	alpha = t.a;
-	vec3 N = normalize(N);
-	vec3 L = normalize(lightPos - P);
-	vec3 V = normalize(viewPos - P);
-	vec3 R = reflect(-L, N);
-	matColor = 0.1 * matColor + max(dot(N, L), 0.0) * matColor + pow(max(dot(R, V), 0.0), 129.0) * vec3(0.7);
-	color = t;
+uniform vec3 u_sunDirection;
+
+out vec4 FragColor;
+
+vec3 hdr (vec3 color, float exposure) {
+	return 1.0 - exp(-color * exposure);
+}
+
+void main (void) {
+	vec3 normal = texture(u_normalMap, v_coordinates).rgb;
+
+	vec3 view = normalize(u_cameraPosition - v_position);
+	float fresnel = 0.02 + 0.98 * pow(1.0 - dot(normal, view), 5.0);
+	vec3 sky = fresnel * u_skyColor;
+
+	float diffuse = clamp(dot(normal, normalize(u_sunDirection)), 0.0, 1.0);
+	vec3 water = (1.0 - fresnel) * u_oceanColor * u_skyColor * diffuse;
+
+	vec3 color = sky + water;
+
+	FragColor = vec4(hdr(color, u_exposure), 1.0);
 }
