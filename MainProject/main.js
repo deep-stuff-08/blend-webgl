@@ -6,11 +6,18 @@ var musicPlayer
 const SceneEnum = {
 	Tester: -1,
 	OpenScene: 0,
-	StudyScene: 1,
-	BarScene: 2,
-	HospitalScene: 3,
-	BedroomScene: 4,
-	CloseScene: 5
+	AMCPresents: 1,
+	StudyScene: 2,
+	BarScene: 3,
+	HospitalScene: 4,
+	BedroomScene: 5,
+	CloseScene: 6,
+	Title: 7,
+	Credits: 8,
+	TechnicalSpecs: 9,
+	SpecialEffects: 10,
+	References: 11,
+	SpecialThanks: 12
 }
 
 var debugCamera = {
@@ -37,6 +44,13 @@ var controlVariables = {
 	fade: 1.0
 }
 
+var textual = {
+	cameraPath: [
+		[[0.0, 0.0, 5.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]], 
+		[[0.0, 0.0, 5.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]] 
+	]
+}
+
 var placementHelp = {
 	trans: [ 0.0, 0.0, 0.0 ],
 	sca: 1.0	
@@ -54,10 +68,17 @@ var isLoadingComplete = false
 var isCameraSet = [ false, false, false, false, false, false ]
 var cameras = [
 	opensceneDeep.cameraPathLookAround,
+	textual.cameraPath,
 	studySceneKdesh.cameraPath,
 	cameraPathBar,
 	cameraPathHospital,
 	cameraPathBedroom,
+	textual.cameraPath,
+	textual.cameraPath,
+	textual.cameraPath,
+	textual.cameraPath,
+	textual.cameraPath,
+	textual.cameraPath,
 	null
 ]
 
@@ -212,7 +233,7 @@ function main() {
 			}
 		} else if(event.code == 'Space') {
 			if(!controlVariables.debugMode) {
-				controlVariables.renderScene = (controlVariables.renderScene + 1) % (SceneEnum.CloseScene + 1)
+				controlVariables.renderScene = (controlVariables.renderScene + 1) % (SceneEnum.SpecialThanks + 1)
 			}
 		} else if(event.code == 'KeyO') {
 			placementHelp.sca += 0.01
@@ -328,6 +349,7 @@ function init() {
 		// 	initForOpenSceneDeep(sceneCamera)
 		// }
 	} else {
+		initForTextKdesh()
 		initForOpenSceneDeep()
 		initForStudySceneKdesh()
 		initForSceneTwo()
@@ -349,12 +371,12 @@ function render(time) {
 		deltaTimer.lastTime = 0
 		deltaTimer.currentTime = 0
 	}
-	console.log(deltaTimer.lastTime)
+	// console.log(deltaTimer.lastTime)
 	deltaTimer.elapsedSeconds = time - deltaTimer.loadTime
 	deltaTimer.currentTime = deltaTimer.elapsedSeconds
 	var deltaTime = deltaTimer.currentTime - deltaTimer.lastTime
 	deltaTimer.lastTime = deltaTimer.currentTime
-	console.log(deltaTimer.lastTime)
+	// console.log(deltaTimer.lastTime)
 	if(Number.isNaN(deltaTime)) {
 		deltaTime = 0.0
 	}
@@ -426,6 +448,21 @@ function render(time) {
 			camSplinePosition = 0.99999;
 		}
 		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+		break
+	case SceneEnum.AMCPresents:
+		renderForTextKdeshAMCPresents(perspectiveMatrix, cameraMatrix);
+		camSplinePosition += 0.0001;
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
 			controlVariables.renderScene++;
 		}
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
@@ -506,6 +543,88 @@ function render(time) {
 		}
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
+	case SceneEnum.Title:
+		renderForTextKdeshTitle(perspectiveMatrix, cameraMatrix);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+	case SceneEnum.Credits:
+		renderForTextKdeshCredits(perspectiveMatrix, cameraMatrix);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+	case SceneEnum.TechnicalSpecs:
+		renderForTextKdeshTechnicalSpecs(perspectiveMatrix, cameraMatrix);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+		break
+	case SceneEnum.SpecialEffects:
+		renderForTextKdeshSpecialEffects(perspectiveMatrix, cameraMatrix);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+		break
+	case SceneEnum.References:
+		renderForTextKdeshReferences(perspectiveMatrix, cameraMatrix);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+		break
+	case SceneEnum.SpecialThanks:
+		renderForTextKdeshSpecialThanks(perspectiveMatrix, cameraMatrix);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+		break
 	default:
 		renderForDeepCube(perspectiveMatrix, cameraMatrix)
 		break
@@ -520,13 +639,11 @@ function render(time) {
 		gl.useProgram(progForHdr)
 		gl.uniform1f(uniformExposureForHdr, controlVariables.currentExposure)
 
-		console.log(controlVariables.timeElapsedSinceSceneStarted + ' ' + camSplinePosition);
 		if(camSplinePosition <= 0.00001 && controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			controlVariables.fade -= deltaTime * 0.0005;
 			if(controlVariables.fade < 0.0)
 				controlVariables.fade = 0.0;
 			gl.uniform1f(uniformFadeForHdr, controlVariables.fade);
-			console.log(controlVariables.fade);
 		}
 		if(camSplinePosition >= 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
 			controlVariables.fade += deltaTime * 0.0005;
