@@ -107,7 +107,7 @@ function updateCamPosForStudySceneKdesh(camera, currentSplinePosition) {
     }
 }
 
-function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
+function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix, cameraPosition) {
     var lastBoundFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING);
     var lastViewport = gl.getParameter(gl.VIEWPORT);
 
@@ -126,8 +126,6 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix) {
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, lastBoundFbo);
     gl.viewport(lastViewport[0], lastViewport[1], lastViewport[2], lastViewport[3]);
-
-    var cameraPosition = debugCamera.cameraPosition;
 
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();

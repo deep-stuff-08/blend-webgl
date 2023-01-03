@@ -426,7 +426,7 @@ function render(time) {
 
 	gl.disable(gl.BLEND)
 	if(controlVariables.showCamPath)
-		sceneCamera.renderPath(perspectiveMatrix, cameraMatrix)
+		sceneCamera.renderPath()
 	if(controlVariables.showCam)
 		sceneCamera.render(perspectiveMatrix, cameraMatrix, camSplinePosition)
 
@@ -453,7 +453,7 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	case SceneEnum.AMCPresents:
-		renderForTextKdeshAMCPresents(perspectiveMatrix, cameraMatrix);
+		renderForTextKdeshAMCPresents();
 		camSplinePosition += 0.0001;
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
@@ -468,7 +468,7 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	case SceneEnum.StudyScene:
-		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix)
+		renderForStudySceneKdesh(perspectiveMatrix, cameraMatrix, cameraPosition)
 		camSplinePosition += updateCamPosForStudySceneKdesh(sceneCamera, camSplinePosition);
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
@@ -544,7 +544,7 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	case SceneEnum.Title:
-		renderForTextKdeshTitle(perspectiveMatrix, cameraMatrix);
+		renderForTextKdeshTitle();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
 		}
@@ -557,7 +557,7 @@ function render(time) {
 		}
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	case SceneEnum.Credits:
-		renderForTextKdeshCredits(perspectiveMatrix, cameraMatrix);
+		renderForTextKdeshCredits();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
 		}
@@ -570,7 +570,7 @@ function render(time) {
 		}
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	case SceneEnum.TechnicalSpecs:
-		renderForTextKdeshTechnicalSpecs(perspectiveMatrix, cameraMatrix);
+		renderForTextKdeshTechnicalSpecs();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
 		}
@@ -584,7 +584,7 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	case SceneEnum.SpecialEffects:
-		renderForTextKdeshSpecialEffects(perspectiveMatrix, cameraMatrix);
+		renderForTextKdeshSpecialEffects();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
 		}
@@ -598,7 +598,7 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	case SceneEnum.References:
-		renderForTextKdeshReferences(perspectiveMatrix, cameraMatrix);
+		renderForTextKdeshReferences();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
 		}
@@ -612,7 +612,7 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	case SceneEnum.SpecialThanks:
-		renderForTextKdeshSpecialThanks(perspectiveMatrix, cameraMatrix);
+		renderForTextKdeshSpecialThanks();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
 		}
@@ -626,10 +626,9 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 		break
 	default:
-		renderForDeepCube(perspectiveMatrix, cameraMatrix)
 		break
 	}
-	// renderForTestModelLoadByDeep(perspectiveMatrix, cameraMatrix)
+	// renderForTestModelLoadByDeep()
 
 	if(controlVariables.doRenderToHDR) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null)

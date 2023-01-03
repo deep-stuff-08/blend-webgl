@@ -22,10 +22,10 @@ function initForTextKdesh() {
     textKdesh.texSpecialThanks = loadTexture('resources/textures/SpecialThanks.PNG', true);
 }
 
-function renderForTextKdeshAMCPresents(perspectiveMatrix, viewMatrix) {
+function renderForTextKdeshAMCPresents() {
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();
-    setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, [0.0, 0.0, 1.0]);
+    setProjectionAndViewCompleteLight(mat4.create(), mat4.create(), [0.0, 0.0, 1.0]);
     setTextureMatrixCompleteLight(mat2.create());
     addLightCompleteLight([0.0, 0.0, 5.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]);
     setMaterialCompleteLight([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 128, 1.0);
@@ -33,18 +33,16 @@ function renderForTextKdeshAMCPresents(perspectiveMatrix, viewMatrix) {
     setTextureSamplersCompleteLight(0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, textKdesh.texAMCPresents);
-    var modelMatrix = mat4.create();
-    mat4.scale(modelMatrix, modelMatrix, [3.0*canvas.width/1280, 2.0*canvas.height/720, 0.0]);
-    setModelMatrixCompleteLight(modelMatrix);
+    setModelMatrixCompleteLight(mat4.create());
     gl.disable(gl.DEPTH_TEST);
     textKdesh.quadText.render();
     gl.enable(gl.DEPTH_TEST);
 }
 
-function renderForTextKdeshTitle(perspectiveMatrix, viewMatrix) {
+function renderForTextKdeshTitle() {
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();
-    setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, [0.0, 0.0, 1.0]);
+    setProjectionAndViewCompleteLight(mat4.create(), mat4.create(), [0.0, 0.0, 1.0]);
     setTextureMatrixCompleteLight(mat2.create());
     addLightCompleteLight([0.0, 0.0, 5.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]);
     setMaterialCompleteLight([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 128, 1.0);
@@ -52,18 +50,16 @@ function renderForTextKdeshTitle(perspectiveMatrix, viewMatrix) {
     setTextureSamplersCompleteLight(0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, textKdesh.texTitle);
-    var modelMatrix = mat4.create();
-    mat4.scale(modelMatrix, modelMatrix, [3.0*canvas.width/1280, 2.0*canvas.height/720, 0.0]);
-    setModelMatrixCompleteLight(modelMatrix);
+    setModelMatrixCompleteLight(mat4.create());
     gl.disable(gl.DEPTH_TEST);
     textKdesh.quadText.render();
     gl.enable(gl.DEPTH_TEST);
 }
 
-function renderForTextKdeshCredits(perspectiveMatrix, viewMatrix) {
+function renderForTextKdeshCredits() {
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();
-    setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, [0.0, 0.0, 1.0]);
+    setProjectionAndViewCompleteLight(mat4.create(), mat4.create(), [0.0, 0.0, 1.0]);
     setTextureMatrixCompleteLight(mat2.create());
     addLightCompleteLight([0.0, 0.0, 5.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]);
     setMaterialCompleteLight([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 128, 1.0);
@@ -71,18 +67,16 @@ function renderForTextKdeshCredits(perspectiveMatrix, viewMatrix) {
     setTextureSamplersCompleteLight(0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, textKdesh.texCredits);
-    var modelMatrix = mat4.create();
-    mat4.scale(modelMatrix, modelMatrix, [3.0*canvas.width/1280, 2.0*canvas.height/720, 0.0]);
-    setModelMatrixCompleteLight(modelMatrix);
+    setModelMatrixCompleteLight(mat4.create());
     gl.disable(gl.DEPTH_TEST);
     textKdesh.quadText.render();
     gl.enable(gl.DEPTH_TEST);
 }
 
-function renderForTextKdeshTechnicalSpecs(perspectiveMatrix, viewMatrix) {
+function renderForTextKdeshTechnicalSpecs() {
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();
-    setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, [0.0, 0.0, 1.0]);
+    setProjectionAndViewCompleteLight(mat4.create(), mat4.create(), [0.0, 0.0, 1.0]);
     setTextureMatrixCompleteLight(mat2.create());
     addLightCompleteLight([0.0, 0.0, 5.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]);
     setMaterialCompleteLight([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 128, 1.0);
@@ -90,18 +84,16 @@ function renderForTextKdeshTechnicalSpecs(perspectiveMatrix, viewMatrix) {
     setTextureSamplersCompleteLight(0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, textKdesh.texTechnicalSpecs);
-    var modelMatrix = mat4.create();
-    mat4.scale(modelMatrix, modelMatrix, [3.0*canvas.width/1280, 2.0*canvas.height/720, 0.0]);
-    setModelMatrixCompleteLight(modelMatrix);
+    setModelMatrixCompleteLight(mat4.create());
     gl.disable(gl.DEPTH_TEST);
     textKdesh.quadText.render();
     gl.enable(gl.DEPTH_TEST);
 }
 
-function renderForTextKdeshSpecialEffects(perspectiveMatrix, viewMatrix) {
+function renderForTextKdeshSpecialEffects() {
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();
-    setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, [0.0, 0.0, 1.0]);
+    setProjectionAndViewCompleteLight(mat4.create(), mat4.create(), [0.0, 0.0, 1.0]);
     setTextureMatrixCompleteLight(mat2.create());
     addLightCompleteLight([0.0, 0.0, 5.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]);
     setMaterialCompleteLight([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 128, 1.0);
@@ -109,18 +101,16 @@ function renderForTextKdeshSpecialEffects(perspectiveMatrix, viewMatrix) {
     setTextureSamplersCompleteLight(0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, textKdesh.texSpecialEffects);
-    var modelMatrix = mat4.create();
-    mat4.scale(modelMatrix, modelMatrix, [3.0*canvas.width/1280, 2.0*canvas.height/720, 0.0]);
-    setModelMatrixCompleteLight(modelMatrix);
+    setModelMatrixCompleteLight(mat4.create());
     gl.disable(gl.DEPTH_TEST);
     textKdesh.quadText.render();
     gl.enable(gl.DEPTH_TEST);
 }
 
-function renderForTextKdeshReferences(perspectiveMatrix, viewMatrix) {
+function renderForTextKdeshReferences() {
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();
-    setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, [0.0, 0.0, 1.0]);
+    setProjectionAndViewCompleteLight(mat4.create(), mat4.create(), [0.0, 0.0, 1.0]);
     setTextureMatrixCompleteLight(mat2.create());
     addLightCompleteLight([0.0, 0.0, 5.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]);
     setMaterialCompleteLight([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 128, 1.0);
@@ -128,18 +118,16 @@ function renderForTextKdeshReferences(perspectiveMatrix, viewMatrix) {
     setTextureSamplersCompleteLight(0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, textKdesh.texReferences);
-    var modelMatrix = mat4.create();
-    mat4.scale(modelMatrix, modelMatrix, [3.0*canvas.width/1280, 2.0*canvas.height/720, 0.0]);
-    setModelMatrixCompleteLight(modelMatrix);
+    setModelMatrixCompleteLight(mat4.create());
     gl.disable(gl.DEPTH_TEST);
     textKdesh.quadText.render();
     gl.enable(gl.DEPTH_TEST);
 }
 
-function renderForTextKdeshSpecialThanks(perspectiveMatrix, viewMatrix) {
+function renderForTextKdeshSpecialThanks() {
     gl.useProgram(progCompleteLight.program);
     resetCompleteLight();
-    setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, [0.0, 0.0, 1.0]);
+    setProjectionAndViewCompleteLight(mat4.create(), mat4.create(), [0.0, 0.0, 1.0]);
     setTextureMatrixCompleteLight(mat2.create());
     addLightCompleteLight([0.0, 0.0, 5.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]);
     setMaterialCompleteLight([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 128, 1.0);
@@ -147,9 +135,7 @@ function renderForTextKdeshSpecialThanks(perspectiveMatrix, viewMatrix) {
     setTextureSamplersCompleteLight(0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, textKdesh.texSpecialThanks);
-    var modelMatrix = mat4.create();
-    mat4.scale(modelMatrix, modelMatrix, [3.0*canvas.width/1280, 2.0*canvas.height/720, 0.0]);
-    setModelMatrixCompleteLight(modelMatrix);
+    setModelMatrixCompleteLight(mat4.create());
     gl.disable(gl.DEPTH_TEST);
     textKdesh.quadText.render();
     gl.enable(gl.DEPTH_TEST);
