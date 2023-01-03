@@ -2,8 +2,8 @@
 var opensceneDeep = {
 	objQuad: null,
 	objCube: null,
-	objBrianSad: null,
-	objBrianIdle: null,
+	objKaiWalk: null,
+	objKaiIdle: null,
 	objCars: null,
 	objSphere: null,
 	vaoCylinderPart: null,
@@ -33,7 +33,7 @@ var opensceneDeep = {
 	], 
 	isStraight: true,
 	cameraZ: 0.0,
-	brianWalkZ: 0.0
+	kaiWalkZ: 0.0
 }
 
 const opensceneDeepConsts = {
@@ -186,8 +186,8 @@ function initForOpenSceneDeep() {
 
 	gl.bindVertexArray(null)
 
-	opensceneDeep.objBrianSad = initalizeModel('BrianSad')
-	opensceneDeep.objBrianIdle = initalizeModel('BrianIdle')
+	opensceneDeep.objKaiWalk = initalizeModel('KaiWalk')
+	opensceneDeep.objKaiIdle = initalizeModel('KaiIdle')
 	opensceneDeep.objCars = []
 	opensceneDeep.objCars.push(initalizeModel('BlueCar'))
 	opensceneDeep.objCars.push(initalizeModel('BlackCar'))
@@ -424,7 +424,7 @@ function renderForCarDeep(data) {
 	renderModel(opensceneDeep.objCars[data.type])
 }
 
-function renderForBrianSadDeep(perspectiveMatrix, viewMatrix, z, viewPos) {
+function renderForKaiWalkDeep(perspectiveMatrix, viewMatrix, z, viewPos) {
 	const spotCutoff = [50, 60]
 	const spotDirection = [ 0.0, -1.0, 0.0 ]
 	const lightOne = [1.0, 1.0, 1.0]
@@ -452,13 +452,13 @@ function renderForBrianSadDeep(perspectiveMatrix, viewMatrix, z, viewPos) {
 	}
 
 	setModelMatrixCompleteLightModel(modelMatrix)
-	updateModel(opensceneDeep.objBrianSad, 0, 0.01)
-	var boneMat = getBoneMatrixArray(opensceneDeep.objBrianSad, 0)
+	updateModel(opensceneDeep.objKaiWalk, 0, 0.01)
+	var boneMat = getBoneMatrixArray(opensceneDeep.objKaiWalk, 0)
 	setBoneMatrixCompleteLightModel(boneMat)
-	renderModel(opensceneDeep.objBrianSad)
+	renderModel(opensceneDeep.objKaiWalk)
 }
 
-function renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, viewPos) {
+function renderForKaiIdleDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	const spotCutoff = [50, 60]
 	const spotDirection = [ 0.0, -1.0, 0.0 ]
 	const lightOne = [1.0, 1.0, 1.0]
@@ -486,10 +486,10 @@ function renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	}
 
 	setModelMatrixCompleteLightModel(modelMatrix)
-	updateModel(opensceneDeep.objBrianIdle, 0, 0.01)
-	var boneMat = getBoneMatrixArray(opensceneDeep.objBrianIdle, 0)
+	updateModel(opensceneDeep.objKaiIdle, 0, 0.01)
+	var boneMat = getBoneMatrixArray(opensceneDeep.objKaiIdle, 0)
 	setBoneMatrixCompleteLightModel(boneMat)
-	renderModel(opensceneDeep.objBrianIdle)
+	renderModel(opensceneDeep.objKaiIdle)
 }
 
 function renderForBuildingDeep(localModelMatrix, texScale, tex) {
@@ -598,9 +598,8 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 		opensceneDeep.carData[i].position += deltatimeinc * 0.035 * opensceneDeep.carData[i].direction
 	}
 
-	opensceneDeep.brianWalkZ -= 0.007
-	renderForBrianSadDeep(perspectiveMatrix, viewMatrix, opensceneDeep.brianWalkZ, lightSources[0])
-
+	opensceneDeep.kaiWalkZ -= 0.007
+	renderForKaiWalkDeep(perspectiveMatrix, viewMatrix, opensceneDeep.kaiWalkZ, lightSources[0])
 	// for(var i = 0; i < lightSources.length; i++) {
 		// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSources[i], [1.0, 1.0, 1.0])
 	// }
@@ -674,8 +673,8 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 
 	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightSource, [1.0, 1.0, 1.0])
 
-	renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, viewPos)
-	// renderForBrianIdleDeep(perspectiveMatrix, viewMatrix, lightSources[0])
+	renderForKaiIdleDeep(perspectiveMatrix, viewMatrix, viewPos)
+	// renderForKaiIdleDeep(perspectiveMatrix, viewMatrix, lightSources[0])
 
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
@@ -703,7 +702,6 @@ function updateForCloseSceneDeep(deltaTime) {
 		}
 	}
 }
-
 // function updateForOpenSceneDeep(deltaTime) {
 // 	if(opensceneDeep.isStraight) {
 // 		opensceneDeep.cameraZ -= deltaTime * 0.0005
