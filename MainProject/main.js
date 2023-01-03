@@ -429,7 +429,7 @@ function render(time) {
 
 	gl.disable(gl.BLEND)
 	if(controlVariables.showCamPath)
-		sceneCamera.renderPath()
+		sceneCamera.renderPath(perspectiveMatrix, cameraMatrix)
 	if(controlVariables.showCam)
 		sceneCamera.render(perspectiveMatrix, cameraMatrix, camSplinePosition)
 
@@ -538,7 +538,13 @@ function render(time) {
 			camSplinePosition = 0.00001;
 		}
 		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
-			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			if(controlVariables.timeToPause < 1.3) {
+				controlVariables.timeToPause += deltaTime * 0.0003
+				controlVariables.isPausing = true;
+			} else {
+				controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+				controlVariables.isPausing = false;
+			}
 			camSplinePosition = 0.99999;
 		}
 		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
@@ -547,20 +553,26 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.CloseScene:
-		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition, deltaTime)
+		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
 		camSplinePosition += updateCamPosForCloseSceneDeep(sceneCamera, camSplinePosition)
-		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+		if(controlVariables.timeElapsedSinceSceneStarted < 10.5) {
 			camSplinePosition = 0.00001;
 		}
 		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
-			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			if(controlVariables.timeToPause < 0.5) {
+				controlVariables.timeToPause += deltaTime * 0.0003
+				controlVariables.isPausing = true;
+			} else {
+				controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+				controlVariables.isPausing = false;
+			}
 			camSplinePosition = 0.99999;
 		}
 		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
 			controlVariables.renderScene++;
 		}
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
-		break
+	break
 	case SceneEnum.Title:
 		renderForTextKdeshTitle();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
@@ -574,6 +586,7 @@ function render(time) {
 			controlVariables.renderScene++;
 		}
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+	break
 	case SceneEnum.Credits:
 		renderForTextKdeshCredits();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {

@@ -657,6 +657,8 @@ function updateCamPosForBedroomScene(camera, camSplinePosition) {
 	var position = splineInfo.position;
 
 	switch(spline) {
+		case 1: return 0.00055;
+		case 2: return 0.0004;
 		default: return 0.0006;
 	}
 }
