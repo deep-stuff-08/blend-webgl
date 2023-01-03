@@ -651,6 +651,16 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	angle += 0.01;
 }
 
+function updateCamPosForBedroomScene(camera, camSplinePosition) {
+	var splineInfo = camera.getSplineAndPos(camSplinePosition);
+	var spline = splineInfo.spline;
+	var position = splineInfo.position;
+
+	switch(spline) {
+		default: return 0.0006;
+	}
+}
+
 function uninitForBedroomScene() {
 	deleteProgram(programRenderBedroom.program);
 }

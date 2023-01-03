@@ -41,6 +41,8 @@ var controlVariables = {
 	currentExposure: 1.0,
 	timeElapsedSinceSceneStarted: 0.0,
 	timeElapsedSinceSceneEnded: 0.0,
+	timeToPause: 0.0,
+	isPausing: false,
 	fade: 1.0
 }
 
@@ -73,6 +75,7 @@ var cameras = [
 	cameraPathBar,
 	cameraPathHospital,
 	cameraPathBedroom,
+	opensceneDeep.cameraPathCloseScene,
 	textual.cameraPath,
 	textual.cameraPath,
 	textual.cameraPath,
@@ -371,12 +374,10 @@ function render(time) {
 		deltaTimer.lastTime = 0
 		deltaTimer.currentTime = 0
 	}
-	// console.log(deltaTimer.lastTime)
 	deltaTimer.elapsedSeconds = time - deltaTimer.loadTime
 	deltaTimer.currentTime = deltaTimer.elapsedSeconds
 	var deltaTime = deltaTimer.currentTime - deltaTimer.lastTime
 	deltaTimer.lastTime = deltaTimer.currentTime
-	// console.log(deltaTimer.lastTime)
 	if(Number.isNaN(deltaTime)) {
 		deltaTime = 0.0
 	}
@@ -405,6 +406,8 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted = 0.0;
 		controlVariables.timeElapsedSinceSceneEnded = 0.0;
 		controlVariables.fade = 1.0;
+		controlVariables.timeToPause = 0.0;
+		controlVariables.isPausing = false;
 	}
 
 	var cameraMatrix
@@ -437,13 +440,11 @@ function render(time) {
 	case SceneEnum.OpenScene:
 		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
 		camSplinePosition += updateCamPosForOpenSceneDeep(sceneCamera, camSplinePosition);
-		if(camSplinePosition > 0.5) {
-			musicPlayer.play()
-		}
 		if(controlVariables.timeElapsedSinceSceneStarted < 0.5) {
 			camSplinePosition = 0.00001;
 		}
 		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			musicPlayer.play()
 			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
 			camSplinePosition = 0.99999;
 		}
@@ -474,7 +475,13 @@ function render(time) {
 			camSplinePosition = 0.00001;
 		}
 		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
-			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			if(controlVariables.timeToPause < 1.0) {
+				controlVariables.timeToPause += deltaTime * 0.0003
+				controlVariables.isPausing = true;
+			} else {
+				controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+				controlVariables.isPausing = false;
+			}
 			camSplinePosition = 0.99999;
 		}
 		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
@@ -485,12 +492,17 @@ function render(time) {
 	case SceneEnum.BarScene:
 		renderForBarScene(perspectiveMatrix, cameraMatrix, cameraPosition,  deltaTime)
 		camSplinePosition += updateCamPosForBarScene(sceneCamera, camSplinePosition);
-		console.log(camSplinePosition);
-		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.3) {
 			camSplinePosition = 0.00001;
 		}
 		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
-			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			if(controlVariables.timeToPause < 0.6) {
+				controlVariables.timeToPause += deltaTime * 0.0003
+				controlVariables.isPausing = true;
+			} else {
+				controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+				controlVariables.isPausing = false;
+			}
 			camSplinePosition = 0.99999;
 		}
 		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
@@ -500,12 +512,18 @@ function render(time) {
 	break
 	case SceneEnum.HospitalScene:
 		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
-		camSplinePosition += 0.0003
-		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+		camSplinePosition += updateCamPosForHospitalScene(sceneCamera, camSplinePosition);
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.1) {
 			camSplinePosition = 0.00001;
 		}
 		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
-			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			if(controlVariables.timeToPause < 2.0) {
+				controlVariables.timeToPause += deltaTime * 0.0003
+				controlVariables.isPausing = true;
+			} else {
+				controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+				controlVariables.isPausing = false;
+			}
 			camSplinePosition = 0.99999;
 		}
 		else if(controlVariables.timeElapsedSinceSceneEnded >= 1.0) {
@@ -515,7 +533,7 @@ function render(time) {
 	break
 	case SceneEnum.BedroomScene:
 		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
-		camSplinePosition += 0.0003
+		camSplinePosition += updateCamPosForBedroomScene(sceneCamera, camSplinePosition)
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
 		}
@@ -530,7 +548,7 @@ function render(time) {
 	break
 	case SceneEnum.CloseScene:
 		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, debugCamera.cameraPosition, deltaTime)
-		camSplinePosition += 0.0003
+		camSplinePosition += updateCamPosForCloseSceneDeep(sceneCamera, camSplinePosition)
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
 		}
@@ -644,7 +662,7 @@ function render(time) {
 				controlVariables.fade = 0.0;
 			gl.uniform1f(uniformFadeForHdr, controlVariables.fade);
 		}
-		if(camSplinePosition >= 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+		if(camSplinePosition >= 0.99999 && !controlVariables.isPausing && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
 			controlVariables.fade += deltaTime * 0.0005;
 			if(controlVariables.fade > 1.0)
 				controlVariables.fade = 1.0;

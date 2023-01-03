@@ -102,6 +102,8 @@ function updateCamPosForStudySceneKdesh(camera, currentSplinePosition) {
             if(position > 0.7)
                 return 0.0003;
             return 0.00025;
+		case 3:
+			return 0.0004;
         default:
             return 0.0005;
     }

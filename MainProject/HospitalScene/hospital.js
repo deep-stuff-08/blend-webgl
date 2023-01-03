@@ -104,12 +104,12 @@ var cameraPathHospital = [
 	//[[-3.0, 0.3, -0.5], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 
 	//  position            center             up             velocity      //
-	[[-2.5, -0.3, 0.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-2.5, -0.5, 0.5], [-2.2, -0.6, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	[[-3.5, 0.8, -3.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	[[-3.5, 0.8, -3.0], [2.2, -0.3, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	[[-3.5, 0.8, -3.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	// [[-3.5, 0.8, -3.0], [-13.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-	[[-3.5, 0.8, -3.0], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	// [[-3.5, 0.8, -3.0], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	[[-4.0, 0.3, -0.5], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 ];
 
@@ -667,6 +667,18 @@ function initForSceneTwo() {
 			});
 
 	// sceneCamera.updatePath(cameraPathHospital);
+}
+
+function updateCamPosForHospitalScene(camera, camSplinePosition) {
+	var splineInfo = camera.getSplineAndPos(camSplinePosition);
+	var spline = splineInfo.spline;
+	var position = splineInfo.position;
+
+	switch(spline) {
+		case 1: return 0.0007;
+		case 2: return 0.0008;
+		default: return 0.00035;
+	}
 }
 
 function renderForSceneTwo(time , perspectiveMatrix, viewMatrix) {

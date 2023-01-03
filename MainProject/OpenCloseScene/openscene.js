@@ -30,7 +30,11 @@ var opensceneDeep = {
 		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [-50.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-	], 
+	],
+	cameraPathCloseScene: [
+		[[-13.5, -7.0, -42.0], [8.0, -7.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-13.5, -5.0, -42.0], [8.0, -6.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	],
 	isStraight: true,
 	cameraZ: 0.0,
 	kaiWalkZ: 0.0
@@ -225,6 +229,17 @@ function updateCamPosForOpenSceneDeep(camera, splinePosition) {
 	switch(spline) {
 		case 0: return 0.0003
 		case 1: case 2: return 0.0005
+		default: return 0.0003
+	}
+}
+
+
+function updateCamPosForCloseSceneDeep(camera, splinePosition) {
+	var splineInfo = camera.getSplineAndPos(splinePosition);
+	var spline = splineInfo.spline;
+	var position = splineInfo.position;
+
+	switch(spline) {
 		default: return 0.0003
 	}
 }
