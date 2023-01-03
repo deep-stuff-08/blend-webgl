@@ -68,11 +68,11 @@ var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
 	// { name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
-	// { name: "BrianSad", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
-	// { name: "BrianIdle", files:[ 'resources/models/dynamic/Brian/Idle.dae' ], flipTex:true },
-	// { name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
-	// { name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },
-	// { name: "SilverCar", files:[ 'resources/models/static/Car/silvercar.obj', 'resources/models/static/Car/silvercar.mtl' ], flipTex:true },
+	{ name: "BrianSad", files:[ 'resources/models/dynamic/Brian/SadWalk.dae' ], flipTex:true },
+	{ name: "BrianIdle", files:[ 'resources/models/dynamic/Brian/Idle.dae' ], flipTex:true },
+	{ name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
+	{ name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },
+	{ name: "SilverCar", files:[ 'resources/models/static/Car/silvercar.obj', 'resources/models/static/Car/silvercar.mtl' ], flipTex:true },
 ]
 
 var loadedTextures = {}
@@ -415,9 +415,9 @@ function render(time) {
 	case SceneEnum.OpenScene:
 		renderForOpenSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
 		camSplinePosition += updateCamPosForOpenSceneDeep(sceneCamera, camSplinePosition);
-		// if(camSplinePosition > 0.5) {
-		// 	musicPlayer.play()
-		// }
+		if(camSplinePosition > 0.5) {
+			musicPlayer.play()
+		}
 		if(controlVariables.timeElapsedSinceSceneStarted < 0.5) {
 			camSplinePosition = 0.00001;
 		}

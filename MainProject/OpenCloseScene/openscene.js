@@ -598,6 +598,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 		opensceneDeep.carData[i].position += deltatimeinc * 0.035 * opensceneDeep.carData[i].direction
 	}
 
+	opensceneDeep.brianWalkZ -= 0.007
 	renderForBrianSadDeep(perspectiveMatrix, viewMatrix, opensceneDeep.brianWalkZ, lightSources[0])
 
 	// for(var i = 0; i < lightSources.length; i++) {
