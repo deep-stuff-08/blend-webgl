@@ -21,6 +21,8 @@ var oceanDeep = {
 	pingPhase: true,
 	oceanBuffer: null,
 	countOfIndicesOcean: null,
+	vaoFullscreen: null,
+	vaoOcean: null
 }
 
 const oceanDeepConst = {
@@ -119,12 +121,17 @@ function initForOceanDeep() {
 	gl.getExtension('OES_texture_float');
 	gl.getExtension('OES_texture_float_linear');
 
-	gl.enableVertexAttribArray(0);
-
+	
+	oceanDeep.vaoFullscreen = gl.createVertexArray()
+	gl.bindVertexArray(oceanDeep.vaoFullscreen)
 	oceanDeep.fullscreenVertexBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, oceanDeep.fullscreenVertexBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]), gl.STATIC_DRAW);
+	gl.enableVertexAttribArray(0);
+	gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 	
+	oceanDeep.vaoOcean = gl.createVertexArray()
+	gl.bindVertexArray(oceanDeep.vaoOcean)
 	var oceanData = [];
 	for (var zIndex = 0; zIndex < oceanDeepConst.GEOMETRY_RESOLUTION; zIndex += 1) {
 		for (var xIndex = 0; xIndex < oceanDeepConst.GEOMETRY_RESOLUTION; xIndex += 1) {
@@ -156,12 +163,17 @@ function initForOceanDeep() {
 	oceanDeep.oceanBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, oceanDeep.oceanBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(oceanData), gl.STATIC_DRAW);
+	gl.enableVertexAttribArray(0)
+	gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 5 * oceanDeepConst.SIZE_OF_FLOAT, 0);
+	gl.enableVertexAttribArray(1)
 	gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 5 * oceanDeepConst.SIZE_OF_FLOAT, 3 * oceanDeepConst.SIZE_OF_FLOAT);
 
 	oceanDeep.countOfIndicesOcean = oceanIndices.length
 	var oceanIndexBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, oceanIndexBuffer);
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(oceanIndices), gl.STATIC_DRAW);
+
+	gl.bindVertexArray(null)
 
 	var initialSpectrumTexture = createTextureFromParams(oceanDeepConst.INITIAL_SPECTRUM_UNIT, gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.REPEAT, gl.REPEAT, gl.NEAREST, gl.NEAREST)
 	var pongPhaseTexture = createTextureFromParams(oceanDeepConst.PONG_PHASE_UNIT, gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST)
@@ -197,8 +209,7 @@ function renderForOceanDeep(projectionMatrix, viewMatrix, cameraPosition, modelM
 	gl.viewport(0, 0, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION);
 	gl.disable(gl.DEPTH_TEST);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, oceanDeep.fullscreenVertexBuffer);
-	gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+	gl.bindVertexArray(oceanDeep.vaoFullscreen)
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, oceanDeep.initialSpectrumFramebuffer);
 	gl.useProgram(oceanDeep.initialSpectrumProgram);
@@ -262,10 +273,7 @@ function renderForOceanDeep(projectionMatrix, viewMatrix, cameraPosition, modelM
 	gl.clearBufferfv(gl.COLOR, 0, [0.6, 0.6, 0.6, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
-	gl.enableVertexAttribArray(1);
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, oceanDeep.oceanBuffer);
-	gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 5 * oceanDeepConst.SIZE_OF_FLOAT, 0);
+	gl.bindVertexArray(oceanDeep.vaoOcean)
 
 	gl.useProgram(oceanDeep.oceanProgram);
 	gl.uniform1f(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_size'), oceanDeep.size);
@@ -273,8 +281,5 @@ function renderForOceanDeep(projectionMatrix, viewMatrix, cameraPosition, modelM
 	gl.uniformMatrix4fv(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_viewMatrix'), false, viewMatrix);
 	gl.uniformMatrix4fv(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_modelMatrix'), false, modelMatrix);
 	gl.uniform3fv(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_cameraPosition'), cameraPosition);
-	gl.drawElements(gl.TRIANGLES, oceanDeep.countOfIndicesOcean, gl.UNSIGNED_SHORT, 0);
-
-	gl.disableVertexAttribArray(1);
-	
+	gl.drawElements(gl.TRIANGLES, oceanDeep.countOfIndicesOcean, gl.UNSIGNED_SHORT, 0);	
 }
