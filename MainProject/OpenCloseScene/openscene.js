@@ -58,8 +58,6 @@ const opensceneDeepConsts = {
 	buildingXTrans: 10.0,
 	buildingZTrans: 12.5,
 	buildingZSpace: 30.0,
-	oceanWidth: 1000.0,
-	oceanDepth: 100.0,
 	lampCount: 8,
 	lampDelta: 0
 }
@@ -621,9 +619,8 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	// }
 
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
-	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.oceanWidth, 20.0, opensceneDeepConsts.oceanDepth])
-	renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix)
+	mat4.translate(modelMatrix, modelMatrix, [-(200.0 + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.railingWidth))), -10.0, -100.0])
+	renderForOceanDeep(perspectiveMatrix, viewMatrix, viewPos, modelMatrix, [0.0, 0.3, 0.6], [1.0, 0.5, 0.0])
 
 	// // FootPathBorderTurn
 	// modelMatrix = mat4.create()
