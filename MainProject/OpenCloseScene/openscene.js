@@ -690,7 +690,6 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	// renderForKaiIdleDeep(perspectiveMatrix, viewMatrix, lightSources[0])
 
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
-	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.oceanWidth, 20.0, opensceneDeepConsts.oceanDepth])
-	renderForOceanDeep(perspectiveMatrix, camMatrix, modelMatrix)
+	mat4.translate(modelMatrix, modelMatrix, [-(200.0 + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.railingWidth))), -10.0, -100.0])
+	renderForOceanDeep(perspectiveMatrix, camMatrix, viewPos, modelMatrix, [0.0, 0.1, 0.2], [1.0, 0.5, 0.0])
 }
