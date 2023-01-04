@@ -90,10 +90,10 @@ function initForBarScene() {
 	BarSceneObjects.mLight = new Model('BarScene/resources/light.json');
 	BarSceneObjects.mDoor = new Model('BarScene/resources/door.json');
 	// BarSceneObjects.mFan = new Model('BarScene/resources/fan.json');
-	BarSceneObjects.mBottle = new Model('BarScene/resources/bottle.json');
+	// BarSceneObjects.mBottle = new Model('BarScene/resources/bottle.json');
 	BarSceneObjects.mBottle2 = new Model('BarScene/resources/bottle2.json');
 	BarSceneObjects.mCoke = new Model('BarScene/resources/coke.json');
-	BarSceneObjects.mPepsi = new Model('BarScene/resources/pepsi.json');
+	// BarSceneObjects.mPepsi = new Model('BarScene/resources/pepsi.json');
 	BarSceneObjects.mTable = new Model('BarScene/resources/table.json');
 	BarSceneObjects.mCigar = new Model('BarScene/resources/cigar.json');
 	BarSceneObjects.mChair = new Model('BarScene/resources/chair.json');
@@ -361,55 +361,55 @@ function renderForBarScene(perspectiveMatrix, camMatrix, viewPos, deltatimeinc) 
 	setModelMatrixCompleteLight(modelMatrix)
 	BarSceneObjects.mChair.render();
 	
-	// Draw All Transparent Objects
+	// // Draw All Transparent Objects
 
-	setFlagsCompleteLight(undefined, true, undefined, undefined)
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-	gl.enable(gl.BLEND)
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [3.0,-2.3,-1.8]);
-	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(88.0), [1.0, 0.0, 0.0]);
-	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(180.0), [0.0, 0.0, 180.0]);
-	//mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(-90.0), [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
-	setModelMatrixCompleteLight(modelMatrix)
-	BarSceneObjects.mPepsi.render();
+	// setFlagsCompleteLight(undefined, true, undefined, undefined)
+	// gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	// gl.enable(gl.BLEND)
+	// mat4.identity(modelMatrix);
+	// mat4.translate(modelMatrix, modelMatrix, [3.0,-2.3,-1.8]);
+	// mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(88.0), [1.0, 0.0, 0.0]);
+	// mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(180.0), [0.0, 0.0, 180.0]);
+	// //mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(-90.0), [1.0, 0.0, 0.0]);
+	// mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
+	// setModelMatrixCompleteLight(modelMatrix)
+	// BarSceneObjects.mPepsi.render();
 	
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-3.0,-1.3,-0.5]);
+	mat4.translate(modelMatrix, modelMatrix, [-8.0,-1.3,-0.5]);
 	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[6.0,8.0,6.0]);
+	mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
 	setModelMatrixCompleteLight(modelMatrix)
-	BarSceneObjects.mBottle.render();
+	BarSceneObjects.mBottle2.render();
 	
 	var y = 1.1;
 	for(var i = 0; i < 3 ; i++) {
 		var x = -1.0;
 		for(var j = 0; j < 2; j++) {
-			mat4.identity(modelMatrix);
-			mat4.translate(modelMatrix, modelMatrix, [x,y,-4.0]);
-			mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
-			mat4.scale(modelMatrix,modelMatrix,[8.0,8.0,8.0]);
-			setModelMatrixCompleteLight(modelMatrix)
-			BarSceneObjects.mBottle.render();
+			// mat4.identity(modelMatrix);
+			// mat4.translate(modelMatrix, modelMatrix, [x,y,-4.0]);
+			// mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
+			// mat4.scale(modelMatrix,modelMatrix,[8.0,8.0,8.0]);
+			// setModelMatrixCompleteLight(modelMatrix)
+			// BarSceneObjects.mBottle.render();
 			x += 1.5;
 		}
 		y -= 1.7;
 	}
 
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-6.0,-1.65,10.5]);
-	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
-	setModelMatrixCompleteLight(modelMatrix)
-	BarSceneObjects.mBottle2.render();
+	// mat4.identity(modelMatrix);
+	// mat4.translate(modelMatrix, modelMatrix, [-6.0,-1.65,10.5]);
+	// mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
+	// mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
+	// setModelMatrixCompleteLight(modelMatrix)
+	// BarSceneObjects.mBottle2.render();
 	
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [7.0,-1.65,5.0]);
-	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
-	setModelMatrixCompleteLight(modelMatrix)
-	BarSceneObjects.mBottle2.render();
+	// mat4.identity(modelMatrix);
+	// mat4.translate(modelMatrix, modelMatrix, [7.0,-1.65,5.0]);
+	// mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
+	// mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
+	// setModelMatrixCompleteLight(modelMatrix)
+	// BarSceneObjects.mBottle2.render();
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [8.0,-2.3,5.0]);

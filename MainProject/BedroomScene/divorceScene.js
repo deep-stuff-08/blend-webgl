@@ -81,7 +81,7 @@ function initForBedroomScene() {
 	BedroomSceneObjects.mDoor = new Model('BedroomScene/resources/door.json');
 	BedroomSceneObjects.mFan = new Model('BedroomScene/resources/fan.json');
 	BedroomSceneObjects.mBed = new Model('BedroomScene/resources/bed.json');
-	BedroomSceneObjects.mBottle2 = new Model('BedroomScene/resources/bottle2.json');
+	// BedroomSceneObjects.mBottle2 = new Model('BedroomScene/resources/bottle2.json');
 	BedroomSceneObjects.mGlass = new Model('BedroomScene/resources/glass.json');
 	BedroomSceneObjects.mRing = new Model('BedroomScene/resources/ring.json');
 	BedroomSceneObjects.mTV = new Model('BedroomScene/resources/tv.json');
@@ -324,7 +324,7 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix, viewPos) {
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
 	setModelMatrixCompleteLight(modelMatrix)
-	BedroomSceneObjects.mBottle2.render();
+	// BedroomSceneObjects.mBottle2.render();
 	
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [2.5,-2.65,-7.0]);
