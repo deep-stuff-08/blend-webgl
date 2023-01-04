@@ -22,20 +22,19 @@ var oceanDeep = {
 	oceanBuffer: null,
 	countOfIndicesOcean: null,
 	vaoFullscreen: null,
-	vaoOcean: null
+	vaoOcean: null,
+	initialSpectrumTexture: null,
+	pingPhaseTexture: null,
+	pongPhaseTexture: null,
+	spectrumTexture: null,
+	displacementMap: null,
+	normalMap: null,
+	pingTransformTexture: null,
+	pongTransformTexture: null,
 }
 
 const oceanDeepConst = {
 	SIZE_OF_FLOAT: 4,
-	INITIAL_SPECTRUM_UNIT: 0,
-	SPECTRUM_UNIT: 1,
-	DISPLACEMENT_MAP_UNIT: 2,
-	NORMAL_MAP_UNIT: 3,
-	PING_PHASE_UNIT: 4,
-	PONG_PHASE_UNIT: 5,
-	PING_TRANSFORM_UNIT: 6,
-	PONG_TRANSFORM_UNIT: 7,
-
 	GEOMETRY_ORIGIN: [-200.0, -200.0],
 	SUN_DIRECTION: [-1.0, 1.0, 1.0],
 	OCEAN_COLOR: [0.004, 0.016, 0.047],
@@ -53,15 +52,15 @@ function createFramebufferFromTexture(attachment) {
 		return framebuffer;
 }
 
-var createTextureFromParams = function(unit, internalFormat, format, type, width, height, data, wrapS, wrapT, minFilter, magFilter) {
+var createTextureFromParams = function(internalFormat, format, type, width, height, data, wrapS, wrapT, minFilter, magFilter) {
     var texture = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0 + unit);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, data);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter);
+    gl.bindTexture(gl.TEXTURE_2D, null);
     return texture;
 }
 
@@ -95,13 +94,11 @@ function setupProgramForOceanDeep() {
 	var spectrumFrag = createShader('shaders/spectrum.frag', gl.FRAGMENT_SHADER)
 	oceanDeep.spectrumProgram = createProgram([fullscreenVertexShader, spectrumFrag]);
 	gl.useProgram(oceanDeep.spectrumProgram);
-	gl.uniform1i(gl.getUniformLocation(oceanDeep.spectrumProgram, 'u_initialSpectrum'), oceanDeepConst.INITIAL_SPECTRUM_UNIT);
 	gl.uniform1f(gl.getUniformLocation(oceanDeep.spectrumProgram, 'u_resolution'), oceanDeepConst.RESOLUTION);
 
 	var normalMapFrag = createShader('shaders/normalMap.frag', gl.FRAGMENT_SHADER)
 	oceanDeep.normalMapProgram = createProgram([fullscreenVertexShader, normalMapFrag]);
 	gl.useProgram(oceanDeep.normalMapProgram);
-	gl.uniform1i(gl.getUniformLocation(oceanDeep.normalMapProgram, 'u_displacementMap'), oceanDeepConst.DISPLACEMENT_MAP_UNIT);
 	gl.uniform1f(gl.getUniformLocation(oceanDeep.normalMapProgram, 'u_resolution'), oceanDeepConst.RESOLUTION);
 
 	var oceanVert = createShader('shaders/ocean.vert', gl.VERTEX_SHADER)
@@ -109,8 +106,6 @@ function setupProgramForOceanDeep() {
 	oceanDeep.oceanProgram = createProgram([oceanVert, oceanFrag]);
 	gl.useProgram(oceanDeep.oceanProgram);
 	gl.uniform1f(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_geometrySize'), oceanDeepConst.GEOMETRY_SIZE);
-	gl.uniform1i(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_displacementMap'), oceanDeepConst.DISPLACEMENT_MAP_UNIT);
-	gl.uniform1i(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_normalMap'), oceanDeepConst.NORMAL_MAP_UNIT);
 	gl.uniform3fv(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_oceanColor'), oceanDeepConst.OCEAN_COLOR);
 	gl.uniform3fv(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_skyColor'), oceanDeepConst.SKY_COLOR);
 	gl.uniform3fv(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_sunDirection'), oceanDeepConst.SUN_DIRECTION);
@@ -171,13 +166,13 @@ function initForOceanDeep() {
 
 	gl.bindVertexArray(null)
 
-	var initialSpectrumTexture = createTextureFromParams(oceanDeepConst.INITIAL_SPECTRUM_UNIT, gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.REPEAT, gl.REPEAT, gl.NEAREST, gl.NEAREST)
-	var pongPhaseTexture = createTextureFromParams(oceanDeepConst.PONG_PHASE_UNIT, gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST)
-	var spectrumTexture = createTextureFromParams(oceanDeepConst.SPECTRUM_UNIT, gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST)
-	var displacementMap = createTextureFromParams(oceanDeepConst.DISPLACEMENT_MAP_UNIT, gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR)
-	var normalMap = createTextureFromParams(oceanDeepConst.NORMAL_MAP_UNIT, gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR)
-	var pingTransformTexture = createTextureFromParams(oceanDeepConst.PING_TRANSFORM_UNIT, gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST)
-	var pongTransformTexture = createTextureFromParams(oceanDeepConst.PONG_TRANSFORM_UNIT, gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST)
+	oceanDeep.initialSpectrumTexture = createTextureFromParams(gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.REPEAT, gl.REPEAT, gl.NEAREST, gl.NEAREST)
+	oceanDeep.pongPhaseTexture = createTextureFromParams(gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST)
+	oceanDeep.spectrumTexture = createTextureFromParams(gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST)
+	oceanDeep.displacementMap = createTextureFromParams(gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR)
+	oceanDeep.normalMap = createTextureFromParams(gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR)
+	oceanDeep.pingTransformTexture = createTextureFromParams(gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST)
+	oceanDeep.pongTransformTexture = createTextureFromParams(gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, null, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST)
 
 	var phaseArray = new Float32Array(oceanDeepConst.RESOLUTION * oceanDeepConst.RESOLUTION * 4);
 	for (var i = 0; i < oceanDeepConst.RESOLUTION; i += 1) {
@@ -188,17 +183,17 @@ function initForOceanDeep() {
 			phaseArray[i * oceanDeepConst.RESOLUTION * 4 + j * 4 + 3] = 0;
 		}
 	}
-	var pingPhaseTexture = createTextureFromParams(oceanDeepConst.PING_PHASE_UNIT, gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, phaseArray, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
+	oceanDeep.pingPhaseTexture = createTextureFromParams(gl.RGBA16F, gl.RGBA, gl.FLOAT, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION, phaseArray, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
 
 	//changing framebuffers faster than changing attachments in WebGL
-	oceanDeep.initialSpectrumFramebuffer = createFramebufferFromTexture(initialSpectrumTexture)
-	oceanDeep.pingPhaseFramebuffer = createFramebufferFromTexture(pingPhaseTexture)
-	oceanDeep.pongPhaseFramebuffer = createFramebufferFromTexture(pongPhaseTexture)
-	oceanDeep.spectrumFramebuffer = createFramebufferFromTexture(spectrumTexture)
-	oceanDeep.displacementMapFramebuffer = createFramebufferFromTexture(displacementMap)
-	oceanDeep.normalMapFramebuffer = createFramebufferFromTexture(normalMap)
-	oceanDeep.pingTransformFramebuffer = createFramebufferFromTexture(pingTransformTexture)
-	oceanDeep.pongTransformFramebuffer = createFramebufferFromTexture(pongTransformTexture)
+	oceanDeep.initialSpectrumFramebuffer = createFramebufferFromTexture(oceanDeep.initialSpectrumTexture)
+	oceanDeep.pingPhaseFramebuffer = createFramebufferFromTexture(oceanDeep.pingPhaseTexture)
+	oceanDeep.pongPhaseFramebuffer = createFramebufferFromTexture(oceanDeep.pongPhaseTexture)
+	oceanDeep.spectrumFramebuffer = createFramebufferFromTexture(oceanDeep.spectrumTexture)
+	oceanDeep.displacementMapFramebuffer = createFramebufferFromTexture(oceanDeep.displacementMap)
+	oceanDeep.normalMapFramebuffer = createFramebufferFromTexture(oceanDeep.normalMap)
+	oceanDeep.pingTransformFramebuffer = createFramebufferFromTexture(oceanDeep.pingTransformTexture)
+	oceanDeep.pongTransformFramebuffer = createFramebufferFromTexture(oceanDeep.pongTransformTexture)
 }
 
 function renderForOceanDeep(projectionMatrix, viewMatrix, cameraPosition, modelMatrix) {
@@ -219,7 +214,9 @@ function renderForOceanDeep(projectionMatrix, viewMatrix, cameraPosition, modelM
 	//store phases separately to ensure continuity of waves during parameter editing
 	gl.useProgram(oceanDeep.phaseProgram);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, oceanDeep.pingPhase ? oceanDeep.pongPhaseFramebuffer : oceanDeep.pingPhaseFramebuffer);
-	gl.uniform1i(gl.getUniformLocation(oceanDeep.phaseProgram, 'u_phases'), oceanDeep.pingPhase ? oceanDeepConst.PING_PHASE_UNIT : oceanDeepConst.PONG_PHASE_UNIT);
+	gl.activeTexture(gl.TEXTURE20)
+	gl.bindTexture(gl.TEXTURE_2D, oceanDeep.pingPhase ? oceanDeep.pingPhaseTexture : oceanDeep.pongPhaseTexture)
+	gl.uniform1i(gl.getUniformLocation(oceanDeep.phaseProgram, 'u_phases'), 20);
 	oceanDeep.pingPhase = !oceanDeep.pingPhase;
 	gl.uniform1f(gl.getUniformLocation(oceanDeep.phaseProgram, 'u_deltaTime'), 0.005);
 	gl.uniform1f(gl.getUniformLocation(oceanDeep.phaseProgram, 'u_size'), oceanDeep.size);
@@ -227,7 +224,12 @@ function renderForOceanDeep(projectionMatrix, viewMatrix, cameraPosition, modelM
 
 	gl.useProgram(oceanDeep.spectrumProgram);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, oceanDeep.spectrumFramebuffer);
-	gl.uniform1i(gl.getUniformLocation(oceanDeep.spectrumProgram, 'u_phases'), oceanDeep.pingPhase ? oceanDeepConst.PING_PHASE_UNIT : oceanDeepConst.PONG_PHASE_UNIT);
+	gl.activeTexture(gl.TEXTURE20)
+	gl.bindTexture(gl.TEXTURE_2D, oceanDeep.pingPhase ? oceanDeep.pingPhaseTexture : oceanDeep.pongPhaseTexture)
+	gl.uniform1i(gl.getUniformLocation(oceanDeep.spectrumProgram, 'u_phases'), 20);
+	gl.activeTexture(gl.TEXTURE21)
+	gl.bindTexture(gl.TEXTURE_2D, oceanDeep.initialSpectrumTexture)
+	gl.uniform1i(gl.getUniformLocation(oceanDeep.spectrumProgram, 'u_initialSpectrum'), 21);
 	gl.uniform1f(gl.getUniformLocation(oceanDeep.spectrumProgram, 'u_size'), oceanDeep.size);
 	gl.uniform1f(gl.getUniformLocation(oceanDeep.spectrumProgram, 'u_choppiness'), oceanDeep.choppiness);
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -240,16 +242,24 @@ function renderForOceanDeep(projectionMatrix, viewMatrix, cameraPosition, modelM
 	for (var i = 0; i < iterations; i += 1) {
 		if (i === 0) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, oceanDeep.pingTransformFramebuffer);
-			gl.uniform1i(gl.getUniformLocation(subtransformProgram, 'u_input'), oceanDeepConst.SPECTRUM_UNIT);
+			gl.activeTexture(gl.TEXTURE20)
+			gl.bindTexture(gl.TEXTURE_2D, oceanDeep.spectrumTexture)
+			gl.uniform1i(gl.getUniformLocation(subtransformProgram, 'u_input'), 20);
 		} else if (i === iterations - 1) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, oceanDeep.displacementMapFramebuffer);
-			gl.uniform1i(gl.getUniformLocation(subtransformProgram, 'u_input'), (iterations % 2 === 0) ? oceanDeepConst.PING_TRANSFORM_UNIT : oceanDeepConst.PONG_TRANSFORM_UNIT);
+			gl.activeTexture(gl.TEXTURE20)
+			gl.bindTexture(gl.TEXTURE_2D, (iterations % 2 === 0) ? oceanDeep.pingTransformTexture : oceanDeep.pongTransformTexture)
+			gl.uniform1i(gl.getUniformLocation(subtransformProgram, 'u_input'), 20);
 		} else if (i % 2 === 1) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, oceanDeep.pongTransformFramebuffer);
-			gl.uniform1i(gl.getUniformLocation(subtransformProgram, 'u_input'), oceanDeepConst.PING_TRANSFORM_UNIT);
+			gl.activeTexture(gl.TEXTURE20)
+			gl.bindTexture(gl.TEXTURE_2D, oceanDeep.pingTransformTexture)
+			gl.uniform1i(gl.getUniformLocation(subtransformProgram, 'u_input'), 20);
 		} else {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, oceanDeep.pingTransformFramebuffer);
-			gl.uniform1i(gl.getUniformLocation(subtransformProgram, 'u_input'), oceanDeepConst.PONG_TRANSFORM_UNIT);
+			gl.activeTexture(gl.TEXTURE20)
+			gl.bindTexture(gl.TEXTURE_2D, oceanDeep.pongTransformTexture)
+			gl.uniform1i(gl.getUniformLocation(subtransformProgram, 'u_input'), 20);
 		}
 
 		if (i === iterations / 2) {
@@ -264,6 +274,9 @@ function renderForOceanDeep(projectionMatrix, viewMatrix, cameraPosition, modelM
 	gl.bindFramebuffer(gl.FRAMEBUFFER, oceanDeep.normalMapFramebuffer);
 	gl.useProgram(oceanDeep.normalMapProgram);
 	gl.uniform1f(gl.getUniformLocation(oceanDeep.normalMapProgram, 'u_size'), oceanDeep.size);
+	gl.activeTexture(gl.TEXTURE20)
+	gl.bindTexture(gl.TEXTURE_2D, oceanDeep.displacementMap)
+	gl.uniform1i(gl.getUniformLocation(oceanDeep.normalMapProgram, 'u_displacementMap'), 20);
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, currentFbo);
@@ -278,5 +291,11 @@ function renderForOceanDeep(projectionMatrix, viewMatrix, cameraPosition, modelM
 	gl.uniformMatrix4fv(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_viewMatrix'), false, viewMatrix);
 	gl.uniformMatrix4fv(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_modelMatrix'), false, modelMatrix);
 	gl.uniform3fv(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_cameraPosition'), cameraPosition);
+	gl.activeTexture(gl.TEXTURE20)
+	gl.bindTexture(gl.TEXTURE_2D, oceanDeep.displacementMap)
+	gl.uniform1i(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_displacementMap'), 20);
+	gl.activeTexture(gl.TEXTURE21)
+	gl.bindTexture(gl.TEXTURE_2D, oceanDeep.normalMap)
+	gl.uniform1i(gl.getUniformLocation(oceanDeep.oceanProgram, 'u_normalMap'), 21);
 	gl.drawElements(gl.TRIANGLES, oceanDeep.countOfIndicesOcean, gl.UNSIGNED_SHORT, 0);	
 }

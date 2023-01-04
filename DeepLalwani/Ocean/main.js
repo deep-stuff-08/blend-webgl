@@ -32,7 +32,7 @@ var debugCamera = {
 
 var controlVariables = {
 	renderScene: SceneEnum.Tester,
-	doRenderToHDR: false,
+	doRenderToHDR: true,
 	devCam: false,
 	showCamPath: false,
 	showCam: false,
