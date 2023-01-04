@@ -36,13 +36,13 @@ const oceanDeepConst = {
 	PING_TRANSFORM_UNIT: 6,
 	PONG_TRANSFORM_UNIT: 7,
 
-	GEOMETRY_ORIGIN: [-1000.0, -1000.0],
+	GEOMETRY_ORIGIN: [-200.0, -200.0],
 	SUN_DIRECTION: [-1.0, 1.0, 1.0],
 	OCEAN_COLOR: [0.004, 0.016, 0.047],
 	SKY_COLOR: [3.2, 9.6, 12.8],
 	EXPOSURE: 0.15,
-	GEOMETRY_RESOLUTION: 256,
-	GEOMETRY_SIZE: 2000,
+	GEOMETRY_RESOLUTION: 128,
+	GEOMETRY_SIZE: 400,
 	RESOLUTION: 512,
 }
 
@@ -118,10 +118,6 @@ function setupProgramForOceanDeep() {
 }
 
 function initForOceanDeep() {
-	gl.getExtension('OES_texture_float');
-	gl.getExtension('OES_texture_float_linear');
-
-	
 	oceanDeep.vaoFullscreen = gl.createVertexArray()
 	gl.bindVertexArray(oceanDeep.vaoFullscreen)
 	oceanDeep.fullscreenVertexBuffer = gl.createBuffer();
@@ -206,6 +202,9 @@ function initForOceanDeep() {
 }
 
 function renderForOceanDeep(projectionMatrix, viewMatrix, cameraPosition, modelMatrix) {
+	var currentFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING)
+	var currentViewport = gl.getParameter(gl.VIEWPORT)
+
 	gl.viewport(0, 0, oceanDeepConst.RESOLUTION, oceanDeepConst.RESOLUTION);
 	gl.disable(gl.DEPTH_TEST);
 
@@ -267,11 +266,9 @@ function renderForOceanDeep(projectionMatrix, viewMatrix, cameraPosition, modelM
 	gl.uniform1f(gl.getUniformLocation(oceanDeep.normalMapProgram, 'u_size'), oceanDeep.size);
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, currentFbo);
+	gl.viewport(currentViewport[0], currentViewport[1], currentViewport[2], currentViewport[3]);
 	gl.enable(gl.DEPTH_TEST);
-	gl.clearBufferfv(gl.COLOR, 0, [0.6, 0.6, 0.6, 1.0])
-	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
 	gl.bindVertexArray(oceanDeep.vaoOcean)
 
