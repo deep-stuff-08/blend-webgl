@@ -446,7 +446,7 @@ function renderForKaiWalkDeep(perspectiveMatrix, viewMatrix, z, viewPos) {
 	const spotCutoff = [50, 60]
 	const spotDirection = [ 0.0, -1.0, 0.0 ]
 	const lightOne = [1.0, 1.0, 1.0]
-	const pointAttenuation = [1.0, 0.014, 0.0007]
+	const pointAttenuation = [1.0, 0.14, 0.14]
 	var lightSources = []
 	var start = 5.0
 	for(var i = 0; i < 6; i++) {
@@ -480,7 +480,7 @@ function renderForKaiIdleDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	const spotCutoff = [50, 60]
 	const spotDirection = [ 0.0, -1.0, 0.0 ]
 	const lightOne = [1.0, 1.0, 1.0]
-	const pointAttenuation = [1.0, 0.014, 0.0007]
+	const pointAttenuation = [1.0, 0.14, 0.14]
 	var lightSources = []
 	var start = 5.0
 	for(var i = 0; i < 6; i++) {
@@ -580,7 +580,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	const spotCutoff = [50, 60]
 	const spotDirection = [ 0.0, -1.0, 0.0 ]
 	const lightOne = [1.0, 1.0, 1.0]
-	const pointAttenuation = [1.0, 0.014, 0.0007]
+	const pointAttenuation = [1.0, 0.014, 0.014]
 
 	//Cubemap
 	renderCubemapDeep(perspectiveMatrix, camMatrix, 1)
@@ -591,8 +591,6 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	setFlagsCompleteLight(false, false, true, true)
 	setTextureSamplersCompleteLight(0)
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
-	// addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
-	// addPointLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.014, 0.0007])
 	addLightCompleteLight([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [1.0, 0.5, 0.0], [1.0, 0.0, 0.0])
 	for(var i = 0; i < lightSources.length; i++) {
 		addSpotLightCompleteLight(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
@@ -600,13 +598,13 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 
 	renderForCitySceneStaticDeep()
 	
-	setFlagsCompleteLight(false, false, false, false)
-	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.2, 0.6, 0.3], [0.7, 0.7, 0.7], 1.0, 1.0)
-	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-500.0, 40.0, -500.0])
-	mat4.scale(modelMatrix, modelMatrix, [40.0, 40.0, 40.0])
-	setModelMatrixCompleteLight(modelMatrix)
-	opensceneDeep.objSphere.render()
+	// setFlagsCompleteLight(false, false, false, false)
+	// setMaterialCompleteLight([0.1, 0.1, 0.1], [1.2, 0.6, 0.3], [0.7, 0.7, 0.7], 1.0, 1.0)
+	// modelMatrix = mat4.create()
+	// mat4.translate(modelMatrix, modelMatrix, [-500.0, 40.0, -500.0])
+	// mat4.scale(modelMatrix, modelMatrix, [40.0, 40.0, 40.0])
+	// setModelMatrixCompleteLight(modelMatrix)
+	// opensceneDeep.objSphere.render()
 
 	//Cars
 	setFlagsCompleteLight(false, false, true, true)
@@ -657,7 +655,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	const spotCutoff = [50, 60]
 	const spotDirection = [ 0.0, -1.0, 0.0 ]
 	const lightOne = [1.0, 1.0, 1.0]
-	const pointAttenuation = [1.0, 0.014, 0.0007]
+	const pointAttenuation = [1.0, 0.014, 0.014]
 
 	// var viewMatrix = mat4.clone(camMatrix)
 	// mat4.lookAt(viewMatrix, [-13.5 + opensceneDeep.cameraX + placementHelp.trans[0], 0.0, -42.0], [-14.25 + opensceneDeep.cameraX + placementHelp.trans[0], opensceneDeep.cameraY, -42.0], [0.0, 1.0, 0.0])
