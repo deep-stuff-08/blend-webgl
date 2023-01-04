@@ -76,19 +76,18 @@ function initForStudySceneKdesh() {
     studySceneKdesh.texBill5 = loadTexture("resources/textures/bill5.png");
     studySceneKdesh.texSteel = loadTexture("resources/textures/steel.jpg");
     studySceneKdesh.texWood = loadTexture("resources/textures/wood.png");
-    studySceneKdesh.texSofa = loadTexture("resources/textures/sofa.jpg");
     studySceneKdesh.texPhone = loadTexture("resources/textures/Instagram.jpg", true);
 
     studySceneKdesh.glass = new Model('BarScene/resources/glass.json');
-    studySceneKdesh.dustbin = new Model('resources/models/static/Dustbin/dustbin.json');
-    studySceneKdesh.sofa = new Model('resources/models/static/Sofa/sofa.json');
-    studySceneKdesh.chair = new Model('resources/models/static/StudyChair/studychair.json');
+    studySceneKdesh.dustbin = initalizeModel('Dustbin');
+    studySceneKdesh.sofa = initalizeModel('Sofa');
+    studySceneKdesh.chair = initalizeModel('Chair');
     studySceneKdesh.liquorCabinet = new Model('resources/models/static/LiquorCabinet/liquorcabinet.json');
-    studySceneKdesh.crumbledPaper = new Model('resources/models/static/CrumbledPaper/crumbledPaper.json');
-    studySceneKdesh.wine = new Model('resources/models/static/LiquorBottles/wine.json');
-    studySceneKdesh.champagne = new Model('resources/models/static/LiquorBottles/champagne.json');
-    studySceneKdesh.hennessy = new Model('resources/models/static/LiquorBottles/hennessy.json');
-    studySceneKdesh.jackDaniels = new Model('resources/models/static/LiquorBottles/jackdaniels.json');
+    studySceneKdesh.crumbledPaper = initalizeModel('CrumbledPaper');
+    // studySceneKdesh.wine = new Model('resources/models/static/LiquorBottles/wine.json');
+    // studySceneKdesh.champagne = new Model('resources/models/static/LiquorBottles/champagne.json');
+    // studySceneKdesh.hennessy = new Model('resources/models/static/LiquorBottles/hennessy.json');
+    // studySceneKdesh.jackDaniels = new Model('resources/models/static/LiquorBottles/jackdaniels.json');
 
     // sceneCamera.updatePath(studySceneKdesh.cameraPath);
 }
@@ -116,6 +115,7 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix, cameraPosition)
     var lightPosition = [0.8, -0.05, -4.5];
     var phonePosition = [4.5, -1.75, 3.8];
     var bottlePosition = [-5.5, -1.2, -3.0];
+	const paperbowlscale = [3.0, 3.0, 3.0]
     // renderLightSourceDeep(perspectiveMatrix, viewMatrix, lightPosition, [1.0, 1.0, 1.0]);
     // renderLightSourceDeep(perspectiveMatrix, viewMatrix, phonePosition, [1.0, 1.0, 1.0]);
     // renderLightSourceDeep(perspectiveMatrix, viewMatrix, bottlePosition, [1.0, 1.0, 1.0]);
@@ -138,7 +138,7 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix, cameraPosition)
     addPointLightCompleteLight(phonePosition, [0.5, 0.5, 0.5], [1.0, 1.0, 1.0], [0.1, 0.1, 0.1], [0.8, 0.8, 0.8]);
     addPointLightCompleteLight(bottlePosition, [0.2, 0.7, 0.8], [1.0, 1.0, 1.0], [0.1, 0.1, 0.1], [0.99, 0.99, 0.99]);
     setMaterialCompleteLight([0.8, 0.8, 0.8], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], 128, 1.0);
-    setFlagsCompleteLight(1, 0, 1, 1);
+    setFlagsCompleteLight(true, false, true, true);
     setTextureSamplersCompleteLight(0);
 
     gl.activeTexture(gl.TEXTURE0);
@@ -149,7 +149,7 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix, cameraPosition)
     setModelMatrixCompleteLight(modelMatrix);
     studySceneKdesh.cubeRoom.render();
 
-    setFlagsCompleteLight(0, 0, 1, 0);  // !!! lights going off
+    setFlagsCompleteLight(false, false, true, false);  // !!! lights going off
     gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [0.98, -0.945, -3.3]);
@@ -192,142 +192,142 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix, cameraPosition)
     setModelMatrixCompleteLight(modelMatrix);
     studySceneKdesh.quadBill.render();
 
-    setFlagsCompleteLight(0, 0, 1, 1);
+    setFlagsCompleteLight(false, false, true, true);
     gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texSteel);
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [3.5, -3.02, -4.2]);
     mat4.rotate(modelMatrix,modelMatrix, Math.PI / 2, [0.0, -1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix, [0.2, 0.2, 0.2]);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.dustbin.render(progCompleteLight.program);
+    renderModel(studySceneKdesh.dustbin);
 
-    setFlagsCompleteLight(0, 0, 1, 1);
-    modelMatrix = mat4.create();
-    mat4.translate(modelMatrix, modelMatrix, [-5.6, -0.2, -3.7]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
-    setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.champagne.render(progCompleteLight.program);
-    mat4.identity(modelMatrix);
-    mat4.translate(modelMatrix, modelMatrix, [-5.6, -0.2, -3.0]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
-    setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.hennessy.render(progCompleteLight.program);
-    mat4.identity(modelMatrix);
-    mat4.translate(modelMatrix, modelMatrix, [-5.6, -0.2, -2.3]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
-    setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.jackDaniels.render(progCompleteLight.program);
-    mat4.identity(modelMatrix);
-    mat4.translate(modelMatrix, modelMatrix, [-5.6, -1.75, -3.7]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
-    setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.champagne.render(progCompleteLight.program);
-    mat4.identity(modelMatrix);
-    mat4.translate(modelMatrix, modelMatrix, [-5.6, -1.75, -3.0]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
-    setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.hennessy.render(progCompleteLight.program);
-    mat4.identity(modelMatrix);
-    mat4.translate(modelMatrix, modelMatrix, [-5.6, -1.75, -2.3]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
-    setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.jackDaniels.render(progCompleteLight.program);
+    // setFlagsCompleteLight(0, 0, 1, 1);
+    // modelMatrix = mat4.create();
+    // mat4.translate(modelMatrix, modelMatrix, [-5.6, -0.2, -3.7]);
+    // mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    // mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+	// mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
+	// mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
+    // setModelMatrixCompleteLight(modelMatrix);
+    // studySceneKdesh.champagne.render(progCompleteLight.program);
+    // mat4.identity(modelMatrix);
+    // mat4.translate(modelMatrix, modelMatrix, [-5.6, -0.2, -3.0]);
+    // mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    // mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+	// mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
+	// mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
+    // setModelMatrixCompleteLight(modelMatrix);
+    // studySceneKdesh.hennessy.render(progCompleteLight.program);
+    // mat4.identity(modelMatrix);
+    // mat4.translate(modelMatrix, modelMatrix, [-5.6, -0.2, -2.3]);
+    // mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    // mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+	// mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
+	// mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
+    // setModelMatrixCompleteLight(modelMatrix);
+    // studySceneKdesh.jackDaniels.render(progCompleteLight.program);
+    // mat4.identity(modelMatrix);
+    // mat4.translate(modelMatrix, modelMatrix, [-5.6, -1.75, -3.7]);
+    // mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    // mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+	// mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
+	// mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
+    // setModelMatrixCompleteLight(modelMatrix);
+    // studySceneKdesh.champagne.render(progCompleteLight.program);
+    // mat4.identity(modelMatrix);
+    // mat4.translate(modelMatrix, modelMatrix, [-5.6, -1.75, -3.0]);
+    // mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    // mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+	// mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
+	// mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
+    // setModelMatrixCompleteLight(modelMatrix);
+    // studySceneKdesh.hennessy.render(progCompleteLight.program);
+    // mat4.identity(modelMatrix);
+    // mat4.translate(modelMatrix, modelMatrix, [-5.6, -1.75, -2.3]);
+    // mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
+    // mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
+	// mat4.scale(modelMatrix,modelMatrix, [0.34, 0.34, 1.0]);
+	// mat4.scale(modelMatrix,modelMatrix, [0.7, 0.7, 0.7]);
+    // setModelMatrixCompleteLight(modelMatrix);
+    // studySceneKdesh.jackDaniels.render(progCompleteLight.program);
 
+    setFlagsCompleteLight(false, false, true, true);
     gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [3.5, -2.9, -4.0]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
-    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    mat4.scale(modelMatrix, modelMatrix, paperbowlscale);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    renderModel(studySceneKdesh.crumbledPaper)
     gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
     mat4.identity(modelMatrix);
     mat4.translate(modelMatrix, modelMatrix, [2.5, -2.9, -3.0]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
-    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    mat4.scale(modelMatrix, modelMatrix, paperbowlscale);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    renderModel(studySceneKdesh.crumbledPaper)
     gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
     mat4.identity(modelMatrix);
     mat4.translate(modelMatrix, modelMatrix, [4.5, -2.9, -3.0]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
-    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    mat4.scale(modelMatrix, modelMatrix, paperbowlscale);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    renderModel(studySceneKdesh.crumbledPaper)
     gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
     mat4.identity(modelMatrix);
     mat4.translate(modelMatrix, modelMatrix, [-1.5, -2.9, -2.0]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
-    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    mat4.scale(modelMatrix, modelMatrix, paperbowlscale);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    renderModel(studySceneKdesh.crumbledPaper)
     gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
     mat4.identity(modelMatrix);
     mat4.translate(modelMatrix, modelMatrix, [0.5, -2.9, -1.4]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
-    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    mat4.scale(modelMatrix, modelMatrix, paperbowlscale);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    renderModel(studySceneKdesh.crumbledPaper)
     gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
     mat4.identity(modelMatrix);
     mat4.translate(modelMatrix, modelMatrix, [4.5, -2.9, -4.0]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
-    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    mat4.scale(modelMatrix, modelMatrix, paperbowlscale);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    renderModel(studySceneKdesh.crumbledPaper)
     gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texBill1);
     mat4.identity(modelMatrix);
     mat4.translate(modelMatrix, modelMatrix, [0.0, -2.9, 0.0]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
-    mat4.scale(modelMatrix, modelMatrix, [0.3, 0.3, 0.3]);
+    mat4.scale(modelMatrix, modelMatrix, paperbowlscale);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.crumbledPaper.render(progCompleteLight.program);
+    renderModel(studySceneKdesh.crumbledPaper)
 
-    setMaterialCompleteLight([0.5, 0.5, 0.5], [0.6, 0.2, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
-    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texSofa);
+	setFlagsCompleteLight(false, false, true, true)
+    setMaterialCompleteLight([0.1, 0.1, 0.1], [0.6, 0.2, 0.1], [1.0, 1.0, 1.0], 128, 1.0);
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [5.6, -3.0, 1.5]);
-    mat4.rotate(modelMatrix,modelMatrix, Math.PI / 2, [-1.0, 0.0, 0.0]);
-    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, -1.0]);
+    mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, -1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[3.0, 3.0, 3.0]);
 	setModelMatrixCompleteLight(modelMatrix);
-	studySceneKdesh.sofa.render(progCompleteLight.program);
+	renderModel(studySceneKdesh.sofa)
 
-    gl.bindTexture(gl.TEXTURE_2D, studySceneKdesh.texWood);
+    setMaterialCompleteLight([0.1, 0.1, 0.1], [0.6, 0.2, 0.1], paperbowlscale, 128, 1.0);
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [1.0, -3.0, -1.0]);
     mat4.rotate(modelMatrix, modelMatrix, 3 * Math.PI / 4, [0.0, -1.0, 0.0]);
     mat4.scale(modelMatrix, modelMatrix, [3.0, 3.0, 3.0]);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.chair.render(studySceneKdesh.program);
+	renderModel(studySceneKdesh.chair)
 
-    setMaterialCompleteLight([0.8, 0.8, 0.8], [0.6, 0.2, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
-    setFlagsCompleteLight(0, 0, 1, 1);
+    setMaterialCompleteLight([0.1, 0.1, 0.1], [0.6, 0.2, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
+    setFlagsCompleteLight(false, false, true, true);
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [-5.55, -1.7, -3.0]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [1.0, 0.0, 0.0]);
     mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2, [0.0, 0.0, 1.0]);
     mat4.scale(modelMatrix, modelMatrix, [0.15, 0.15, 0.15]);
     setModelMatrixCompleteLight(modelMatrix);
-    studySceneKdesh.liquorCabinet.render();
+    // studySceneKdesh.liquorCabinet.render();
 
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [0.0, 1.0, -4.8]);

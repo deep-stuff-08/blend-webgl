@@ -92,11 +92,15 @@ var modelList = [
 	// { name: "Vampire", files:[ 'resources/models/dynamic/vampire/dancing_vampire.dae' ], flipTex:true },
 	// { name: "Backpack", files:[ 'resources/models/static/backpack/backpack.obj', 'resources/models/static/backpack/backpack.mtl'], flipTex:false },
 	// { name: "PC", files:[ 'resources/models/static/PC/PC.obj', 'resources/models/static/PC/PC.mtl'], flipTex:true },
-	{ name: "KaiWalk", files:[ 'resources/models/dynamic/Kai/SadWalk.dae' ], flipTex:true },
-	{ name: "KaiIdle", files:[ 'resources/models/dynamic/Kai/SadIdle.dae' ], flipTex:true },
-	{ name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
-	{ name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },
-	{ name: "SilverCar", files:[ 'resources/models/static/Car/silvercar.obj', 'resources/models/static/Car/silvercar.mtl' ], flipTex:true },
+	// { name: "KaiWalk", files:[ 'resources/models/dynamic/Kai/SadWalk.dae' ], flipTex:true },
+	// { name: "KaiIdle", files:[ 'resources/models/dynamic/Kai/SadIdle.dae' ], flipTex:true },
+	// { name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
+	// { name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },
+	// { name: "SilverCar", files:[ 'resources/models/static/Car/silvercar.obj', 'resources/models/static/Car/silvercar.mtl' ], flipTex:true },
+	{ name: "Sofa", files:[ 'resources/models/static/Sofa/sofa.obj', 'resources/models/static/Sofa/sofa.mtl' ], flipTex:false },
+	{ name: "Chair", files:[ 'resources/models/static/Chair/chair.obj', 'resources/models/static/Chair/chair.mtl' ], flipTex:true },
+	{ name: "CrumbledPaper", files:[ 'resources/models/static/CrumbledPaper/crumbledpaper.obj', 'resources/models/static/CrumbledPaper/crumbledpaper.mtl' ], flipTex:true },
+	{ name: "Dustbin", files:[ 'resources/models/static/Dustbin/dustbin.obj', 'resources/models/static/Dustbin/dustbin.mtl' ], flipTex:true },
 ]
 
 var loadedTextures = {}
