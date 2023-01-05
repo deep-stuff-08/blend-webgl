@@ -509,18 +509,20 @@ function initForSceneTwo() {
 	HospitalSceneObjects.texFacebook = loadTexture('resources/textures/Facebook.png')
 	HospitalSceneObjects.texWall = loadTexture('resources/textures/whitewall.jpg')
 
-	fboECGWave = gl.createFramebuffer();
-	gl.bindFramebuffer(gl.FRAMEBUFFER, fboECGWave);
+	textureECGWave = loadTexture('resources/textures/heartbeat2.png')
 
-	textureECGWave = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_2D, textureECGWave);
-	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, 1024, 1024);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureECGWave, 0);
+	// fboECGWave = gl.createFramebuffer();
+	// gl.bindFramebuffer(gl.FRAMEBUFFER, fboECGWave);
 
-	gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	// textureECGWave = gl.createTexture();
+	// gl.bindTexture(gl.TEXTURE_2D, textureECGWave);
+	// gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, 1024, 1024);
+	// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	// gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureECGWave, 0);
+
+	// gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+	// gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
 	var testMat = new material();
 	testMat.diffuse = [1.0,1.0,1.0];
@@ -572,7 +574,7 @@ function updateCamPosForHospitalScene(camera, camSplinePosition) {
 	switch(spline) {
 		case 1: return 0.0007;
 		case 2: return 0.0008;
-		default: return 0.000000035;
+		default: return 0.00035;
 	}
 }
 
@@ -590,7 +592,7 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, lastBoundFbo);
 	gl.viewport(lastViewport[0], lastViewport[1], lastViewport[2], lastViewport[3])
 
-	renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0])
+	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0])
 
 	var modelMatrix = mat4.create();
 	mat4.rotate(modelMatrix, modelMatrix, angle, [1.0, 1.0, 1.0])
@@ -603,7 +605,6 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	gl.activeTexture(gl.TEXTURE0)
 	
 	addPointLightCompleteLight([-2.6, 1.8, -2.0], [0.1, 0.7, 1.0], [0.2, 0.3, 0.3], [0.0, 0.0, 0.0], [1.0, 0.01, 0.0001])
-	addSpotLightCompleteLight([-5.3, 0.3, 0.0], [0.1, 0.1, 0.1], [1.0, 0.7, 0.2], [1.0, 1.0, 1.0], [1.0, 0.001, 0.00001], [20.0, 21.0], [0.8, -1.0, 0.5])
 	
 	// back
 	mat4.identity(modelMatrix);
@@ -691,22 +692,6 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 
 	// gl.enable(gl.CULL_FACE);
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-4.0,-0.9,0.8]);
-	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
-	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(190.0), [0.0, 0.0, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
-	setModelMatrixCompleteLight(modelMatrix)
-	HospitalSceneObjects.mPad.render();
-
-	setFlagsCompleteLight(false, false, true, true)
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [0.5, -5.2, -2.4]);
-	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(45.0), [0.0, 1.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[5.2, 5.2, 5.2]);
-	setModelMatrixCompleteLight(modelMatrix)
-	renderModel(HospitalSceneObjects.mSerum);
-	
-	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-1.0,-5.0,0.5]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-50.0), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.15,0.15,0.1]);
@@ -726,13 +711,6 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
 	setModelMatrixCompleteLight(modelMatrix)
 	HospitalSceneObjects.mSofa.render();
-
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-3.0,-3.6,1.0]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.25,0.25,0.2]);
-	setModelMatrixCompleteLight(modelMatrix)
-	HospitalSceneObjects.mTrolley.render();
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-2.5,-0.9,1.2]);
@@ -760,6 +738,30 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	setModelMatrixCompleteLight(modelMatrix)
 	HospitalSceneObjects.mDoor.render();
 	
+	addSpotLightCompleteLight([-5.3, 0.3, 0.0], [0.1, 0.1, 0.1], [1.0, 0.7, 0.2], [1.0, 1.0, 1.0], [1.0, 0.001, 0.00001], [20.0, 21.0], [0.8, -1.0, 0.5])
+	setFlagsCompleteLight(false, false, true, true)
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [0.5, -5.2, -2.4]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(45.0), [0.0, 1.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[5.2, 5.2, 5.2]);
+	setModelMatrixCompleteLight(modelMatrix)
+	renderModel(HospitalSceneObjects.mSerum);
+	
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [-3.0,-3.6,1.0]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.25,0.25,0.2]);
+	setModelMatrixCompleteLight(modelMatrix)
+	HospitalSceneObjects.mTrolley.render();
+
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [-4.0,-0.9,0.8]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(190.0), [0.0, 0.0, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
+	setModelMatrixCompleteLight(modelMatrix)
+	HospitalSceneObjects.mPad.render();
+
 	setTextureSamplersCompleteLightModel(0)
 	setFlagsCompleteLight(false, false, true, false)
 	
