@@ -37,7 +37,7 @@ var controlVariables = {
 	showCamPath: false,
 	showCam: false,
 	debugMode: false,
-	isLoadModels: true,
+	isLoadModels: false,
 	currentExposure: 1.0,
 	timeElapsedSinceSceneStarted: 0.0,
 	timeElapsedSinceSceneEnded: 0.0,
@@ -269,6 +269,7 @@ function main() {
 function setupProgram() {
 	setupCommonPrograms()
 	setupProgramForLightSourceRendererDeep()
+	setupProgramForFire()
 	// setupProgramForTestModelLoadByDeep()
 
 	if(controlVariables.debugMode) {
@@ -285,6 +286,7 @@ function setupProgram() {
 		// case SceneEnum.BedroomScene:
 		// 	setupprogramForBedroomScene()
 		// 	break
+
 		// case SceneEnum.HospitalScene:
 		// 	setupprogramForSceneTwo()
 		// 	break
@@ -315,6 +317,7 @@ function setupProgram() {
 function init() {
 	initForLightSourceRendererDeep()
 	initForPhoneDeep()
+	initForFire()
 	// initForTestModelLoadByDeep()
 
 	fboForHdr = gl.createFramebuffer()
@@ -605,6 +608,7 @@ function render(time) {
 			controlVariables.renderScene++;
 		}
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+	break
 	case SceneEnum.TechnicalSpecs:
 		renderForTextKdeshTechnicalSpecs();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {

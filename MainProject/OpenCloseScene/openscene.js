@@ -69,6 +69,7 @@ function setupProgramForOpenSceneDeep() {
 	setupProgramForStreetLamp()
 	setupProgramForOceanDeep()
 	setupProgramForAppDestroyDeep()
+	setupProgramForFire()
 }
 
 function initForOpenSceneDeep() {
@@ -76,6 +77,7 @@ function initForOpenSceneDeep() {
 	initForStreetLamp()
 	initForOceanDeep()
 	initForAppDestroyDeep()
+	initForFire()
 
 	opensceneDeepConsts.lampDelta = (opensceneDeepConsts.footpathLeftDepth * 2.0) / (opensceneDeepConsts.lampCount - 1)
 
@@ -692,4 +694,9 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-(200.0 + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.railingWidth))), -10.0, -100.0])
 	renderForOceanDeep(perspectiveMatrix, camMatrix, viewPos, modelMatrix, [0.0, 0.1, 0.2], [1.0, 0.5, 0.0])
+
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-20.0, 0.0, -42.0])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
+	renderForDeepFire(perspectiveMatrix, camMatrix, modelMatrix)
 }

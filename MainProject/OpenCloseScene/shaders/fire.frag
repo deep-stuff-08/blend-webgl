@@ -67,8 +67,8 @@ void main(void) {
 	uv += displacement;
 	vec2 uvT = (uv * vec2(1.0, 0.5)) + timeScale * fireMovement;
 	float n = fbm(12.0 * uvT);
-	float gradient = (1.0 - uv.y) * 4.0;
+	float gradient = pow(1.0 - uv.y, 2.0) * (1.0 - pow(mapRange(uv.x, -1.0, 1.0), 2.0))  * 4.0;
 	float finalNoise = n * gradient;
 	vec3 color = finalNoise * vec3(2.0*n, 2.0*n*n*n, n*n*n*n);
-	FragColor = vec4(color, dot(color, vec3(0.2126, 0.7152, 0.0722)) * 6.0);
+	FragColor = vec4(color, pow(dot(color, vec3(0.2126, 0.7152, 0.0722)) * 10.0, 20.0));
 }
