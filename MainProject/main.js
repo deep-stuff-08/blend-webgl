@@ -37,7 +37,7 @@ var controlVariables = {
 	showCamPath: false,
 	showCam: false,
 	debugMode: false,
-	isLoadModels: false,
+	isLoadModels: true,
 	currentExposure: 1.0,
 	timeElapsedSinceSceneStarted: 0.0,
 	timeElapsedSinceSceneEnded: 0.0,

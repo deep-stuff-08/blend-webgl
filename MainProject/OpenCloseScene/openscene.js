@@ -621,7 +621,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	// }
 
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-(200.0 + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.railingWidth))), -10.0, -100.0])
+	mat4.translate(modelMatrix, modelMatrix, [-(200.0 + opensceneDeepConsts.roadWidth), -10.0, -100.0])
 	renderForOceanDeep(perspectiveMatrix, viewMatrix, viewPos, modelMatrix, [0.0, 0.3, 0.6], [1.0, 0.5, 0.0])
 
 	// // FootPathBorderTurn
@@ -692,7 +692,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	// renderForKaiIdleDeep(perspectiveMatrix, viewMatrix, lightSources[0])
 
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-(200.0 + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathWidth + opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.railingWidth))), -10.0, -100.0])
+	mat4.translate(modelMatrix, modelMatrix, [-(200.0 + opensceneDeepConsts.roadWidth), -10.0, -100.0])
 	renderForOceanDeep(perspectiveMatrix, camMatrix, viewPos, modelMatrix, [0.0, 0.1, 0.2], [1.0, 0.5, 0.0])
 
 	modelMatrix = mat4.create()
