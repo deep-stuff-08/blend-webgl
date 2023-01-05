@@ -292,7 +292,7 @@ class mesh
         gl.bindVertexArray(null);
     }
 
-    render(program)
+    render()
     {
         // set textures in future
 
@@ -338,10 +338,10 @@ class mesh
 						break;
 						// alpha or opacity
 						case 8:
-							gl.activeTexture(gl.TEXTURE0+(this.mat.texType[i]-1));
-							gl.bindTexture(gl.TEXTURE_2D, this.mat.texID[i]);
-							gl.uniform1i(gl.getUniformLocation(program,"alphaTex.set"),1);
-							gl.uniform1i(gl.getUniformLocation(program,"alphaTex.texSampler"),this.mat.texType[i]-1);
+							// gl.activeTexture(gl.TEXTURE0+(this.mat.texType[i]-1));
+							// gl.bindTexture(gl.TEXTURE_2D, this.mat.texID[i]);
+							// gl.uniform1i(gl.getUniformLocation(program,"alphaTex.set"),1);
+							// gl.uniform1i(gl.getUniformLocation(program,"alphaTex.texSampler"),this.mat.texType[i]-1);
 						break;
 					}
 				}
@@ -582,15 +582,15 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	var lastBoundFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING);
     var lastViewport = gl.getParameter(gl.VIEWPORT);
 
-	gl.bindFramebuffer(gl.FRAMEBUFFER, fboECGWave);
-	gl.viewport(0, 0, 1024, 1024)
-	gl.useProgram(programRenderSineWave.program);
-	gl.bindVertexArray(vao);
-    gl.uniform3fv(programRenderSineWave.uniform.iReolution, [1024,1024,1.0]);
-    gl.uniform1f(programRenderSineWave.uniform.iTime, time / 1000.0);
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-	gl.bindFramebuffer(gl.FRAMEBUFFER, lastBoundFbo);
-	gl.viewport(lastViewport[0], lastViewport[1], lastViewport[2], lastViewport[3])
+	// gl.bindFramebuffer(gl.FRAMEBUFFER, fboECGWave);
+	// gl.viewport(0, 0, 1024, 1024)
+	// gl.useProgram(programRenderSineWave.program);
+	// gl.bindVertexArray(vao);
+    // gl.uniform3fv(programRenderSineWave.uniform.iReolution, [1024,1024,1.0]);
+    // gl.uniform1f(programRenderSineWave.uniform.iTime, time / 1000.0);
+	// gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+	// gl.bindFramebuffer(gl.FRAMEBUFFER, lastBoundFbo);
+	// gl.viewport(lastViewport[0], lastViewport[1], lastViewport[2], lastViewport[3])
 
 	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0])
 
@@ -762,7 +762,7 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	setModelMatrixCompleteLight(modelMatrix)
 	HospitalSceneObjects.mPad.render();
 
-	setTextureSamplersCompleteLightModel(0)
+	setTextureSamplersCompleteLight(0)
 	setFlagsCompleteLight(false, false, true, false)
 	
 	//ECG screen

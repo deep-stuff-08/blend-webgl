@@ -1,6 +1,6 @@
 var programForDeepFire
 var programForDeepFullscreen
-var vaoForDeepFire
+var fireRainVao
 var debugVao
 var woodTextureForDeepFire
 var debugProgram
@@ -70,8 +70,8 @@ function initForDeepFire() {
 		debugPositionArray.push([Math.random() * 2.0 - 1.0, 3.0, Math.random() * 2.0 - 1.0])
 		speedArray.push(Math.random() * 0.01 + 0.005)
 	}
-	vaoForDeepFire = gl.createVertexArray()
-	gl.bindVertexArray(vaoForDeepFire)
+	fireDeep.fireRainVao = gl.createVertexArray()
+	gl.bindVertexArray(fireDeep.fireRainVao)
 	var vbo = gl.createBuffer()
 	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(circlePos), gl.STATIC_DRAW)
@@ -106,7 +106,7 @@ function renderFireForDeepFire() {
 	gl.uniform2f(resolutionUniform, 1024, 1024)
 	gl.uniform1f(timeUniform, time)
 
-	gl.bindVertexArray(vaoForDeepFire)
+	gl.bindVertexArray(fireDeep.fireRainVao)
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 	time += 0.005
 }
@@ -128,7 +128,7 @@ function renderQuad(perspectiveMatrix, viewMatrix) {
 	gl.uniformMatrix4fv(pUniform, false, perspectiveMatrix)
 	gl.uniformMatrix4fv(vUniform, false, viewMatrix)
 	gl.uniformMatrix4fv(mUniform, false, mMat)
-	gl.bindVertexArray(vaoForDeepFire)
+	gl.bindVertexArray(fireDeep.fireRainVao)
 	gl.uniform1i(fireTextureUniform, 0)
 	gl.activeTexture(gl.TEXTURE0)
 	gl.bindTexture(gl.TEXTURE_2D, texFireForDeepFire)

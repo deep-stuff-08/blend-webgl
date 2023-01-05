@@ -237,7 +237,6 @@ function resetCompleteLight() {
 		gl.uniform3f(progCompleteLight.uniforms.light[i].attenuation, 0.0, 0.0, 0.0)
 		gl.uniform2f(progCompleteLight.uniforms.light[i].cutoff, 0.0, 0.0)
 		gl.uniform3f(progCompleteLight.uniforms.light[i].direction, 0.0, 0.0, 0.0)
-		gl.uniform1i(progCompleteLight.uniforms.light[i].isDirectional, 0)
 	}
 }
 
