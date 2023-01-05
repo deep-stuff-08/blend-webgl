@@ -13,6 +13,7 @@ var studySceneKdesh = {
     hennessy: null,
     jackDaniels: null,
     glass: null,
+    door : null,
     crumbledPaper: null,
     texBill1: null,
     texBill2: null,
@@ -79,6 +80,7 @@ function initForStudySceneKdesh() {
     studySceneKdesh.texPhone = loadTexture("resources/textures/Instagram.jpg", true);
 
     studySceneKdesh.glass = new Model('BarScene/resources/glass.json');
+    studySceneKdesh.door = new Model('BarScene/resources/door.json');
     studySceneKdesh.dustbin = initalizeModel('Dustbin');
     studySceneKdesh.sofa = initalizeModel('Sofa');
     studySceneKdesh.chair = initalizeModel('Chair');
@@ -318,6 +320,23 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix, cameraPosition)
     mat4.scale(modelMatrix, modelMatrix, [3.0, 3.0, 3.0]);
     setModelMatrixCompleteLight(modelMatrix);
 	renderModel(studySceneKdesh.chair)
+
+    gl.useProgram(progCompleteLight.program);
+    resetCompleteLight();
+    setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, cameraPosition);
+    setFlagsCompleteLight(0, 1, 0, 1);
+    addLightCompleteLight(lightPosition, [0.7, 0.7, 0.7], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]);
+    setMaterialCompleteLight([0.8, 0.8, 0.8], [0.8, 0.8, 0.8], [1.0, 1.0, 1.0], 128, 0.6);
+    modelMatrix = mat4.create();
+    mat4.translate(modelMatrix, modelMatrix, [-6.9,2.5,-5.0]);
+    mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
+    mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
+    //mat4.rotate(modelMatrix, modelMatrix, Math.PI / 30, [-1.0, 0.0, 0.0]);
+    //mat4.rotate(modelMatrix, modelMatrix, Math.PI / 6, [0.0, 1.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix, [0.2, 0.2, 0.2]);
+	setModelMatrixCompleteLight(modelMatrix);
+    studySceneKdesh.door.render();
+    gl.useProgram(null);
 
     setMaterialCompleteLight([0.1, 0.1, 0.1], [0.6, 0.2, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
     setFlagsCompleteLight(false, false, true, true);
