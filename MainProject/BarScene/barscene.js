@@ -42,7 +42,7 @@ var cameraControls = {
 var cameraBar =  null;
 var cameraPathBar = [
 	//  position            center             up             velocity      //
-	[[-5.0, -0.5, -0.3], [-5.0, -1.8, -0.3], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-5.0, -1.3, -0.3], [-5.0, -1.8, -0.3], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	[[-5.0, -0.5, 1.3], [-5.0, -0.8, -0.3], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	[[-5.0, -0.5, 1.3], [-3.0, -0.8, -2.3], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	[[-5.0, -0.5, 1.3], [-1.0, -0.8, -0.3], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
@@ -247,7 +247,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, viewPos, deltatimeinc) 
 	BarSceneObjects.mcab1.render();
 
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-2.0,-3.1,-0.5]);
+	mat4.translate(modelMatrix, modelMatrix, [-5.5,-3.1,-0.5]);
 	//mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	//mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
@@ -384,7 +384,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, viewPos, deltatimeinc) 
 	// BarSceneObjects.mPepsi.render();
 	
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-8.0,-1.3,-0.5]);
+	mat4.translate(modelMatrix, modelMatrix, [-7.3,-1.3,-0.5]);
 	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
 	setModelMatrixCompleteLight(modelMatrix)

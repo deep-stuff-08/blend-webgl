@@ -26,7 +26,7 @@ function renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightP
     resetCompleteLight();
     setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, cameraPosition);
     setTextureMatrixCompleteLight(mat2.create());
-    addLightCompleteLight(lightPosition, [0.7, 0.7, 0.7], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]);
+    addLightCompleteLight(lightPosition, [0.7, 0.7, 0.7], [0.0, 0.0, 0.0], [1.0, 1.0, 1.0]);
     setMaterialCompleteLight([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], 128, 1.0);
     setTextureSamplersCompleteLight(0);
     gl.activeTexture(gl.TEXTURE0);

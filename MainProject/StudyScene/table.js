@@ -29,7 +29,7 @@ function renderForTableKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightPo
     var localTransforms = mat4.create();
 
     // top
-    setMaterialCompleteLight([0.5, 0.5, 0.5], [0.5, 0.3, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
+    setMaterialCompleteLight([0.5, 0.5, 0.5], [0.5, 0.3, 0.0], [0.0, 0.0, 0.0], 128, 1.0);
     mat4.copy(localTransforms, modelMatrix);
     mat4.scale(localTransforms, localTransforms, [2.0, 0.1, 1.5]);
     setModelMatrixCompleteLight(localTransforms);
