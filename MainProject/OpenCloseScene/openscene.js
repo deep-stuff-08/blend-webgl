@@ -30,11 +30,12 @@ var opensceneDeep = {
 		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]]
 	],
 	cameraPathCloseScene: [
-		[[-13.5, 0.0, -42.0], [-14.5, 0.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-13.5, 0.0, -42.0], [-14.5, -7.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-13.5, 4.0, -42.0], [-14.5, 2.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-7.5, 4.0, -42.0], [-8.5, 3.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-7.5, 0.0, -42.0], [-8.5, 0.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]]
+		[[-13.5, 0.0, -42.0], [-20.5, 0.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-13.5, 0.0, -42.0], [-20.5, 1.5, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-13.5, 0.0, -42.0], [-20.5, 1.5, -42.0], [0.0, 1.0, 0.0], [-1.0, -1.0, 0.0]],
+		[[-13.5, 2.0, -42.0], [-20.5, 2.5, -42.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]],
+		[[-7.5, 2.0, -42.0], [-9.5, 1.5, -42.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]],
+		[[-7.5, 0.0, -42.0], [-9.5, 0.1, -42.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]]
 	],
 	isStraight: true,
 	cameraZ: 0.0,
@@ -242,8 +243,9 @@ function updateCamPosForCloseSceneDeep(camera, splinePosition) {
 	switch(spline) {
 		case 0:
 			opensceneDeep.phoneY = position * -9.0
-			return 0.0009
-		default: return 0.0009
+			return 0.0005
+		default: return 0.0003
+		// default: return 0.0001
 	}
 }
 
@@ -663,7 +665,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	opensceneDeep.isPhoneAnimationDone = renderToPhoneTexture(deltaTimeInc)
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, camMatrix, 0)
+	// renderCubemapDeep(perspectiveMatrix, camMatrix, 0)
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
