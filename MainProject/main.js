@@ -249,6 +249,7 @@ function main() {
 			placementHelp.sca -= 0.01
 		} else if(event.code == 'Enter') {
 			if(isLoadingComplete) {
+				canvas.requestFullscreen()
 				window.requestAnimationFrame(render)
 			}
 		}
