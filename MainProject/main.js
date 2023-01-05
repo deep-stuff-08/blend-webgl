@@ -360,6 +360,7 @@ function init() {
 		// 	initForOpenSceneDeep(sceneCamera)
 		// }
 	} else {
+		initForWindowKdesh()
 		initForTextKdesh()
 		initForOpenSceneDeep()
 		initForStudySceneKdesh()
