@@ -89,13 +89,13 @@ var cameraPathHospital = [
 	//[[-3.0, 0.3, -0.5], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 
 	//  position            center             up             velocity      //
-	[[-2.5, -0.5, 0.5], [-2.2, -0.6, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-2.65, -0.1, 0.8], [-2.3, -0.4, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	[[-3.5, 0.8, -3.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	[[-3.5, 0.8, -3.0], [2.2, -0.3, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	[[-3.5, 0.8, -3.0], [-2.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	// [[-3.5, 0.8, -3.0], [-13.2, -0.3, 1.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 	// [[-3.5, 0.8, -3.0], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-	[[-4.0, 0.3, -0.5], [-4.0, -0.8, 0.8], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+	[[-3.2, 0.2, -0.2], [-3.6, -0.8, 0.7], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 ];
 
 // delete this later
@@ -535,6 +535,9 @@ function initForSceneTwo() {
 	HospitalSceneObjects.mECGScreen.setMaterial(testMat);
 	// console.log(mECGScreen);
 
+	/*
+	 * TODO solve: clamping paper mesh texture to edges but something's not working
+	 */
 	textureForm = loadTexture("resources/textures/form.png");
 	gl.bindTexture(gl.TEXTURE_2D,textureForm);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -754,6 +757,10 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	setModelMatrixCompleteLight(modelMatrix)
 	HospitalSceneObjects.mTrolley.render();
 
+	gl.bindTexture(gl.TEXTURE_2D,textureForm);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.bindTexture(gl.TEXTURE_2D,null);
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-4.0,-0.9,0.8]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
