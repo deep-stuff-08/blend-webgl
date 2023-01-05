@@ -33,7 +33,7 @@ var HospitalSceneObjects = {
 	mcabinet2 : null,
 	mFood : null,
 	mPad : null,
-	mSerum : null,
+	mIVStand : null,
 	mSofa : null,
 	mTrolley : null,
 	mLaptop : null,
@@ -496,7 +496,7 @@ function initForSceneTwo() {
 	HospitalSceneObjects.mcabinet2 = new Model('HospitalScene/resources/cab2.json');
 	// HospitalSceneObjects.mFood = new Model('HospitalScene/resources/food.json');
 	HospitalSceneObjects.mPad = new Model('HospitalScene/resources/pad.json');
-	HospitalSceneObjects.mSerum = new Model('HospitalScene/resources/serum.json');
+	HospitalSceneObjects.mSerum = initalizeModel('IVStand')
 	HospitalSceneObjects.mSofa = new Model('HospitalScene/resources/sofa.json');
 	HospitalSceneObjects.mTrolley = new Model('HospitalScene/resources/trolley.json');
 	HospitalSceneObjects.mLaptop = new Model('HospitalScene/resources/laptop.json');
@@ -572,7 +572,7 @@ function updateCamPosForHospitalScene(camera, camSplinePosition) {
 	switch(spline) {
 		case 1: return 0.0007;
 		case 2: return 0.0008;
-		default: return 0.00035;
+		default: return 0.000000035;
 	}
 }
 
@@ -698,12 +698,13 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	setModelMatrixCompleteLight(modelMatrix)
 	HospitalSceneObjects.mPad.render();
 
+	setFlagsCompleteLight(false, false, true, true)
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [0.0,-0.0,-3.0]);
-	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
+	mat4.translate(modelMatrix, modelMatrix, [0.5, -5.2, -2.4]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(45.0), [0.0, 1.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[5.2, 5.2, 5.2]);
 	setModelMatrixCompleteLight(modelMatrix)
-	HospitalSceneObjects.mSerum.render();
+	renderModel(HospitalSceneObjects.mSerum);
 	
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-1.0,-5.0,0.5]);
