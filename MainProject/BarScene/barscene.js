@@ -17,7 +17,11 @@ var BarSceneObjects = {
 	mCigar : null,
 	mGlass : null,
 	texPhone: null,
-	texWall: null
+	texWall: null,
+	texPoster1 : null,
+	texPoster2 : null,
+	texPoster3 : null,
+	texPoster4 : null
 };
 
 var programRenderBar = {
@@ -100,8 +104,12 @@ function initForBarScene() {
 	BarSceneObjects.mStool = new Model('BarScene/resources/stool.json');
 	BarSceneObjects.mGlass = new Model('BarScene/resources/glass.json');
 
-	BarSceneObjects.texPhone = loadTexture('resources/textures/Youtube.jpg', true)
-	BarSceneObjects.texWall = loadTexture('resources/textures/whitewall.jpg')
+	BarSceneObjects.texPhone = loadTexture('resources/textures/Youtube.jpg', true);
+	BarSceneObjects.texWall = loadTexture('resources/textures/whitewall.jpg');
+	BarSceneObjects.texPoster1 = loadTexture('BarScene/resources/textures/Sharaabi.jpg',true);
+	BarSceneObjects.texPoster2 = loadTexture('BarScene/resources/textures/poster.jpg',true);
+	BarSceneObjects.texPoster3 = loadTexture('BarScene/resources/textures/bar2.jpg',true);
+	BarSceneObjects.texPoster4 = loadTexture('BarScene/resources/textures/bar.jpg',true);
 
 	Light.push(
 	{	
@@ -444,6 +452,30 @@ function renderForBarScene(perspectiveMatrix, camMatrix, viewPos, deltatimeinc) 
 	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(-90.0), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[5.0,5.0,5.0]);
 	BarSceneObjects.mGlass.render();
+
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [9.8,0.0,5.0]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-90.0), [0.0, 1.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[1.0,2.0,1.0]);
+	renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, [0.0,0.0,1.0], BarSceneObjects.texPoster1);
+
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [0.0,0.0,14.5]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-180.0), [0.0, 1.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[1.0,2.0,1.0]);
+	renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, [0.0,0.0,1.0], BarSceneObjects.texPoster2);
+
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [-6.0,0.0,14.5]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-180.0), [0.0, 1.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[1.0,2.0,1.0]);
+	renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, [0.0,0.0,1.0], BarSceneObjects.texPoster3);
+
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [-9.8,0.0,7.0]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [0.0, 1.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[1.0,2.0,1.0]);
+	renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, [0.0,0.0,1.0], BarSceneObjects.texPoster4);
 
 	gl.disable(gl.BLEND)
 	FanAngle += 0.01;

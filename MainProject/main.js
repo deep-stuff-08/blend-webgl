@@ -37,7 +37,7 @@ var controlVariables = {
 	showCamPath: false,
 	showCam: false,
 	debugMode: false,
-	isLoadModels: true,
+	isLoadModels: false,
 	currentExposure: 1.0,
 	timeElapsedSinceSceneStarted: 0.0,
 	timeElapsedSinceSceneEnded: 0.0,
@@ -315,6 +315,7 @@ function setupProgram() {
 function init() {
 	initForLightSourceRendererDeep()
 	initForPhoneDeep()
+
 	// initForTestModelLoadByDeep()
 
 	fboForHdr = gl.createFramebuffer()
@@ -357,6 +358,7 @@ function init() {
 		// 	initForOpenSceneDeep(sceneCamera)
 		// }
 	} else {
+		initForWindowKdesh()
 		initForTextKdesh()
 		initForOpenSceneDeep()
 		initForStudySceneKdesh()
