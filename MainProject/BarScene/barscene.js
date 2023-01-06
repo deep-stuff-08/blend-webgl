@@ -308,7 +308,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, viewPos, deltatimeinc) 
 	*/
 
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-4.5,-2.7,13.5]);
+	mat4.translate(modelMatrix, modelMatrix, [-4.5,-2.7,13.4]);
 	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	//mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(-90.0), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[2.0,2.0,2.0]);

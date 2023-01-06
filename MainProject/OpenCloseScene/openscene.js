@@ -22,12 +22,12 @@ var opensceneDeep = {
 	isCameraBackUpAgain: false,
 	phoneY: 0.0,
 	cameraPathLookAround: [
-		[[-10.5, -0.5, -10.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-10.5, -0.5, -5.0], [20.5, 10.0, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		// [[-10.5, -0.5, -10.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		// [[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		// [[-10.5, -0.5, -5.0], [20.5, 10.0, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		// [[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [-50.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]]
+		[[-10.5, -0.5, -5.0], [ 0.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]]
 	],
 	cameraPathCloseScene: [
 		[[-13.5, 0.0, -42.0], [-20.5, 0.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
@@ -39,11 +39,12 @@ var opensceneDeep = {
 	],
 	isStraight: true,
 	cameraZ: 0.0,
-	kaiWalkZ: 0.0,
+	kaiWalkZ: -8.0,
 	fireCount: 0,
 	startFire: false,
 	startInter: false,
-	oceanColorInter: 0.0
+	oceanColorInter: 0.0,
+	volume: 1.0
 }
 
 const opensceneDeepConsts = {
@@ -231,11 +232,13 @@ function updateCamPosForOpenSceneDeep(camera, splinePosition) {
 	var splineInfo = camera.getSplineAndPos(splinePosition);
 	var spline = splineInfo.spline;
 	var position = splineInfo.position;
-
+	if(position > 0.7) {
+		opensceneDeep.volume -= 0.003
+		musicPlayerSfx.volume = Math.max(0.0, opensceneDeep.volume)		
+	}
+	
 	switch(spline) {
-		case 0: return 0.0003
-		case 1: case 2: return 0.0005
-		default: return 0.0003
+		default: return 0.0011
 	}
 }
 
@@ -731,7 +734,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	renderForOceanDeep(perspectiveMatrix, camMatrix, viewPos, modelMatrix, oceanColor, [1.0, 0.5, 0.0])
 
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-20.0, 0.0, -42.0])
+	mat4.translate(modelMatrix, modelMatrix, [-23.0, 0.0, -42.0])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
 	renderForDeepFire(perspectiveMatrix, camMatrix, modelMatrix, Math.floor(opensceneDeep.fireCount))
 }

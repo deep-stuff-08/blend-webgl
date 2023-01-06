@@ -23,14 +23,10 @@ function renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightP
     var cameraPosition = debugCamera.cameraPosition;
     
     gl.useProgram(progCompleteLight.program);
-    resetCompleteLight();
-    setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, cameraPosition);
-    setTextureMatrixCompleteLight(mat2.create());
-    addLightCompleteLight(lightPosition, [0.7, 0.7, 0.7], [0.0, 0.0, 0.0], [1.0, 1.0, 1.0]);
-    setMaterialCompleteLight([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], 128, 1.0);
+    setMaterialCompleteLight([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 128, 1.0);
     setTextureSamplersCompleteLight(0);
     gl.activeTexture(gl.TEXTURE0);
-    setFlagsCompleteLight(0, 0, 1, 1);
+    setFlagsCompleteLight(false, false, true, true);
 
     var localMat = mat4.create();
 
