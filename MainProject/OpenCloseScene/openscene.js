@@ -27,18 +27,23 @@ var opensceneDeep = {
 		[[-10.5, -0.5, -5.0], [20.5, 10.0, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
 		[[-10.5, -0.5, -5.0], [-50.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-10.5, -0.5, -5.0], [-10.5, -0.5, -40.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]]
 	],
 	cameraPathCloseScene: [
-		[[-13.5, 0.0, -42.0], [-14.5, 0.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-13.5, 0.0, -42.0], [-14.5, -7.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-13.5, 4.0, -42.0], [-14.5, 2.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-7.5, 4.0, -42.0], [-8.5, 3.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
-		[[-7.5, 0.0, -42.0], [-8.5, 0.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-13.5, 0.0, -42.0], [-20.5, 0.0, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-13.5, 0.0, -42.0], [-20.5, 1.5, -42.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],
+		[[-13.5, 0.0, -42.0], [-20.5, 1.5, -42.0], [0.0, 1.0, 0.0], [-0.5, -0.5, 0.0]],
+		[[-13.5, 2.0, -42.0], [-20.5, 2.5, -42.0], [0.0, 1.0, 0.0], [0.5, 0.0, 0.0]],
+		[[-7.5, 2.0, -42.0], [-9.5, 1.5, -42.0], [0.0, 1.0, 0.0], [0.5, 0.0, 0.0]],
+		[[-7.5, 0.0, -42.0], [-9.5, 0.1, -42.0], [0.0, 1.0, 0.0], [-0.5, 0.0, 0.0]]
 	],
 	isStraight: true,
 	cameraZ: 0.0,
-	kaiWalkZ: 0.0
+	kaiWalkZ: 0.0,
+	fireCount: 0,
+	startFire: false,
+	startInter: false,
+	oceanColorInter: 0.0
 }
 
 const opensceneDeepConsts = {
@@ -58,8 +63,6 @@ const opensceneDeepConsts = {
 	buildingXTrans: 10.0,
 	buildingZTrans: 12.5,
 	buildingZSpace: 30.0,
-	oceanWidth: 1000.0,
-	oceanDepth: 100.0,
 	lampCount: 8,
 	lampDelta: 0
 }
@@ -71,6 +74,7 @@ function setupProgramForOpenSceneDeep() {
 	setupProgramForStreetLamp()
 	setupProgramForOceanDeep()
 	setupProgramForAppDestroyDeep()
+	setupProgramForFire()
 }
 
 function initForOpenSceneDeep() {
@@ -78,6 +82,7 @@ function initForOpenSceneDeep() {
 	initForStreetLamp()
 	initForOceanDeep()
 	initForAppDestroyDeep()
+	initForFire()
 
 	opensceneDeepConsts.lampDelta = (opensceneDeepConsts.footpathLeftDepth * 2.0) / (opensceneDeepConsts.lampCount - 1)
 
@@ -234,16 +239,42 @@ function updateCamPosForOpenSceneDeep(camera, splinePosition) {
 	}
 }
 
-function updateCamPosForCloseSceneDeep(camera, splinePosition) {
+function updateCamPosForCloseSceneDeep(camera, splinePosition, log) {
 	var splineInfo = camera.getSplineAndPos(splinePosition);
 	var spline = splineInfo.spline;
 	var position = splineInfo.position;
 
+	if(log) {
+		console.log(spline, position)
+		controlVariables.isKeyPressed = false
+	}
+
+	if(opensceneDeep.startFire) {
+		opensceneDeep.fireCount += 1.0
+	}
+	if(opensceneDeep.startInter) {
+		opensceneDeep.oceanColorInter += 0.001
+	}
+
 	switch(spline) {
 		case 0:
-			opensceneDeep.phoneY = position * -9.0
-			return 0.0009
-		default: return 0.0009
+			if(position > 0.01) {
+				opensceneDeep.phoneY -= 0.001
+			}
+			return 0.0004
+		case 1:
+			opensceneDeep.phoneY -= 0.001
+			return 0.0002
+		case 2:
+			opensceneDeep.phoneY -= 0.01
+			if(position > 0.1) {
+				opensceneDeep.startFire = true
+			}
+			if(position > 0.4) {
+				opensceneDeep.startInter = true
+			}
+		default: return 0.0003
+		// default: return 0.0001
 	}
 }
 
@@ -446,7 +477,7 @@ function renderForKaiWalkDeep(perspectiveMatrix, viewMatrix, z, viewPos) {
 	const spotCutoff = [50, 60]
 	const spotDirection = [ 0.0, -1.0, 0.0 ]
 	const lightOne = [1.0, 1.0, 1.0]
-	const pointAttenuation = [1.0, 0.014, 0.0007]
+	const pointAttenuation = [1.0, 0.14, 0.14]
 	var lightSources = []
 	var start = 5.0
 	for(var i = 0; i < 6; i++) {
@@ -480,7 +511,7 @@ function renderForKaiIdleDeep(perspectiveMatrix, viewMatrix, viewPos) {
 	const spotCutoff = [50, 60]
 	const spotDirection = [ 0.0, -1.0, 0.0 ]
 	const lightOne = [1.0, 1.0, 1.0]
-	const pointAttenuation = [1.0, 0.014, 0.0007]
+	const pointAttenuation = [1.0, 0.14, 0.14]
 	var lightSources = []
 	var start = 5.0
 	for(var i = 0; i < 6; i++) {
@@ -580,10 +611,10 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	const spotCutoff = [50, 60]
 	const spotDirection = [ 0.0, -1.0, 0.0 ]
 	const lightOne = [1.0, 1.0, 1.0]
-	const pointAttenuation = [1.0, 0.014, 0.0007]
+	const pointAttenuation = [1.0, 0.014, 0.014]
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, camMatrix, 1)
+	renderCubemapDeep(perspectiveMatrix, camMatrix, 1, 0.0)
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
@@ -591,8 +622,6 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	setFlagsCompleteLight(false, false, true, true)
 	setTextureSamplersCompleteLight(0)
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
-	// addLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0])
-	// addPointLightCompleteLight(lightSource, [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.014, 0.0007])
 	addLightCompleteLight([-100.0, 100.0, 0.0], [0.1, 0.1, 0.1], [1.0, 0.5, 0.0], [1.0, 0.0, 0.0])
 	for(var i = 0; i < lightSources.length; i++) {
 		addSpotLightCompleteLight(lightSources[i], lightOne, lightOne, lightOne, pointAttenuation, spotCutoff, spotDirection)
@@ -601,12 +630,14 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	renderForCitySceneStaticDeep()
 	
 	setFlagsCompleteLight(false, false, false, false)
-	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.2, 0.6, 0.3], [0.7, 0.7, 0.7], 1.0, 1.0)
+	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 0.4, 0.2], [0.7, 0.7, 0.7], 1.0, 1.0)
+	setEmissiveCompleteLight(1.5)
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-500.0, 40.0, -500.0])
-	mat4.scale(modelMatrix, modelMatrix, [40.0, 40.0, 40.0])
+	mat4.translate(modelMatrix, modelMatrix, [-90.0, 1.0, -90.0])
+	mat4.scale(modelMatrix, modelMatrix, [5.0, 5.0, 5.0])
 	setModelMatrixCompleteLight(modelMatrix)
 	opensceneDeep.objSphere.render()
+	unsetEmissiveCompleteLight()
 
 	//Cars
 	setFlagsCompleteLight(false, false, true, true)
@@ -623,9 +654,8 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	// }
 
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
-	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.oceanWidth, 20.0, opensceneDeepConsts.oceanDepth])
-	renderForOceanDeep(perspectiveMatrix, viewMatrix, modelMatrix)
+	mat4.translate(modelMatrix, modelMatrix, [-(200.0 + opensceneDeepConsts.roadWidth), -10.0, -100.0])
+	renderForOceanDeep(perspectiveMatrix, viewMatrix, viewPos, modelMatrix, [0.0, 0.5, 0.8], [1.0, 0.5, 0.3])
 
 	// // FootPathBorderTurn
 	// modelMatrix = mat4.create()
@@ -657,7 +687,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	const spotCutoff = [50, 60]
 	const spotDirection = [ 0.0, -1.0, 0.0 ]
 	const lightOne = [1.0, 1.0, 1.0]
-	const pointAttenuation = [1.0, 0.014, 0.0007]
+	const pointAttenuation = [1.0, 0.014, 0.014]
 
 	// var viewMatrix = mat4.clone(camMatrix)
 	// mat4.lookAt(viewMatrix, [-13.5 + opensceneDeep.cameraX + placementHelp.trans[0], 0.0, -42.0], [-14.25 + opensceneDeep.cameraX + placementHelp.trans[0], opensceneDeep.cameraY, -42.0], [0.0, 1.0, 0.0])
@@ -666,7 +696,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	opensceneDeep.isPhoneAnimationDone = renderToPhoneTexture(deltaTimeInc)
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, camMatrix, 0)
+	renderCubemapDeep(perspectiveMatrix, camMatrix, 0, Math.min(opensceneDeep.oceanColorInter, 1.0))
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
@@ -695,7 +725,13 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	// renderForKaiIdleDeep(perspectiveMatrix, viewMatrix, lightSources[0])
 
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-(opensceneDeepConsts.oceanWidth + opensceneDeepConsts.roadWidth + (2.0 * (opensceneDeepConsts.footpathborderWidth + opensceneDeepConsts.footpathWidth + opensceneDeepConsts.railingWidth))), -4.0, -opensceneDeepConsts.oceanDepth])
-	mat4.scale(modelMatrix, modelMatrix, [opensceneDeepConsts.oceanWidth, 20.0, opensceneDeepConsts.oceanDepth])
-	renderForOceanDeep(perspectiveMatrix, camMatrix, modelMatrix)
+	var oceanColor = vec3.create()
+	vec3.lerp(oceanColor, [0.0, 0.1, 0.2], [3.0, 0.9, 0.0], Math.min(opensceneDeep.oceanColorInter, 1.0))
+	mat4.translate(modelMatrix, modelMatrix, [-(200.0 + opensceneDeepConsts.roadWidth), -10.0, -100.0])
+	renderForOceanDeep(perspectiveMatrix, camMatrix, viewPos, modelMatrix, oceanColor, [1.0, 0.5, 0.0])
+
+	modelMatrix = mat4.create()
+	mat4.translate(modelMatrix, modelMatrix, [-20.0, 0.0, -42.0])
+	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
+	renderForDeepFire(perspectiveMatrix, camMatrix, modelMatrix, Math.floor(opensceneDeep.fireCount))
 }

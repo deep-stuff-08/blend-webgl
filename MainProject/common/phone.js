@@ -197,6 +197,7 @@ function renderForPhoneDeep(modelMatrix, screenTex) {
 
 	//Front
 	//Screen
+	setEmissiveCompleteLight()
 	setFlagsCompleteLight(false, false, true, false)
 	localModelMat = mat4.clone(modelMatrix)
 	mat4.translate(localModelMat, localModelMat, [0.0, 0.0, phoneDepht])
@@ -204,6 +205,7 @@ function renderForPhoneDeep(modelMatrix, screenTex) {
 	setModelMatrixCompleteLight(localModelMat)
 	gl.bindTexture(gl.TEXTURE_2D, screenTex)
 	phoneDeep.objQuad.render()
+	unsetEmissiveCompleteLight()
 
 	setFlagsCompleteLight(false, false, true, true)
 	//Borders

@@ -1,7 +1,9 @@
 "use strict"
 var canvas
 var gl
-var musicPlayer
+var musicPlayerSfx
+var musicPlayerSong
+var musicPlayerEnd
 
 const SceneEnum = {
 	Tester: -1,
@@ -43,7 +45,8 @@ var controlVariables = {
 	timeElapsedSinceSceneEnded: 0.0,
 	timeToPause: 0.0,
 	isPausing: false,
-	fade: 1.0
+	fade: 1.0,
+	isKeyPressed: false
 }
 
 var textual = {
@@ -97,16 +100,24 @@ var modelList = [
 	{ name: "BlueCar", files:[ 'resources/models/static/Car/bluecar.obj', 'resources/models/static/Car/bluecar.mtl' ], flipTex:true },
 	{ name: "BlackCar", files:[ 'resources/models/static/Car/blackcar.obj', 'resources/models/static/Car/blackcar.mtl' ], flipTex:true },
 	{ name: "SilverCar", files:[ 'resources/models/static/Car/silvercar.obj', 'resources/models/static/Car/silvercar.mtl' ], flipTex:true },
+	{ name: "Sofa", files:[ 'resources/models/static/Sofa/sofa.obj', 'resources/models/static/Sofa/sofa.mtl' ], flipTex:false },
+	{ name: "Chair", files:[ 'resources/models/static/Chair/chair.obj', 'resources/models/static/Chair/chair.mtl' ], flipTex:true },
+	{ name: "CrumbledPaper", files:[ 'resources/models/static/CrumbledPaper/crumbledpaper.obj', 'resources/models/static/CrumbledPaper/crumbledpaper.mtl' ], flipTex:true },
+	{ name: "Dustbin", files:[ 'resources/models/static/Dustbin/dustbin.obj', 'resources/models/static/Dustbin/dustbin.mtl' ], flipTex:true },
+	{ name: "IVStand", files:[ 'resources/models/static/IVStand/ivstand.obj', 'resources/models/static/IVStand/ivstand.mtl' ], flipTex:true },
 ]
 
 var loadedTextures = {}
 
 var fboForHdr
 var texForHdr
+var texForBloom
 var progForHdr
 var vaoForHdr
 var uniformExposureForHdr
 var uniformFadeForHdr
+var uniformHdrTexture
+var uniformBloomTexture
 
 assimpjs().then (function (ajs) {
 	if(controlVariables.isLoadModels) {
@@ -150,7 +161,9 @@ function main() {
 	canvas.height = window.innerHeight
 	document.body.style.margin = "0"
 	document.body.appendChild(canvas)
-	musicPlayer = document.getElementById("musicid")
+	musicPlayerSfx = document.getElementById("musicsfxid")
+	musicPlayerSong = document.getElementById("musicsongid")
+	musicPlayerEnd = document.getElementById("musicendid")
 	window.addEventListener('resize', function () {
 		canvas.width = window.innerWidth
 		canvas.height = window.innerHeight
@@ -238,13 +251,17 @@ function main() {
 			if(!controlVariables.debugMode) {
 				controlVariables.renderScene = (controlVariables.renderScene + 1) % (SceneEnum.SpecialThanks + 1)
 			}
-		} else if(event.code == 'KeyO') {
+		} else if(event.code == 'KeyY') {
+			controlVariables.isKeyPressed = true;
+		} 
+		else if(event.code == 'KeyO') {
 			placementHelp.sca += 0.01
 		} else if(event.code == 'KeyU') {
 			placementHelp.sca -= 0.01
 		} else if(event.code == 'Enter') {
 			if(isLoadingComplete) {
 				canvas.requestFullscreen()
+				musicPlayerSfx.play()
 				window.requestAnimationFrame(render)
 			}
 		}
@@ -265,6 +282,8 @@ function main() {
 function setupProgram() {
 	setupCommonPrograms()
 	setupProgramForLightSourceRendererDeep()
+	setupProgramForFire()
+	setupProgramForDeepBlur()
 	// setupProgramForTestModelLoadByDeep()
 
 	if(controlVariables.debugMode) {
@@ -281,6 +300,7 @@ function setupProgram() {
 		// case SceneEnum.BedroomScene:
 		// 	setupprogramForBedroomScene()
 		// 	break
+
 		// case SceneEnum.HospitalScene:
 		// 	setupprogramForSceneTwo()
 		// 	break
@@ -305,29 +325,45 @@ function setupProgram() {
 	gl.uniform1i(gl.getUniformLocation(progForHdr, "hdrTex"), 0)
 	uniformExposureForHdr = gl.getUniformLocation(progForHdr, "exposure")
 	uniformFadeForHdr = gl.getUniformLocation(progForHdr, "fade")
+	uniformHdrTexture = gl.getUniformLocation(progForHdr, "hdrTex")
+	uniformBloomTexture = gl.getUniformLocation(progForHdr, "bloomTex")
 	gl.useProgram(null)
 }
 
 function init() {
 	initForLightSourceRendererDeep()
 	initForPhoneDeep()
+	initForFire()
+	initForDeepBlur()
 	// initForTestModelLoadByDeep()
 
 	fboForHdr = gl.createFramebuffer()
 	texForHdr = gl.createTexture()
+	texForBloom = gl.createTexture()
 	vaoForHdr = gl.createVertexArray()
 	var rbo = gl.createRenderbuffer()
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, fboForHdr)
+	
 	gl.bindTexture(gl.TEXTURE_2D, texForHdr)
 	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, 2048, 2048)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texForHdr, 0)
+	gl.bindTexture(gl.TEXTURE_2D, null)
+	
+	gl.bindTexture(gl.TEXTURE_2D, texForBloom)
+	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, 2048, 2048)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, texForBloom, 0)
+	gl.bindTexture(gl.TEXTURE_2D, null)
+	
 	gl.bindRenderbuffer(gl.RENDERBUFFER, rbo)
 	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT32F, 2048, 2048)
 	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo)
-	gl.bindTexture(gl.TEXTURE_2D, null)
+	
+	gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1])
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 
 	sceneCamera = new kcamera()
@@ -353,6 +389,7 @@ function init() {
 		// 	initForOpenSceneDeep(sceneCamera)
 		// }
 	} else {
+		initForWindowKdesh()
 		initForTextKdesh()
 		initForOpenSceneDeep()
 		initForStudySceneKdesh()
@@ -386,6 +423,7 @@ function render(time) {
 	if(controlVariables.doRenderToHDR) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, fboForHdr)
 		gl.viewport(0, 0, 2048, 2048)
+		gl.clearBufferfv(gl.COLOR, 1, [0.0, 0.0, 0.0, 1.0])
 	} else {
 		gl.viewport(0, 0, canvas.width, canvas.height)
 	}
@@ -425,7 +463,7 @@ function render(time) {
 		cameraPosition = cameraDetails.position
 	}
 
-	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0])
+	gl.clearBufferfv(gl.COLOR, 0, [0.5, 0.5, 0.5, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
 	gl.disable(gl.BLEND)
@@ -445,7 +483,8 @@ function render(time) {
 			camSplinePosition = 0.00001;
 		}
 		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
-			musicPlayer.play()
+			musicPlayerSfx.pause()
+			musicPlayerSong.play()
 			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
 			camSplinePosition = 0.99999;
 		}
@@ -512,7 +551,7 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.HospitalScene:
-		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix)
+		renderForSceneTwo(time, perspectiveMatrix, cameraMatrix, cameraPosition)
 		camSplinePosition += updateCamPosForHospitalScene(sceneCamera, camSplinePosition);
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.1) {
 			camSplinePosition = 0.00001;
@@ -533,7 +572,7 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.BedroomScene:
-		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix)
+		renderForBedroomScene(time, perspectiveMatrix, cameraMatrix, cameraPosition)
 		camSplinePosition += updateCamPosForBedroomScene(sceneCamera, camSplinePosition)
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
@@ -555,7 +594,7 @@ function render(time) {
 	break
 	case SceneEnum.CloseScene:
 		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
-		camSplinePosition += updateCamPosForCloseSceneDeep(sceneCamera, camSplinePosition)
+		camSplinePosition += updateCamPosForCloseSceneDeep(sceneCamera, camSplinePosition, controlVariables.isKeyPressed)
 		if(controlVariables.timeElapsedSinceSceneStarted < 10.5) {
 			camSplinePosition = 0.00001;
 		}
@@ -589,6 +628,8 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.Credits:
+		musicPlayerSong.pause()
+		musicPlayerEnd.play()
 		renderForTextKdeshCredits();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
@@ -601,6 +642,7 @@ function render(time) {
 			controlVariables.renderScene++;
 		}
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+	break
 	case SceneEnum.TechnicalSpecs:
 		renderForTextKdeshTechnicalSpecs();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
@@ -669,6 +711,8 @@ function render(time) {
 		gl.viewport(0, 0, canvas.width, canvas.height)
 		gl.useProgram(progForHdr)
 		gl.uniform1f(uniformExposureForHdr, controlVariables.currentExposure)
+		gl.uniform1i(uniformHdrTexture, 0)
+		gl.uniform1i(uniformBloomTexture, 1)
 
 		if(camSplinePosition <= 0.00001 && controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			controlVariables.fade -= deltaTime * 0.0005;
@@ -684,7 +728,12 @@ function render(time) {
 		}
 		
 		gl.activeTexture(gl.TEXTURE0)
+		var newtex = blurImage(texForBloom)
+		gl.useProgram(progForHdr)
+		gl.activeTexture(gl.TEXTURE0)
 		gl.bindTexture(gl.TEXTURE_2D, texForHdr)
+		gl.activeTexture(gl.TEXTURE1)
+		gl.bindTexture(gl.TEXTURE_2D, newtex)
 		gl.bindVertexArray(vaoForHdr)
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 		gl.bindVertexArray(null)
@@ -752,6 +801,7 @@ function loadTexture(path, isTexFlipped) {
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
+			// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tbo.image)
 			gl.generateMipmap(gl.TEXTURE_2D)
 			console.log("Successfully Loaded: " + path)

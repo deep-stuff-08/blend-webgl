@@ -44,6 +44,8 @@ var progCompleteLight = {
 		numLights: null,
 		isTexture: null,
 		isBlend: null,
+		isEmissive: null,
+		emissiveScale: null,
 		material: {
 			ambient: null,
 			diffuse: null,
@@ -65,6 +67,8 @@ var progCompleteLight = {
 		numLights: null,
 		isTexture: null,
 		isBlend: null,
+		isEmissive: null,
+		emissiveScale: null,
 		material: {
 			ambient: null,
 			diffuse: null,
@@ -138,12 +142,14 @@ function setupCommonPrograms() {
 	progCompleteLight.uniforms.numLights = gl.getUniformLocation(progCompleteLight.program, "numOfLights")
 	progCompleteLight.uniforms.isTexture = gl.getUniformLocation(progCompleteLight.program, "isTexture")
 	progCompleteLight.uniforms.isBlend = gl.getUniformLocation(progCompleteLight.program, "isBlend")
-	
+	progCompleteLight.uniforms.isEmissive = gl.getUniformLocation(progCompleteLight.program, "isEmissive")
+	progCompleteLight.uniforms.emissiveScale = gl.getUniformLocation(progCompleteLight.program, "emissiveScale")
+
 	progCompleteLight.uniforms.material.ambient = gl.getUniformLocation(progCompleteLight.program, "material.ambient")
 	progCompleteLight.uniforms.material.diffuse = gl.getUniformLocation(progCompleteLight.program, "material.diffuse")
 	progCompleteLight.uniforms.material.specular = gl.getUniformLocation(progCompleteLight.program, "material.specular")
 	progCompleteLight.uniforms.material.shininess = gl.getUniformLocation(progCompleteLight.program, "material.shininess")
-	progCompleteLight.uniforms.material.opacity = gl.getUniformLocation(progCompleteLight.program, "material.opa")
+	progCompleteLight.uniforms.material.opacity = gl.getUniformLocation(progCompleteLight.program, "material.opacity")
 	
 	for(var i = 0; i < 13; i++) {
 		var light = {}
@@ -183,12 +189,14 @@ function setupCommonPrograms() {
 	progCompleteLight.uniformsModel.numLights = gl.getUniformLocation(progCompleteLight.programModel, "numOfLights")
 	progCompleteLight.uniformsModel.isTexture = gl.getUniformLocation(progCompleteLight.programModel, "isTexture")
 	progCompleteLight.uniformsModel.isBlend = gl.getUniformLocation(progCompleteLight.programModel, "isBlend")
+	progCompleteLight.uniformsModel.isEmissive = gl.getUniformLocation(progCompleteLight.programModel, "isEmissive")
+	progCompleteLight.uniformsModel.emissiveScale = gl.getUniformLocation(progCompleteLight.programModel, "emissiveScale")
 	
 	progCompleteLight.uniformsModel.material.ambient = gl.getUniformLocation(progCompleteLight.programModel, "material.ambient")
 	progCompleteLight.uniformsModel.material.diffuse = gl.getUniformLocation(progCompleteLight.programModel, "material.diffuse")
 	progCompleteLight.uniformsModel.material.specular = gl.getUniformLocation(progCompleteLight.programModel, "material.specular")
 	progCompleteLight.uniformsModel.material.shininess = gl.getUniformLocation(progCompleteLight.programModel, "material.shininess")
-	progCompleteLight.uniformsModel.material.opacity = gl.getUniformLocation(progCompleteLight.programModel, "material.opa")
+	progCompleteLight.uniformsModel.material.opacity = gl.getUniformLocation(progCompleteLight.programModel, "material.opacity")
 	
 	for(var i = 0; i < 13; i++) {
 		var light = {}
@@ -222,6 +230,9 @@ function resetCompleteLight() {
 	gl.uniform1i(progCompleteLight.uniforms.numLights, 0)
 	progCompleteLight.currentLight = 0
 	gl.uniform1i(progCompleteLight.uniforms.isTexture, 0)
+	gl.uniform1i(progCompleteLight.uniforms.isEmissive, 0)
+
+	gl.uniform1f(progCompleteLight.uniforms.emissiveScale, 1.0)
 
 	gl.uniform3f(progCompleteLight.uniforms.material.ambient, 0.0, 0.0, 0.0)
 	gl.uniform3f(progCompleteLight.uniforms.material.diffuse, 0.0, 0.0, 0.0)
@@ -237,7 +248,6 @@ function resetCompleteLight() {
 		gl.uniform3f(progCompleteLight.uniforms.light[i].attenuation, 0.0, 0.0, 0.0)
 		gl.uniform2f(progCompleteLight.uniforms.light[i].cutoff, 0.0, 0.0)
 		gl.uniform3f(progCompleteLight.uniforms.light[i].direction, 0.0, 0.0, 0.0)
-		gl.uniform1i(progCompleteLight.uniforms.light[i].isDirectional, 0)
 	}
 }
 
@@ -255,6 +265,8 @@ function resetCompleteLightModel() {
 	gl.uniform1i(progCompleteLight.uniformsModel.numLights, 0)
 	progCompleteLight.currentLightModel = 0
 	gl.uniform1i(progCompleteLight.uniformsModel.isTexture, 0)
+	gl.uniform1i(progCompleteLight.uniforms.isEmissive, 0)
+	gl.uniform1f(progCompleteLight.uniforms.emissiveScale, 1.0)
 
 	gl.uniform3f(progCompleteLight.uniformsModel.material.ambient, 0.0, 0.0, 0.0)
 	gl.uniform3f(progCompleteLight.uniformsModel.material.diffuse, 0.0, 0.0, 0.0)
@@ -272,6 +284,16 @@ function resetCompleteLightModel() {
 		gl.uniform3f(progCompleteLight.uniformsModel.light[i].direction, 0.0, 0.0, 0.0)
 		gl.uniform1i(progCompleteLight.uniformsModel.light[i].isDirectional, 0)
 	}
+}
+
+function setEmissiveCompleteLight(emissiveScale) {
+	emissiveScale = emissiveScale == undefined ? 1.0 : emissiveScale
+	gl.uniform1i(progCompleteLight.uniforms.isEmissive, 1)
+	gl.uniform1f(progCompleteLight.uniforms.emissiveScale, emissiveScale)
+}
+
+function unsetEmissiveCompleteLight() {
+	gl.uniform1i(progCompleteLight.uniforms.isEmissive, 0)
 }
 
 function setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos) {
@@ -319,11 +341,19 @@ function setTextureSamplersCompleteLightModel(diffuseTexture) {
 }
 
 function setFlagsCompleteLight(isInvertNormals, isBlend, isTexture, isLight) {
-	gl.uniform1i(progCompleteLight.uniforms.isBlend, isBlend ? 1 : 0)
-	gl.uniform1i(progCompleteLight.uniforms.isInvertNormals, isInvertNormals ? 1 : 0)
-	gl.uniform1i(progCompleteLight.uniforms.numLights, isLight ? progCompleteLight.currentLight : 0)
-	gl.uniform1i(progCompleteLight.uniforms.isTexture, isTexture ? 1 : 0)
-	progCompleteLight.isLight = isLight
+	if(isInvertNormals != undefined) {
+		gl.uniform1i(progCompleteLight.uniforms.isInvertNormals, isInvertNormals ? 1 : 0)
+	}
+	if(isBlend != undefined) {
+		gl.uniform1i(progCompleteLight.uniforms.isBlend, isBlend ? 1 : 0)
+	}
+	if(isTexture != undefined) {
+		gl.uniform1i(progCompleteLight.uniforms.isTexture, isTexture ? 1 : 0)
+	}
+	if(isLight != undefined) {
+		gl.uniform1i(progCompleteLight.uniforms.numLights, isLight ? progCompleteLight.currentLight : 0)
+		progCompleteLight.isLight = isLight
+	}
 }
 
 function setFlagsCompleteLightModel(isInvertNormals, isBlend, isTexture, isLight) {

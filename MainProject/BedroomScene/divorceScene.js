@@ -23,12 +23,15 @@ var BedroomSceneObjects = {
 	mLight : null,
 	mDoor : null,
 	mFan : null,
-	mBottle2 : null,
+	mBottle : null,
 	mGlass : null,
 	mBed : null,
 	mRing : null,
 	mTV : null,
-	texPhone: null
+	texPhone: null,
+	texWall: null,
+	objCube: null,
+	texFrame : null
 };
 
 var vaoCube;
@@ -51,7 +54,7 @@ var cameraPathBedroom = [
 	[[-1.0, -2.0, -2.5], [-1.0, -3.0, -2.5], [0.0, 1.0, 0.0], [1.0, 1.0, 1.5]],
 	[[-1.0, -1.5, -3.0], [1.0, -1.51, -2.5], [0.0, 1.0, 0.0], [4.0, 0.5, -1.5]],
 	[[1.0, -1.5, -2.0], [-1.5, -1.51, -4.0], [0.0, 1.0, 0.0], [1.0, 0.0, 1.5]],
-	[[3.5, -4.0, -1.0], [3.0, -4.9, -3.0], [0.0, 1.0, 0.0], [0.0, -1.5, -1.5]]
+	[[3.3, -4.5, -2.1], [3.0, -4.9, -3.0], [0.0, 1.0, 0.0], [0.0, -1.5, -1.5]]
 ];
 
 function setupprogramForBedroomScene() {
@@ -70,66 +73,8 @@ function setupprogramForBedroomScene() {
 }
 
 function initForBedroomScene() {
-
-	    // data
-		const cubeVerts = new Float32Array([
-			// top
-		   -1.0,  1.0, -1.0,   0.0,  1.0,  0.0,   0.0, 1.0,
-		   -1.0,  1.0,  1.0,   0.0,  1.0,  0.0,   0.0, 0.0,
-			1.0,  1.0,  1.0,   0.0,  1.0,  0.0,   1.0, 0.0,
-			1.0,  1.0, -1.0,   0.0,  1.0,  0.0,   1.0, 1.0,
-		
-			// front
-		   -1.0,  1.0,  1.0,   0.0,  0.0,  1.0,   0.0, 0.0,  
-		   -1.0, -1.0,  1.0,   0.0,  0.0,  1.0,   1.0, 0.0,
-			1.0, -1.0,  1.0,   0.0,  0.0,  1.0,   1.0, 1.0,
-			1.0,  1.0,  1.0,   0.0,  0.0,  1.0,   0.0, 1.0,
-		
-			// right
-			1.0,  1.0,  1.0,   1.0,  0.0,  0.0,   0.0, 0.0,  
-			1.0, -1.0,  1.0,   1.0,  0.0,  0.0,   1.0, 0.0,
-			1.0, -1.0, -1.0,   1.0,  0.0,  0.0,   1.0, 1.0,
-			1.0,  1.0, -1.0,   1.0,  0.0,  0.0,   0.0, 1.0,
-		
-			// rear
-			1.0,  1.0, -1.0,   0.0,  0.0, -1.0,   0.0, 0.0,  
-			1.0, -1.0, -1.0,   0.0,  0.0, -1.0,   1.0, 0.0,
-		   -1.0, -1.0, -1.0,   0.0,  0.0, -1.0,   1.0, 1.0,
-		   -1.0,  1.0, -1.0,   0.0,  0.0, -1.0,   0.0, 1.0,
-		
-			// left
-		   -1.0,  1.0, -1.0,  -1.0,  0.0,  0.0,   0.0, 0.0,  
-		   -1.0, -1.0, -1.0,  -1.0,  0.0,  0.0,   1.0, 0.0,
-		   -1.0, -1.0,  1.0,  -1.0,  0.0,  0.0,   1.0, 1.0,
-		   -1.0,  1.0,  1.0,  -1.0,  0.0,  0.0,   0.0, 1.0,
-		
-			// bottom
-		   -1.0, -1.0, -1.0,   0.0, -1.0,  0.0,   0.0, 0.0,  
-			1.0, -1.0, -1.0,   0.0, -1.0,  0.0,   1.0, 0.0,
-			1.0, -1.0,  1.0,   0.0, -1.0,  0.0,   1.0, 1.0,
-		   -1.0, -1.0,  1.0,   0.0, -1.0,  0.0,   0.0, 1.0
-		]);
-
-	vaoCube =  gl.createVertexArray();
-    gl.bindVertexArray(vaoCube);
-	var vbo = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-	{
-		gl.bufferData(gl.ARRAY_BUFFER, cubeVerts, gl.STATIC_DRAW);
-		gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 8 * cubeVerts.BYTES_PER_ELEMENT, 0);
-		gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 8 * cubeVerts.BYTES_PER_ELEMENT, 3 * cubeVerts.BYTES_PER_ELEMENT);
-		gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 8 * cubeVerts.BYTES_PER_ELEMENT, 5 * cubeVerts.BYTES_PER_ELEMENT);
-		gl.enableVertexAttribArray(0);
-		gl.enableVertexAttribArray(1);
-		gl.enableVertexAttribArray(2);
-	}
-	gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    gl.bindVertexArray(null);
-
 	var v = [[1.0, 1.0, 0.0,-1.0, 1.0, 0.0,-1.0, -1.0, 0.0,-1.0,-1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0],[0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0],[1.0, 1.0, 0.0, 1.0,0.0, 0.0, 0.0, 0.0,	1.0, 0.0,1.0, 1.0,]];
 	BedroomSceneObjects.mPlane = new mesh(v,null,null);
-	BedroomSceneObjects.mPlane.setMaterial(new material());
-	console.log(BedroomSceneObjects.mPlane);
 
 	BedroomSceneObjects.mcab1 = new Model('BedroomScene/resources/cab1.json');
 	BedroomSceneObjects.mcab2 = new Model('BedroomScene/resources/cab2.json');
@@ -137,11 +82,14 @@ function initForBedroomScene() {
 	BedroomSceneObjects.mDoor = new Model('BedroomScene/resources/door.json');
 	BedroomSceneObjects.mFan = new Model('BedroomScene/resources/fan.json');
 	BedroomSceneObjects.mBed = new Model('BedroomScene/resources/bed.json');
-	BedroomSceneObjects.mBottle2 = new Model('BedroomScene/resources/bottle2.json');
+	BedroomSceneObjects.mBottle = new Model('resources/models/static/LiquorBottles/jackdaniels.json');
 	BedroomSceneObjects.mGlass = new Model('BedroomScene/resources/glass.json');
 	BedroomSceneObjects.mRing = new Model('BedroomScene/resources/ring.json');
 	BedroomSceneObjects.mTV = new Model('BedroomScene/resources/tv.json');
 	BedroomSceneObjects.texPhone = loadTexture('resources/textures/Phub.jpg', true)
+	BedroomSceneObjects.texWall = loadTexture('resources/textures/whitewall.jpg', true)
+	BedroomSceneObjects.texFrame = loadTexture('resources/textures/couple.jpg', true)
+	BedroomSceneObjects.objCube = dshapes.initCube()
 
 	// Light Setups
 	Lights.push(
@@ -168,172 +116,85 @@ function initForBedroomScene() {
 				specular : [1.0,1.0,1.0]
 			});
 
-	//console.log(Light);
+	// console.log(Light);
 	// sceneCamera.updatePath(cameraPathBedroom);
 }
 
-function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
-	cameraPosition = debugCamera.cameraPosition;
-	renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0]);
-	// Draw All Opaue Objects
-
+function renderForBedroomScene(time , perspectiveMatrix, viewMatrix, viewPos) {
 	var modelMatrix = mat4.create();
-	gl.enable(gl.BLEND);
-	gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-	gl.disable(gl.CULL_FACE);
+	// gl.enable(gl.BLEND);
+	// gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+	// gl.disable(gl.CULL_FACE);
 
-	for(var l  = 0; l < Lights.length; l++)
-		renderLightSourceDeep(perspectiveMatrix, viewMatrix, Lights[l].position, Lights[l].diffuse);
+	// renderLightSourceDeep(perspectiveMatrix, viewMatrix, placementHelp.trans, [1.0, 1.0, 1.0])
+
+	gl.useProgram(progCompleteLight.program);
+	resetCompleteLight()
+	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, viewPos)
+	setFlagsCompleteLight(false, false, true, true)
+
+	addLightCompleteLight([0.0, 0.0, 0.0], [0.5, 0.3, 0.2], [0.9, 0.8, 0.6], [0.0, 0.0, 0.0])
+	addPointLightCompleteLight([-4.9, 1.9, 0.0], [0.1, 0.1, 0.1], [1.0, 0.8, 0.4], [0.0, 0.0, 0.0], [1.0, 0.2, 0.01])
+	addPointLightCompleteLight([4.9, 1.9, 0.0], [0.1, 0.1, 0.1], [1.0, 0.8, 0.4], [0.0, 0.0, 0.0], [1.0, 0.2, 0.01])
+
+	setTextureSamplersCompleteLight(0)
+	gl.activeTexture(gl.TEXTURE0)
 
 	// back
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,-1.0,-7.0]);
 	//mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[7.0,4.0,5.0]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mPlane.render(programRenderBedroom.program);
-	gl.useProgram(null);
+	setModelMatrixCompleteLight(modelMatrix)
+	gl.bindTexture(gl.TEXTURE_2D, BedroomSceneObjects.texWall)
+	BedroomSceneObjects.mPlane.render();
 
 	//front
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,-1.0,7.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-180.0), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[7.0,4.0,5.0]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mPlane.render(programRenderBedroom.program);
-	gl.useProgram(null);
+	setModelMatrixCompleteLight(modelMatrix)
+	gl.bindTexture(gl.TEXTURE_2D, BedroomSceneObjects.texWall)
+	BedroomSceneObjects.mPlane.render();
 
 	// right
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [7.0,-1.0,0.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-90.0), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[7.0,4.0,5.0]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mPlane.render(programRenderBedroom.program);
-	gl.useProgram(null);
-
+	setModelMatrixCompleteLight(modelMatrix)
+	gl.bindTexture(gl.TEXTURE_2D, BedroomSceneObjects.texWall)
+	BedroomSceneObjects.mPlane.render();
+	
 	// left
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-7.0,-1.0,0.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[7.0,4.0,5.0]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mPlane.render(programRenderBedroom.program);
-	gl.useProgram(null);
-
+	setModelMatrixCompleteLight(modelMatrix)
+	gl.bindTexture(gl.TEXTURE_2D, BedroomSceneObjects.texWall)
+	BedroomSceneObjects.mPlane.render();
+	
 	// bottom
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,-5.0,0.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-90.0), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[7.0,7.0,5.0]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mPlane.render(programRenderBedroom.program);
-	gl.useProgram(null);
-
+	setModelMatrixCompleteLight(modelMatrix)
+	gl.bindTexture(gl.TEXTURE_2D, BedroomSceneObjects.texWall)
+	BedroomSceneObjects.mPlane.render();
+	
 	//top
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [0.0,3.0,0.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[7.0,7.0,5.0]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mPlane.render(programRenderBedroom.program);
-	gl.useProgram(null);
-
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-4.0,0.0,-7.6]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mLight.render(programRenderBedroom.program);
-	gl.useProgram(null);
-
-	//renderLightSourceDeep(perspectiveMatrix, viewMatrix, [-5.0,0.0,-0.3], [1.0,0.0,0.0]);
-
-	gl.useProgram(progCompleteLight.program);
-	resetCompleteLight();
-	setProjectionAndViewCompleteLight(perspectiveMatrix, viewMatrix, debugCamera.cameraPosition);
-	setFlagsCompleteLight(false, false, true, true);
-	setTextureSamplersCompleteLight(0);
+	setModelMatrixCompleteLight(modelMatrix)
+	gl.bindTexture(gl.TEXTURE_2D, BedroomSceneObjects.texWall)
+	BedroomSceneObjects.mPlane.render();
+	
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0);
-	addPointLightCompleteLight([-5.0,0.0,-0.3], [0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0],[1.0,0.022,0.0019]);
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-1.0,-3.0,-2.5]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
@@ -341,149 +202,66 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 0.0, 1.0]);
 	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(00), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);	
+	setModelMatrixCompleteLight(modelMatrix)
 	renderForPhoneDeep(modelMatrix, BedroomSceneObjects.texPhone);
 
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [-4.0,0.0,-7.6]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
+	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.mLight.render();
+	
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [6.5,-1.5,-5.5]);
 	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [0.0, 1.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.1,0.1,0.05]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mcab2.render(programRenderBedroom.program);
-	gl.useProgram(null);
-
-	gl.enable(gl.CULL_FACE);
-
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.mcab2.render();
+	
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [3.0,-3.6,-5.5]);
 	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(-90.0), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.1,0.1,0.1]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mcab1.render(programRenderBedroom.program);
-	gl.useProgram(null);
-
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.mcab1.render();
+	
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-10.5,-3.2,-3.3]);
 	//mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(90.0), [1.0, 0.0, 0.0]);
 	//mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(-90.0), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[4.0,3.0,3.0]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mBed.render(programRenderBedroom.program);
-	gl.useProgram(null);
-
-	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [0.0,2.4,0.0]);
-	mat4.rotate(modelMatrix, modelMatrix, angle, [0.0, 1.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mFan.render(programRenderBedroom.program);
-	gl.useProgram(null);
-
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.mBed.render();
+		
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-8.0,2.3,8.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.25,0.25,0.25]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mDoor.render(programRenderBedroom.program);
-	gl.useProgram(null);
-
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.mDoor.render();
+	
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [3.0,-4.95,-3.0]);
 	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
 	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[0.2,0.2,0.2]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mRing.render(programRenderBedroom.program);
-	gl.useProgram(null);
-
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.mRing.render();
+	
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-2.0,-1.3,6.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(180), [0.0, 1.0, 0.0]);
 	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
 	mat4.scale(modelMatrix,modelMatrix,[2.8,2.8,3.0]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mTV.render(programRenderBedroom.program);
-	gl.useProgram(null);
-
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.mTV.render();
+	
 	// Draw Amols Cupboard
 	{
+	setFlagsCompleteLight(undefined, undefined, false, undefined)
 	ctm = mat4.create();
 	mat4.translate(ctm,ctm,[-2.0,-3.8,8.0]);
 	mat4.scale(ctm, ctm, [1.5, 1.5, 1.0]);
@@ -491,162 +269,79 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix) {
 	mat4.copy(modelMatrix,ctm);
 	mat4.translate(modelMatrix, modelMatrix, [0.0, 1.0, -1.0]);
 	mat4.scale(modelMatrix, modelMatrix, [2.0, 2.0, 0.1]);
-
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"material.diffuseMat"),[1.0,0.111932,0.05448]);
-	gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"material.specularMat"),[1.0,1.0,1.0]);
-	gl.uniform1f(gl.getUniformLocation(programRenderBedroom.program,"material.shininess"),1000);
-	gl.uniform1f(gl.getUniformLocation(programRenderBedroom.program,"material.opacity"),1.0);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 20, 4);
-	gl.bindVertexArray(null);
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.objCube.render()
 
 	// cupboard top
 	mat4.copy(modelMatrix, ctm);
 	mat4.translate(modelMatrix, modelMatrix, [0.0, 3.0, -2.0]);
 	mat4.scale(modelMatrix, modelMatrix, [2.0, 0.05, 1.0]);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 20, 4);
-	gl.bindVertexArray(null);
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.objCube.render()
 
 	// cupboard bottom
 	mat4.copy(modelMatrix, ctm);
 	mat4.translate(modelMatrix, modelMatrix, [0.0, -1.0, -2.0]);
 	mat4.scale(modelMatrix, modelMatrix, [2.0, 0.05, 1.0]);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.objCube.render()
 
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 20, 4);
-	gl.bindVertexArray(null);
-	
 	// transformations cupboard left
 	mat4.copy(modelMatrix, ctm);
 	mat4.translate(modelMatrix, modelMatrix, [-1.9, 1.0, -2.0]);
 	mat4.scale(modelMatrix, modelMatrix, [0.05, 2.0, 1.0]);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
+	setModelMatrixCompleteLight(modelMatrix)
 	// draw front-left table leg
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-	gl.bindVertexArray(null);
-	
+	BedroomSceneObjects.objCube.render()
+
 	// transformations cupboard right
 	mat4.copy(modelMatrix, ctm);
 	mat4.translate(modelMatrix, modelMatrix, [1.9, 1.0, -2.0]);
 	mat4.scale(modelMatrix, modelMatrix, [0.05, 2.0, 1.0]);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
+	setModelMatrixCompleteLight(modelMatrix)
 	// draw front-left table leg
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-	gl.bindVertexArray(null);
+	BedroomSceneObjects.objCube.render()
 
 	 // cupboard middle
 	mat4.copy(modelMatrix, ctm);
 	mat4.translate(modelMatrix, modelMatrix, [0.0, 0.5, -2.0]);
 	mat4.scale(modelMatrix, modelMatrix, [1.9, 0.05, 1.0]);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 20, 4);
-	gl.bindVertexArray(null);
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.objCube.render()
 
 	// cupboard middle
 	mat4.copy(modelMatrix, ctm);
 	mat4.translate(modelMatrix, modelMatrix, [0.0, -0.5, -2.0]);
 	mat4.scale(modelMatrix, modelMatrix, [1.9, 0.05, 1.0]);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.bindVertexArray(vaoCube);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 4, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 8, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 12, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 16, 4);
-		gl.drawArrays(gl.TRIANGLE_FAN, 20, 4);
-	gl.bindVertexArray(null);
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.objCube.render()
 
-	gl.useProgram(null);
 	}
 
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	gl.enable(gl.BLEND)
+	setFlagsCompleteLight(undefined, true, undefined, undefined)
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [3.0,-2.05,-6.0]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mBottle2.render(programRenderBedroom.program);
-	gl.useProgram(null);
+	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(-90.0), [1.0, 0.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.2,0.2,0.7]);
+	setModelMatrixCompleteLight(modelMatrix);
+	BarSceneObjects.mBottle.render();
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [2.5,-2.65,-7.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
 	mat4.scale(modelMatrix,modelMatrix,[5.0,5.0,5.0]);
-	gl.useProgram(programRenderBedroom.program);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.pMat, false, perspectiveMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.vMat, false, viewMatrix);
-	gl.uniformMatrix4fv(programRenderBedroom.uniform.mMat, false, modelMatrix);
-	gl.uniform3fv(programRenderBedroom.uniform.viewPos, debugCamera.cameraPosition);
-	for(var l = 0; l < Lights.length; l++)
-	{
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].direction"),Lights[l].position );
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].ambient"), Lights[l].ambient);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].diffuse"), Lights[l].diffuse);
-		gl.uniform3fv(gl.getUniformLocation(programRenderBedroom.program,"light["+l+"].specular"), Lights[l].specular);
-	}
-	BedroomSceneObjects.mGlass.render(programRenderBedroom.program);
-	gl.useProgram(null);
+	setModelMatrixCompleteLight(modelMatrix)
+	BedroomSceneObjects.mGlass.render();
+	
+	gl.disable(gl.BLEND)
 
-	gl.disable(gl.CULL_FACE)
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [6.8,0.0,1.0]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-90.0), [0.0, 1.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[1.0,2.0,1.0]);
+	renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, [0.0,0.0,1.0], BedroomSceneObjects.texFrame);
 
 	angle += 0.01;
 }

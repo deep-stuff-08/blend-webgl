@@ -33,9 +33,13 @@ uniform material_t material;
 uniform light_t light[13];
 uniform int numOfLights;
 
+uniform bool isEmissive;
+uniform float emissiveScale;
+
 uniform sampler2D samplerDiffuse;
 
-out vec4 FragColor;
+layout(location = 0)out vec4 FragColor;
+layout(location = 1)out vec4 EmitColor;
 
 void main(void) {
 	vec3 color = vec3(0.0);
@@ -62,7 +66,7 @@ void main(void) {
 			float intensity = 1.0;
 			if(light[i].attenuation.x != 0.0) {
 				float dist = length(light[i].position - P);
-				attenuation = 1.0 / (light[i].attenuation.x + light[i].attenuation.y * dist + light[i].attenuation.y * (dist * dist));
+				attenuation = 1.0 / (light[i].attenuation.x + light[i].attenuation.y * dist + light[i].attenuation.z * (dist * dist));
 			}
 			if(light[i].cutoff.x != 0.0) {
 				float theta = dot(L, normalize(-light[i].direction));
@@ -77,4 +81,7 @@ void main(void) {
 		color = fcolor;
 	}
 	FragColor = vec4(color, alpha);
+	if(isEmissive) {
+		EmitColor = vec4(color, 1.0) * emissiveScale;
+	}
 }
