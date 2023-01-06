@@ -23,14 +23,15 @@ var BedroomSceneObjects = {
 	mLight : null,
 	mDoor : null,
 	mFan : null,
-	mBottle2 : null,
+	mBottle : null,
 	mGlass : null,
 	mBed : null,
 	mRing : null,
 	mTV : null,
 	texPhone: null,
 	texWall: null,
-	objCube: null
+	objCube: null,
+	texFrame : null
 };
 
 var vaoCube;
@@ -81,12 +82,13 @@ function initForBedroomScene() {
 	BedroomSceneObjects.mDoor = new Model('BedroomScene/resources/door.json');
 	BedroomSceneObjects.mFan = new Model('BedroomScene/resources/fan.json');
 	BedroomSceneObjects.mBed = new Model('BedroomScene/resources/bed.json');
-	// BedroomSceneObjects.mBottle2 = new Model('BedroomScene/resources/bottle2.json');
+	BedroomSceneObjects.mBottle = new Model('resources/models/static/LiquorBottles/jackdaniels.json');
 	BedroomSceneObjects.mGlass = new Model('BedroomScene/resources/glass.json');
 	BedroomSceneObjects.mRing = new Model('BedroomScene/resources/ring.json');
 	BedroomSceneObjects.mTV = new Model('BedroomScene/resources/tv.json');
 	BedroomSceneObjects.texPhone = loadTexture('resources/textures/Phub.jpg', true)
 	BedroomSceneObjects.texWall = loadTexture('resources/textures/whitewall.jpg', true)
+	BedroomSceneObjects.texFrame = loadTexture('resources/textures/couple.jpg', true)
 	BedroomSceneObjects.objCube = dshapes.initCube()
 
 	// Light Setups
@@ -321,11 +323,11 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix, viewPos) {
 	setFlagsCompleteLight(undefined, true, undefined, undefined)
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [3.0,-2.05,-6.0]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(90), [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[4.0,4.0,4.0]);
-	setModelMatrixCompleteLight(modelMatrix)
-	// BedroomSceneObjects.mBottle2.render();
-	
+	mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(-90.0), [1.0, 0.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.2,0.2,0.7]);
+	setModelMatrixCompleteLight(modelMatrix);
+	BarSceneObjects.mBottle.render();
+
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [2.5,-2.65,-7.0]);
 	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
@@ -334,6 +336,12 @@ function renderForBedroomScene(time , perspectiveMatrix, viewMatrix, viewPos) {
 	BedroomSceneObjects.mGlass.render();
 	
 	gl.disable(gl.BLEND)
+
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [6.8,0.0,1.0]);
+	mat4.rotate(modelMatrix, modelMatrix, glMatrix.toRadian(-90.0), [0.0, 1.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[1.0,2.0,1.0]);
+	renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, [0.0,0.0,1.0], BedroomSceneObjects.texFrame);
 
 	angle += 0.01;
 }

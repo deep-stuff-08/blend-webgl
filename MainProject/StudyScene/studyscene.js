@@ -78,6 +78,7 @@ function initForStudySceneKdesh() {
     studySceneKdesh.texSteel = loadTexture("resources/textures/steel.jpg");
     studySceneKdesh.texWood = loadTexture("resources/textures/wood.png");
     studySceneKdesh.texPhone = loadTexture("resources/textures/Instagram.jpg", true);
+    studySceneKdesh.texOutside = loadTexture("resources/textures/cars.jpg", true);
 
     studySceneKdesh.glass = new Model('BarScene/resources/glass.json');
     studySceneKdesh.door = new Model('BarScene/resources/door.json');
@@ -348,8 +349,6 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix, cameraPosition)
 	mat4.scale(modelMatrix,modelMatrix, [0.2, 0.2, 0.2]);
 	setModelMatrixCompleteLight(modelMatrix);
     studySceneKdesh.door.render();
-    gl.useProgram(null);
-
     
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [0.6, 0.2, 0.0], [1.0, 1.0, 1.0], 128, 1.0);
     setFlagsCompleteLight(false, false, true, true);
@@ -360,6 +359,8 @@ function renderForStudySceneKdesh(perspectiveMatrix, viewMatrix, cameraPosition)
     mat4.scale(modelMatrix, modelMatrix, [0.15, 0.15, 0.15]);
     setModelMatrixCompleteLight(modelMatrix);
     studySceneKdesh.liquorCabinet.render();
+
+    gl.useProgram(null);
 
     modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, [0.0, 1.0, -4.8]);
