@@ -92,7 +92,7 @@ function initForBarScene() {
 
 	BarSceneObjects.mcab2 = new Model('BarScene/resources/cab2.json');
 	BarSceneObjects.mLight = new Model('BarScene/resources/light.json');
-	BarSceneObjects.mDoor = new Model('BarScene/resources/door.json');
+	BarSceneObjects.mDoor = new Model('BarScene/resources/bardoor.json');
 	// BarSceneObjects.mFan = new Model('BarScene/resources/fan.json');
 	BarSceneObjects.mBottle = new Model('resources/models/static/LiquorBottles/jackdaniels.json');
 	BarSceneObjects.mBottle2 = new Model('BarScene/resources/bottle2.json');
@@ -283,9 +283,9 @@ function renderForBarScene(perspectiveMatrix, camMatrix, viewPos, deltatimeinc) 
 	BarSceneObjects.mCoke.render();
 		
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-8.0,3.8,16.0]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
+	mat4.translate(modelMatrix, modelMatrix, [6.0,-5.0,15.0]);
+	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
+	mat4.scale(modelMatrix,modelMatrix,[0.1,0.1,0.1]);
 	setModelMatrixCompleteLight(modelMatrix)
 	BarSceneObjects.mDoor.render();
 	
