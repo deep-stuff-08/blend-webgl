@@ -375,9 +375,10 @@ function renderForBarScene(perspectiveMatrix, camMatrix, viewPos, deltatimeinc) 
 	
 	// // Draw All Transparent Objects
 
-	// setFlagsCompleteLight(undefined, true, undefined, undefined)
-	// gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-	// gl.enable(gl.BLEND)
+	setFlagsCompleteLight(undefined, true, undefined, undefined)
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	gl.enable(gl.BLEND)
+
 	// mat4.identity(modelMatrix);
 	// mat4.translate(modelMatrix, modelMatrix, [3.0,-2.3,-1.8]);
 	// mat4.rotate(modelMatrix,modelMatrix, glMatrix.toRadian(88.0), [1.0, 0.0, 0.0]);
