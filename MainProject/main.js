@@ -111,10 +111,13 @@ var loadedTextures = {}
 
 var fboForHdr
 var texForHdr
+var texForBloom
 var progForHdr
 var vaoForHdr
 var uniformExposureForHdr
 var uniformFadeForHdr
+var uniformHdrTexture
+var uniformBloomTexture
 
 assimpjs().then (function (ajs) {
 	if(controlVariables.isLoadModels) {
@@ -280,6 +283,7 @@ function setupProgram() {
 	setupCommonPrograms()
 	setupProgramForLightSourceRendererDeep()
 	setupProgramForFire()
+	setupProgramForDeepBlur()
 	// setupProgramForTestModelLoadByDeep()
 
 	if(controlVariables.debugMode) {
@@ -321,6 +325,8 @@ function setupProgram() {
 	gl.uniform1i(gl.getUniformLocation(progForHdr, "hdrTex"), 0)
 	uniformExposureForHdr = gl.getUniformLocation(progForHdr, "exposure")
 	uniformFadeForHdr = gl.getUniformLocation(progForHdr, "fade")
+	uniformHdrTexture = gl.getUniformLocation(progForHdr, "hdrTex")
+	uniformBloomTexture = gl.getUniformLocation(progForHdr, "bloomTex")
 	gl.useProgram(null)
 }
 
@@ -328,23 +334,36 @@ function init() {
 	initForLightSourceRendererDeep()
 	initForPhoneDeep()
 	initForFire()
+	initForDeepBlur()
 	// initForTestModelLoadByDeep()
 
 	fboForHdr = gl.createFramebuffer()
 	texForHdr = gl.createTexture()
+	texForBloom = gl.createTexture()
 	vaoForHdr = gl.createVertexArray()
 	var rbo = gl.createRenderbuffer()
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, fboForHdr)
+	
 	gl.bindTexture(gl.TEXTURE_2D, texForHdr)
 	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, 2048, 2048)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texForHdr, 0)
+	gl.bindTexture(gl.TEXTURE_2D, null)
+	
+	gl.bindTexture(gl.TEXTURE_2D, texForBloom)
+	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, 2048, 2048)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, texForBloom, 0)
+	gl.bindTexture(gl.TEXTURE_2D, null)
+	
 	gl.bindRenderbuffer(gl.RENDERBUFFER, rbo)
 	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT32F, 2048, 2048)
 	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo)
-	gl.bindTexture(gl.TEXTURE_2D, null)
+	
+	gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1])
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 
 	sceneCamera = new kcamera()
@@ -404,6 +423,7 @@ function render(time) {
 	if(controlVariables.doRenderToHDR) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, fboForHdr)
 		gl.viewport(0, 0, 2048, 2048)
+		gl.clearBufferfv(gl.COLOR, 1, [0.0, 0.0, 0.0, 1.0])
 	} else {
 		gl.viewport(0, 0, canvas.width, canvas.height)
 	}
@@ -691,6 +711,8 @@ function render(time) {
 		gl.viewport(0, 0, canvas.width, canvas.height)
 		gl.useProgram(progForHdr)
 		gl.uniform1f(uniformExposureForHdr, controlVariables.currentExposure)
+		gl.uniform1i(uniformHdrTexture, 0)
+		gl.uniform1i(uniformBloomTexture, 1)
 
 		if(camSplinePosition <= 0.00001 && controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			controlVariables.fade -= deltaTime * 0.0005;
@@ -706,7 +728,12 @@ function render(time) {
 		}
 		
 		gl.activeTexture(gl.TEXTURE0)
+		var newtex = blurImage(texForBloom)
+		gl.useProgram(progForHdr)
+		gl.activeTexture(gl.TEXTURE0)
 		gl.bindTexture(gl.TEXTURE_2D, texForHdr)
+		gl.activeTexture(gl.TEXTURE1)
+		gl.bindTexture(gl.TEXTURE_2D, newtex)
 		gl.bindVertexArray(vaoForHdr)
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 		gl.bindVertexArray(null)

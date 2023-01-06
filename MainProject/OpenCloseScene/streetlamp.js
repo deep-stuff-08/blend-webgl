@@ -72,6 +72,7 @@ function renderForStreetLamp(localModelMatrix) {
 	setTextureMatrixCompleteLight(texMatrix)
 	streelampDeep.objSphere.render()
 
+	setEmissiveCompleteLight()
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.7, 0.7, 0.7], 10.0, 1.0)
 	setFlagsCompleteLight(false, false, false, false)
 	gl.activeTexture(gl.TEXTURE0)
@@ -84,4 +85,5 @@ function renderForStreetLamp(localModelMatrix) {
 	streelampDeep.objSphere.render()
 	setMaterialCompleteLight([0.1, 0.1, 0.1], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], 1.0, 1.0)
 	setFlagsCompleteLight(false, false, true, true)
+	unsetEmissiveCompleteLight()
 }

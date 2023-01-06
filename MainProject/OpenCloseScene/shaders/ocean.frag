@@ -16,7 +16,8 @@ uniform float u_exposure;
 
 uniform vec3 u_sunDirection;
 
-out vec4 FragColor;
+layout(location = 0)out vec4 FragColor;
+layout(location = 1)out vec4 EmitColor;
 
 vec3 hdr (vec3 color, float exposure) {
 	return 1.0 - exp(-color * exposure);
@@ -35,4 +36,5 @@ void main (void) {
 	vec3 color = sky + water;
 
 	FragColor = vec4(hdr(color, 0.5), 1.0);
+	EmitColor = vec4(0.0, 0.0, 0.0, 1.0);
 }

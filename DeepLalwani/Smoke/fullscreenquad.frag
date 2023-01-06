@@ -9,6 +9,5 @@ uniform sampler2D fireTex;
 out vec4 FragColor;
 
 void main(void) {
-	vec4 color = texture(fireTex, texcoords); 
-	FragColor = vec4(mix(texture(woodTex, texcoords).rgb, color.rgb, color.a), 1.0);
+	FragColor = vec4(texture(woodTex, texcoords).rgb, 1.0);
 }
