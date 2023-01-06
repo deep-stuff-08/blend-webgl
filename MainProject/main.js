@@ -15,11 +15,12 @@ const SceneEnum = {
 	BedroomScene: 5,
 	CloseScene: 6,
 	Title: 7,
-	Credits: 8,
-	TechnicalSpecs: 9,
-	SpecialEffects: 10,
-	References: 11,
-	SpecialThanks: 12
+	GuruDutt: 8,
+	Credits: 9,
+	TechnicalSpecs: 10,
+	SpecialEffects: 11,
+	References: 12,
+	SpecialThanks: 13
 }
 
 var debugCamera = {
@@ -615,6 +616,20 @@ function render(time) {
 	break
 	case SceneEnum.Title:
 		renderForTextKdeshTitle();
+		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
+			camSplinePosition = 0.00001;
+		}
+		else if(controlVariables.timeElapsedSinceSceneEnded < 1.0) {
+			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
+			camSplinePosition = 0.99999;
+		}
+		else if(controlVariables.timeElapsedSinceSceneStarted >= 0.3) {
+			controlVariables.renderScene++;
+		}
+		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
+	break
+	case SceneEnum.GuruDutt:
+		renderForTextKdeshGuruDutt();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
 		}
