@@ -734,7 +734,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	renderForOceanDeep(perspectiveMatrix, camMatrix, viewPos, modelMatrix, oceanColor, [1.0, 0.5, 0.0])
 
 	modelMatrix = mat4.create()
-	mat4.translate(modelMatrix, modelMatrix, [-20.0, 0.0, -42.0])
+	mat4.translate(modelMatrix, modelMatrix, [-23.0, 0.0, -42.0])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
 	renderForDeepFire(perspectiveMatrix, camMatrix, modelMatrix, Math.floor(opensceneDeep.fireCount))
 }
