@@ -503,7 +503,7 @@ function initForSceneTwo() {
 	HospitalSceneObjects.mLight = new Model('HospitalScene/resources/light.json');
 	HospitalSceneObjects.mStool = new Model('HospitalScene/resources/stool.json');
 	HospitalSceneObjects.mVentilator = new Model('HospitalScene/resources/ventilator.json');
-	HospitalSceneObjects.mDoor = new Model('HospitalScene/resources/door.json');
+	HospitalSceneObjects.mDoor = new Model('HospitalScene/resources/hospitaldoor.json');
 	// HospitalSceneObjects.mFan = new Model('HospitalScene/resources/fan.json');
 
 	HospitalSceneObjects.texFacebook = loadTexture('resources/textures/Facebook.png')
@@ -733,11 +733,11 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	HospitalSceneObjects.mStool.render();
 
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [-8.0,3.8,16.0]);
-	mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
+	mat4.translate(modelMatrix, modelMatrix, [5.0,-0.5,15.0]);
+	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-180), [0.0, 1.0, 0.0]);
 	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
 	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.3,0.3,0.3]);
+	mat4.scale(modelMatrix,modelMatrix,[0.7,0.7,0.7]);
 	setModelMatrixCompleteLight(modelMatrix)
 	HospitalSceneObjects.mDoor.render();
 	
