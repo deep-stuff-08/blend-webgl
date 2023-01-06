@@ -733,7 +733,7 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	HospitalSceneObjects.mStool.render();
 
 	mat4.identity(modelMatrix);
-	mat4.translate(modelMatrix, modelMatrix, [5.0,-0.5,15.0]);
+	mat4.translate(modelMatrix, modelMatrix, [5.0,-1.0,15.0]);
 	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-180), [0.0, 1.0, 0.0]);
 	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [0.0, 0.0, 1.0]);
 	//mat4.rotate(modeslMatrix, modelMatrix, 90.0, [1.0, 0.0, 0.0]);

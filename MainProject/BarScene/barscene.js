@@ -285,7 +285,7 @@ function renderForBarScene(perspectiveMatrix, camMatrix, viewPos, deltatimeinc) 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [6.0,-5.0,15.0]);
 	//mat4.rotate(modelMatrix, modelMatrix,glMatrix.toRadian(-90), [1.0, 0.0, 0.0]);
-	mat4.scale(modelMatrix,modelMatrix,[0.1,0.1,0.1]);
+	mat4.scale(modelMatrix,modelMatrix,[0.08,0.08,0.08]);
 	setModelMatrixCompleteLight(modelMatrix)
 	BarSceneObjects.mDoor.render();
 	
