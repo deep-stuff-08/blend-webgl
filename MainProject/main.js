@@ -39,7 +39,7 @@ var controlVariables = {
 	showCamPath: false,
 	showCam: false,
 	debugMode: false,
-	isLoadModels: false,
+	isLoadModels: true,
 	currentExposure: 1.0,
 	timeElapsedSinceSceneStarted: 0.0,
 	timeElapsedSinceSceneEnded: 0.0,
@@ -463,7 +463,7 @@ function render(time) {
 		cameraPosition = cameraDetails.position
 	}
 
-	gl.clearBufferfv(gl.COLOR, 0, [0.5, 0.5, 0.5, 1.0])
+	gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 1.0])
 	gl.clearBufferfv(gl.DEPTH, 0, [1.0])
 
 	gl.disable(gl.BLEND)
