@@ -1,7 +1,9 @@
 "use strict"
 var canvas
 var gl
-var musicPlayer
+var musicPlayerSfx
+var musicPlayerSong
+var musicPlayerEnd
 
 const SceneEnum = {
 	Tester: -1,
@@ -159,7 +161,9 @@ function main() {
 	canvas.height = window.innerHeight
 	document.body.style.margin = "0"
 	document.body.appendChild(canvas)
-	musicPlayer = document.getElementById("musicid")
+	musicPlayerSfx = document.getElementById("musicsfxid")
+	musicPlayerSong = document.getElementById("musicsongid")
+	musicPlayerEnd = document.getElementById("musicendid")
 	window.addEventListener('resize', function () {
 		canvas.width = window.innerWidth
 		canvas.height = window.innerHeight
@@ -257,6 +261,7 @@ function main() {
 		} else if(event.code == 'Enter') {
 			if(isLoadingComplete) {
 				canvas.requestFullscreen()
+				musicPlayerSfx.play()
 				window.requestAnimationFrame(render)
 			}
 		}
@@ -478,7 +483,8 @@ function render(time) {
 			camSplinePosition = 0.00001;
 		}
 		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
-			musicPlayer.play()
+			musicPlayerSfx.pause()
+			musicPlayerSong.play()
 			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
 			camSplinePosition = 0.99999;
 		}
@@ -622,6 +628,8 @@ function render(time) {
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
 	case SceneEnum.Credits:
+		musicPlayerSong.pause()
+		musicPlayerEnd.play()
 		renderForTextKdeshCredits();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;

@@ -30,7 +30,7 @@ function renderForWindowKdesh(perspectiveMatrix, viewMatrix, modelMatrix, lightP
     setMaterialCompleteLight([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], 128, 1.0);
     setTextureSamplersCompleteLight(0);
     gl.activeTexture(gl.TEXTURE0);
-    setFlagsCompleteLight(0, 0, 1, 0);
+    setFlagsCompleteLight(0, 0, 1, 1);
 
     var localMat = mat4.create();
 
