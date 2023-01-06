@@ -37,7 +37,7 @@ var controlVariables = {
 	showCamPath: false,
 	showCam: false,
 	debugMode: false,
-	isLoadModels: false,
+	isLoadModels: true,
 	currentExposure: 1.0,
 	timeElapsedSinceSceneStarted: 0.0,
 	timeElapsedSinceSceneEnded: 0.0,
@@ -254,6 +254,7 @@ function main() {
 		} else if(event.code == 'Enter') {
 			if(isLoadingComplete) {
 				canvas.requestFullscreen()
+				musicPlayer.play()
 				window.requestAnimationFrame(render)
 			}
 		}
@@ -458,7 +459,7 @@ function render(time) {
 			camSplinePosition = 0.00001;
 		}
 		else if(camSplinePosition > 0.99999 && controlVariables.timeElapsedSinceSceneEnded < 1.0) {
-			musicPlayer.play()
+			//musicPlayer.play()
 			controlVariables.timeElapsedSinceSceneEnded += deltaTime * 0.0003;
 			camSplinePosition = 0.99999;
 		}
