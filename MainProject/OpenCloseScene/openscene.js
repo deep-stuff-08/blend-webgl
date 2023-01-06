@@ -39,7 +39,11 @@ var opensceneDeep = {
 	],
 	isStraight: true,
 	cameraZ: 0.0,
-	kaiWalkZ: 0.0
+	kaiWalkZ: 0.0,
+	fireCount: 0,
+	startFire: false,
+	startInter: false,
+	oceanColorInter: 0.0
 }
 
 const opensceneDeepConsts = {
@@ -235,15 +239,40 @@ function updateCamPosForOpenSceneDeep(camera, splinePosition) {
 	}
 }
 
-function updateCamPosForCloseSceneDeep(camera, splinePosition) {
+function updateCamPosForCloseSceneDeep(camera, splinePosition, log) {
 	var splineInfo = camera.getSplineAndPos(splinePosition);
 	var spline = splineInfo.spline;
 	var position = splineInfo.position;
 
+	if(log) {
+		console.log(spline, position)
+		controlVariables.isKeyPressed = false
+	}
+
+	if(opensceneDeep.startFire) {
+		opensceneDeep.fireCount += 1.0
+	}
+	if(opensceneDeep.startInter) {
+		opensceneDeep.oceanColorInter += 0.001
+	}
+
 	switch(spline) {
 		case 0:
-			opensceneDeep.phoneY = position * -9.0
-			return 0.0005
+			if(position > 0.01) {
+				opensceneDeep.phoneY -= 0.001
+			}
+			return 0.0004
+		case 1:
+			opensceneDeep.phoneY -= 0.001
+			return 0.0002
+		case 2:
+			opensceneDeep.phoneY -= 0.01
+			if(position > 0.1) {
+				opensceneDeep.startFire = true
+			}
+			if(position > 0.4) {
+				opensceneDeep.startInter = true
+			}
 		default: return 0.0003
 		// default: return 0.0001
 	}
@@ -585,7 +614,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 	const pointAttenuation = [1.0, 0.014, 0.014]
 
 	//Cubemap
-	renderCubemapDeep(perspectiveMatrix, camMatrix, 1)
+	renderCubemapDeep(perspectiveMatrix, camMatrix, 1, 0.0)
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
@@ -624,7 +653,7 @@ function renderForOpenSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltatime
 
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-(200.0 + opensceneDeepConsts.roadWidth), -10.0, -100.0])
-	renderForOceanDeep(perspectiveMatrix, viewMatrix, viewPos, modelMatrix, [0.0, 0.3, 0.6], [1.0, 0.5, 0.0])
+	renderForOceanDeep(perspectiveMatrix, viewMatrix, viewPos, modelMatrix, [0.0, 0.5, 0.8], [1.0, 0.5, 0.3])
 
 	// // FootPathBorderTurn
 	// modelMatrix = mat4.create()
@@ -665,7 +694,7 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	opensceneDeep.isPhoneAnimationDone = renderToPhoneTexture(deltaTimeInc)
 
 	//Cubemap
-	// renderCubemapDeep(perspectiveMatrix, camMatrix, 0)
+	renderCubemapDeep(perspectiveMatrix, camMatrix, 0, Math.min(opensceneDeep.oceanColorInter, 1.0))
 
 	gl.useProgram(progCompleteLight.program)
 	resetCompleteLight()
@@ -694,11 +723,13 @@ function renderForCloseSceneDeep(perspectiveMatrix, camMatrix, viewPos, deltaTim
 	// renderForKaiIdleDeep(perspectiveMatrix, viewMatrix, lightSources[0])
 
 	modelMatrix = mat4.create()
+	var oceanColor = vec3.create()
+	vec3.lerp(oceanColor, [0.0, 0.1, 0.2], [3.0, 0.9, 0.0], Math.min(opensceneDeep.oceanColorInter, 1.0))
 	mat4.translate(modelMatrix, modelMatrix, [-(200.0 + opensceneDeepConsts.roadWidth), -10.0, -100.0])
-	renderForOceanDeep(perspectiveMatrix, camMatrix, viewPos, modelMatrix, [0.0, 0.1, 0.2], [1.0, 0.5, 0.0])
+	renderForOceanDeep(perspectiveMatrix, camMatrix, viewPos, modelMatrix, oceanColor, [1.0, 0.5, 0.0])
 
 	modelMatrix = mat4.create()
 	mat4.translate(modelMatrix, modelMatrix, [-20.0, 0.0, -42.0])
 	mat4.rotate(modelMatrix, modelMatrix, Math.PI / 2.0, [0.0, 1.0, 0.0])
-	renderForDeepFire(perspectiveMatrix, camMatrix, modelMatrix)
+	renderForDeepFire(perspectiveMatrix, camMatrix, modelMatrix, Math.floor(opensceneDeep.fireCount))
 }

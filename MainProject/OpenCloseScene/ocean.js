@@ -37,8 +37,8 @@ const oceanDeepConst = {
 	SIZE_OF_FLOAT: 4,
 	GEOMETRY_ORIGIN: [-200.0, -200.0],
 	SUN_DIRECTION: [-1.0, 1.0, 1.0],
-	OCEAN_COLOR: [0.04, 0.016, 0.47],
-	SKY_COLOR: [0.7, 0.8, 1.0],
+	OCEAN_COLOR: [0.004, 0.016, 0.047],
+	SKY_COLOR: [3.2, 9.6, 12.8],
 	EXPOSURE: 0.15,
 	GEOMETRY_RESOLUTION: 256,
 	GEOMETRY_SIZE: 400,
@@ -66,8 +66,8 @@ var createTextureFromParams = function(internalFormat, format, type, width, heig
 
 function setupProgramForOceanDeep() {
 	oceanDeep.wind = [6.0, 0.0]
-	oceanDeep.choppiness = 1.5
-	oceanDeep.size = 100
+	oceanDeep.choppiness = 0.5
+	oceanDeep.size = 300
 
 	var fullscreenVertexShader = createShader('OpenCloseScene/shaders/fullscreen.vert', gl.VERTEX_SHADER)
 

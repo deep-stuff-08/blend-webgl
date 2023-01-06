@@ -16,7 +16,7 @@ var fireDeep = {
 	fireFbo: null,
 	fireTex: null,
 	fireRainPosVbo: null,
-	pointCount: 100,
+	pointCount: 1000,
 	fireRainVao: null,
 	emptyVao: null,
 }
@@ -58,7 +58,7 @@ function initForFire() {
 	}
 
 	for(var i = 0; i < fireDeep.pointCount; i++) {
-		fireDeep.debugPositionArray.push([Math.random() * 10.0 - 5.0, 5.0, Math.random() * 10.0 - 5.0])
+		fireDeep.debugPositionArray.push([Math.random() * 15.0 - 7.5, 15.0, Math.random() * 15.0 - 7.5])
 		fireDeep.speedArray.push(Math.random() * 0.01 + 0.005)
 	}
 
@@ -109,15 +109,16 @@ function renderFireForDeepFire() {
 	time += 0.005
 }
 
-function renderQuad(perspectiveMatrix, viewMatrix, modelMat) {
+function renderQuad(perspectiveMatrix, viewMatrix, modelMat, count) {
 	gl.useProgram(fireDeep.progTexture)
 	gl.bindBuffer(gl.ARRAY_BUFFER, fireDeep.fireRainPosVbo)
-	for(var i = 0; i < fireDeep.pointCount; i++) {
+	count = Math.min(count, fireDeep.pointCount)
+	for(var i = 0; i < count; i++) {
 		fireDeep.debugPositionArray[i][1] -= fireDeep.speedArray[i]
 		if(fireDeep.debugPositionArray[i][1] < -3.0) {
-			fireDeep.debugPositionArray[i][0] = Math.random() * 10.0 - 5.0
-			fireDeep.debugPositionArray[i][2] = Math.random() * 10.0 - 5.0
-			fireDeep.debugPositionArray[i][1] = 5.0
+			fireDeep.debugPositionArray[i][0] = Math.random() * 15.0 - 7.5
+			fireDeep.debugPositionArray[i][2] = Math.random() * 15.0 - 7.5
+			fireDeep.debugPositionArray[i][1] = 15.0
 		}
 	}
 	// fireDeep.debugPositionArray.sort((a, b) => a[2] - b[2])
@@ -135,7 +136,7 @@ function renderQuad(perspectiveMatrix, viewMatrix, modelMat) {
 	gl.drawArraysInstanced(gl.TRIANGLES, 0, 120, fireDeep.pointCount)
 }
 
-function renderForDeepFire(perspectiveMatrix, viewMatrix, modelMat) {
+function renderForDeepFire(perspectiveMatrix, viewMatrix, modelMat, count) {
 	var currentFbo = gl.getParameter(gl.FRAMEBUFFER_BINDING)
 	var currentViewport = gl.getParameter(gl.VIEWPORT)
 
@@ -147,6 +148,6 @@ function renderForDeepFire(perspectiveMatrix, viewMatrix, modelMat) {
 	gl.viewport(currentViewport[0], currentViewport[1], currentViewport[2], currentViewport[3])
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	gl.enable(gl.BLEND)
-	renderQuad(perspectiveMatrix, viewMatrix, modelMat)
+	renderQuad(perspectiveMatrix, viewMatrix, modelMat, count)
 	gl.disable(gl.BLEND)
 }

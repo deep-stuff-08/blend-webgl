@@ -43,7 +43,8 @@ var controlVariables = {
 	timeElapsedSinceSceneEnded: 0.0,
 	timeToPause: 0.0,
 	isPausing: false,
-	fade: 1.0
+	fade: 1.0,
+	isKeyPressed: false
 }
 
 var textual = {
@@ -243,7 +244,10 @@ function main() {
 			if(!controlVariables.debugMode) {
 				controlVariables.renderScene = (controlVariables.renderScene + 1) % (SceneEnum.SpecialThanks + 1)
 			}
-		} else if(event.code == 'KeyO') {
+		} else if(event.code == 'KeyY') {
+			controlVariables.isKeyPressed = true;
+		} 
+		else if(event.code == 'KeyO') {
 			placementHelp.sca += 0.01
 		} else if(event.code == 'KeyU') {
 			placementHelp.sca -= 0.01
@@ -564,7 +568,7 @@ function render(time) {
 	break
 	case SceneEnum.CloseScene:
 		renderForCloseSceneDeep(perspectiveMatrix, cameraMatrix, cameraPosition, deltaTime)
-		camSplinePosition += updateCamPosForCloseSceneDeep(sceneCamera, camSplinePosition)
+		camSplinePosition += updateCamPosForCloseSceneDeep(sceneCamera, camSplinePosition, controlVariables.isKeyPressed)
 		if(controlVariables.timeElapsedSinceSceneStarted < 10.5) {
 			camSplinePosition = 0.00001;
 		}
