@@ -786,6 +786,7 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	HospitalSceneObjects.mECGScreen.render()
 
 	//laptop screen texture
+	setEmissiveCompleteLight()
 	mat2.identity(texMat)
 	setTextureMatrixCompleteLight(texMat)
 	mat4.identity(modelMatrix);
@@ -800,6 +801,7 @@ function renderForSceneTwo(time , perspectiveMatrix, viewMatrix, viewPos) {
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, HospitalSceneObjects.texFacebook);
 	HospitalSceneObjects.mScreen.render();
+	unsetEmissiveCompleteLight()
 
 	mat4.identity(modelMatrix);
 	mat4.translate(modelMatrix, modelMatrix, [-4.0,-3.5,13.0]);
