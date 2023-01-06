@@ -34,6 +34,7 @@ uniform light_t light[13];
 uniform int numOfLights;
 
 uniform bool isEmissive;
+uniform float emissiveScale;
 
 uniform sampler2D samplerDiffuse;
 
@@ -81,6 +82,6 @@ void main(void) {
 	}
 	FragColor = vec4(color, alpha);
 	if(isEmissive) {
-		EmitColor = vec4(color, 1.0) * 1.2;
+		EmitColor = vec4(color, 1.0) * emissiveScale;
 	}
 }

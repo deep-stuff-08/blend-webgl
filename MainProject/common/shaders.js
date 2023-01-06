@@ -45,6 +45,7 @@ var progCompleteLight = {
 		isTexture: null,
 		isBlend: null,
 		isEmissive: null,
+		emissiveScale: null,
 		material: {
 			ambient: null,
 			diffuse: null,
@@ -67,6 +68,7 @@ var progCompleteLight = {
 		isTexture: null,
 		isBlend: null,
 		isEmissive: null,
+		emissiveScale: null,
 		material: {
 			ambient: null,
 			diffuse: null,
@@ -141,7 +143,8 @@ function setupCommonPrograms() {
 	progCompleteLight.uniforms.isTexture = gl.getUniformLocation(progCompleteLight.program, "isTexture")
 	progCompleteLight.uniforms.isBlend = gl.getUniformLocation(progCompleteLight.program, "isBlend")
 	progCompleteLight.uniforms.isEmissive = gl.getUniformLocation(progCompleteLight.program, "isEmissive")
-	
+	progCompleteLight.uniforms.emissiveScale = gl.getUniformLocation(progCompleteLight.program, "emissiveScale")
+
 	progCompleteLight.uniforms.material.ambient = gl.getUniformLocation(progCompleteLight.program, "material.ambient")
 	progCompleteLight.uniforms.material.diffuse = gl.getUniformLocation(progCompleteLight.program, "material.diffuse")
 	progCompleteLight.uniforms.material.specular = gl.getUniformLocation(progCompleteLight.program, "material.specular")
@@ -187,6 +190,7 @@ function setupCommonPrograms() {
 	progCompleteLight.uniformsModel.isTexture = gl.getUniformLocation(progCompleteLight.programModel, "isTexture")
 	progCompleteLight.uniformsModel.isBlend = gl.getUniformLocation(progCompleteLight.programModel, "isBlend")
 	progCompleteLight.uniformsModel.isEmissive = gl.getUniformLocation(progCompleteLight.programModel, "isEmissive")
+	progCompleteLight.uniformsModel.emissiveScale = gl.getUniformLocation(progCompleteLight.programModel, "emissiveScale")
 	
 	progCompleteLight.uniformsModel.material.ambient = gl.getUniformLocation(progCompleteLight.programModel, "material.ambient")
 	progCompleteLight.uniformsModel.material.diffuse = gl.getUniformLocation(progCompleteLight.programModel, "material.diffuse")
@@ -228,6 +232,8 @@ function resetCompleteLight() {
 	gl.uniform1i(progCompleteLight.uniforms.isTexture, 0)
 	gl.uniform1i(progCompleteLight.uniforms.isEmissive, 0)
 
+	gl.uniform1f(progCompleteLight.uniforms.emissiveScale, 1.0)
+
 	gl.uniform3f(progCompleteLight.uniforms.material.ambient, 0.0, 0.0, 0.0)
 	gl.uniform3f(progCompleteLight.uniforms.material.diffuse, 0.0, 0.0, 0.0)
 	gl.uniform3f(progCompleteLight.uniforms.material.specular, 0.0, 0.0, 0.0)
@@ -260,6 +266,7 @@ function resetCompleteLightModel() {
 	progCompleteLight.currentLightModel = 0
 	gl.uniform1i(progCompleteLight.uniformsModel.isTexture, 0)
 	gl.uniform1i(progCompleteLight.uniforms.isEmissive, 0)
+	gl.uniform1f(progCompleteLight.uniforms.emissiveScale, 1.0)
 
 	gl.uniform3f(progCompleteLight.uniformsModel.material.ambient, 0.0, 0.0, 0.0)
 	gl.uniform3f(progCompleteLight.uniformsModel.material.diffuse, 0.0, 0.0, 0.0)
@@ -279,8 +286,10 @@ function resetCompleteLightModel() {
 	}
 }
 
-function setEmissiveCompleteLight() {
+function setEmissiveCompleteLight(emissiveScale) {
+	emissiveScale = emissiveScale == undefined ? 1.0 : emissiveScale
 	gl.uniform1i(progCompleteLight.uniforms.isEmissive, 1)
+	gl.uniform1f(progCompleteLight.uniforms.emissiveScale, emissiveScale)
 }
 
 function unsetEmissiveCompleteLight() {
