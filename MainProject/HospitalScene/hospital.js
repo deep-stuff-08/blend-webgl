@@ -546,7 +546,7 @@ function initForSceneTwo() {
 	testMat = new material();
 	testMat.texID.push(textureForm);
 	testMat.texType.push(1);
-	HospitalSceneObjects.mPad.meshes[2].setMaterial(testMat);
+	HospitalSceneObjects.mPad.meshes[1].setMaterial(testMat);
 	// console.log(mPad);
 
 	// Light Setups
