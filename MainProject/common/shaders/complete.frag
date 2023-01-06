@@ -81,6 +81,6 @@ void main(void) {
 	}
 	FragColor = vec4(color, alpha);
 	if(isEmissive) {
-		EmitColor = vec4(1.0);
+		EmitColor = vec4(color, 1.0) * 1.2;
 	}
 }

@@ -71,7 +71,11 @@ function main() {
 			vec3.subtract(cameraPosition, cameraPosition, dir)
 		}
 	})
-	
+	gl.getExtension("EXT_color_buffer_float")
+	gl.getExtension("EXT_float_blend")
+	gl.getExtension("OES_texture_float_linear")
+
+
 	setupProgram();
 	init();
 	render();

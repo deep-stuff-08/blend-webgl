@@ -66,6 +66,7 @@ var progCompleteLight = {
 		numLights: null,
 		isTexture: null,
 		isBlend: null,
+		isEmissive: null,
 		material: {
 			ambient: null,
 			diffuse: null,
@@ -185,6 +186,7 @@ function setupCommonPrograms() {
 	progCompleteLight.uniformsModel.numLights = gl.getUniformLocation(progCompleteLight.programModel, "numOfLights")
 	progCompleteLight.uniformsModel.isTexture = gl.getUniformLocation(progCompleteLight.programModel, "isTexture")
 	progCompleteLight.uniformsModel.isBlend = gl.getUniformLocation(progCompleteLight.programModel, "isBlend")
+	progCompleteLight.uniformsModel.isEmissive = gl.getUniformLocation(progCompleteLight.programModel, "isEmissive")
 	
 	progCompleteLight.uniformsModel.material.ambient = gl.getUniformLocation(progCompleteLight.programModel, "material.ambient")
 	progCompleteLight.uniformsModel.material.diffuse = gl.getUniformLocation(progCompleteLight.programModel, "material.diffuse")
@@ -257,6 +259,7 @@ function resetCompleteLightModel() {
 	gl.uniform1i(progCompleteLight.uniformsModel.numLights, 0)
 	progCompleteLight.currentLightModel = 0
 	gl.uniform1i(progCompleteLight.uniformsModel.isTexture, 0)
+	gl.uniform1i(progCompleteLight.uniforms.isEmissive, 0)
 
 	gl.uniform3f(progCompleteLight.uniformsModel.material.ambient, 0.0, 0.0, 0.0)
 	gl.uniform3f(progCompleteLight.uniformsModel.material.diffuse, 0.0, 0.0, 0.0)
