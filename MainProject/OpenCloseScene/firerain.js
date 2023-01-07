@@ -121,7 +121,7 @@ function renderQuad(perspectiveMatrix, viewMatrix, modelMat, count) {
 			fireDeep.debugPositionArray[i][1] = 15.0
 		}
 	}
-	// fireDeep.debugPositionArray.sort((a, b) => a[2] - b[2])
+
 	gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(fireDeep.debugPositionArray.flat()))
 	gl.bindBuffer(gl.ARRAY_BUFFER, null)
 	var mMat = mat4.clone(modelMat)
