@@ -14,8 +14,8 @@ const SceneEnum = {
 	HospitalScene: 4,
 	BedroomScene: 5,
 	CloseScene: 6,
-	Title: 7,
-	GuruDutt: 8,
+	GuruDutt: 7,
+	Title: 8,
 	Credits: 9,
 	TechnicalSpecs: 10,
 	SpecialEffects: 11,
@@ -614,8 +614,8 @@ function render(time) {
 		}
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
-	case SceneEnum.Title:
-		renderForTextKdeshTitle();
+	case SceneEnum.GuruDutt:
+		renderForTextKdeshGuruDutt();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
 		}
@@ -628,8 +628,8 @@ function render(time) {
 		}
 		controlVariables.timeElapsedSinceSceneStarted += deltaTime * 0.0003;
 	break
-	case SceneEnum.GuruDutt:
-		renderForTextKdeshGuruDutt();
+	case SceneEnum.Title:
+		renderForTextKdeshTitle();
 		if(controlVariables.timeElapsedSinceSceneStarted < 1.0) {
 			camSplinePosition = 0.00001;
 		}
