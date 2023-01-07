@@ -70,8 +70,8 @@ function initForDeepFire() {
 		debugPositionArray.push([Math.random() * 2.0 - 1.0, 3.0, Math.random() * 2.0 - 1.0])
 		speedArray.push(Math.random() * 0.01 + 0.005)
 	}
-	fireDeep.fireRainVao = gl.createVertexArray()
-	gl.bindVertexArray(fireDeep.fireRainVao)
+	fireRainVao = gl.createVertexArray()
+	gl.bindVertexArray(fireRainVao)
 	var vbo = gl.createBuffer()
 	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(circlePos), gl.STATIC_DRAW)
@@ -106,7 +106,7 @@ function renderFireForDeepFire() {
 	gl.uniform2f(resolutionUniform, 1024, 1024)
 	gl.uniform1f(timeUniform, time)
 
-	gl.bindVertexArray(fireDeep.fireRainVao)
+	gl.bindVertexArray(fireRainVao)
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 	time += 0.005
 }
@@ -117,18 +117,22 @@ function renderQuad(perspectiveMatrix, viewMatrix) {
 	for(var i = 0; i < 10; i++) {
 		debugPositionArray[i][1] -= speedArray[i]
 		if(debugPositionArray[i][1] < -3.0) {
-			debugPositionArray[i][0] = Math.random() * 6.0 - 3.0
+			debugPositionArray[i][0] = Math.random() * 1.0 - 0.5
 			debugPositionArray[i][2] = Math.random() * 6.0 - 3.0
 			debugPositionArray[i][1] = 3.0
 		}
 	}
+	var func = function(a, b) {
+		return a[2]-b[2]
+	}
+	debugPositionArray.sort(func)
 	gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(debugPositionArray.flat()))
 	var mMat = mat4.create()
 	mat4.scale(mMat, mMat, [0.7 * 0.1, 2.0 * 0.1, 1.0]) 
 	gl.uniformMatrix4fv(pUniform, false, perspectiveMatrix)
 	gl.uniformMatrix4fv(vUniform, false, viewMatrix)
 	gl.uniformMatrix4fv(mUniform, false, mMat)
-	gl.bindVertexArray(fireDeep.fireRainVao)
+	gl.bindVertexArray(fireRainVao)
 	gl.uniform1i(fireTextureUniform, 0)
 	gl.activeTexture(gl.TEXTURE0)
 	gl.bindTexture(gl.TEXTURE_2D, texFireForDeepFire)

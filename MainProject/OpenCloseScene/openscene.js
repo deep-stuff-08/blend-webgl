@@ -270,7 +270,7 @@ function updateCamPosForCloseSceneDeep(camera, splinePosition, log) {
 			return 0.0002
 		case 2:
 			opensceneDeep.phoneY -= 0.01
-			if(position > 0.1) {
+			if(position > 0.25) {
 				opensceneDeep.startFire = true
 			}
 			if(position > 0.4) {
